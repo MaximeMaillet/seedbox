@@ -1,0 +1,12 @@
+version: '3'
+services:
+  rtorrent:
+    build: .
+    restart: always
+    ports:
+      - 8092:80
+    volumes:
+      - ${STORAGE}/downloaded:/var/rtorrent/downloaded
+      - ${STORAGE}/torrent:/var/rtorrent/torrents
+      - ${STORAGE}/logs:/var/rtorrent/logs
+    tty: true
