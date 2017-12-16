@@ -1,0 +1,18 @@
+version: '3'
+services:
+  rtorrent:
+    image: rtorrent-daemon:0.0.1
+    restart: always
+    volumes:
+      - ${STORAGE}/downloaded:/var/rtorrent/downloaded
+      - ${STORAGE}/torrent:/var/rtorrent/torrents
+      - ${STORAGE}/logs:/var/rtorrent/logs
+    ports:
+      - "8888:80"
+
+  mongo:
+    image: mongo:latest
+    volumes:
+      - ${STORAGE}/mongo:/data/db
+    ports:
+      - "27017:27017"

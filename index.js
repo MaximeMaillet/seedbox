@@ -6,30 +6,28 @@ const dListener = {
 	 * @param torrent
 	 */
 	onInsert: function(torrent) {
-		console.log('client Event insert %s', torrent.hash);
+		// console.log('client Event insert %s', torrent.hash);
 	},
 	/**
 	 * Function called when torrent is uploading
 	 * @param torrent
 	 */
 	onUpload: function(torrent) {
-		console.log('client event uploaded %s', torrent.hash);
-		console.log(torrent);
+		// console.log('client event uploaded %s', torrent.hash);
 	},
 	/**
 	 * Function called when torrent is downloading
 	 * @param torrent
 	 */
 	onDownload: function(torrent) {
-		console.log('client event download %s', torrent.hash);
-		console.log(torrent);
+		//console.log(torrent.name);
 	},
 	/**
 	 * Function called when torrent is finished
 	 * @param torrent
 	 */
 	onFinished: function(torrent) {
-		console.log('client event on finished %s', torrent.hash);
+		// console.log('client event on finished %s', torrent.hash);
 	}
 };
 
