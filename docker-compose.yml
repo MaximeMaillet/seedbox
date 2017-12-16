@@ -1,7 +1,7 @@
 version: '3'
 services:
   rtorrent:
-    build: .
+    build: ./Docker/
     restart: always
     ports:
       - 8092:80
@@ -11,3 +11,12 @@ services:
       - ${STORAGE}/logs:/var/rtorrent/logs
       - ./Docker/rtorrent:/home/torrent
     tty: true
+
+#  dtorrent:
+#    build: .
+#    environment:
+#      RTORRENT_HOST: 'rtorrent'
+#      RTORRENT_PORT: 80
+#      RTORRENT_PATH: '/RPC2'
+#    links:
+#      - rtorrent
