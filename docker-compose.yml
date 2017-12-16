@@ -1,27 +1,24 @@
 version: '3'
 services:
   rtorrent:
-    build: ./Docker/
+    image: rtorrent-daemon:0.0.1
     restart: always
-    ports:
-      - 8092:80
     volumes:
       - ${STORAGE}/downloaded:/var/rtorrent/downloaded
       - ${STORAGE}/torrent:/var/rtorrent/torrents
       - ${STORAGE}/logs:/var/rtorrent/logs
-      - ./Docker/rtorrent:/home/torrent
-    tty: true
 
   mongo:
     image: mongo:latest
-    ports:
-      - "27017:27017"
 
-#  dtorrent:
-#    build: .
-#    environment:
-#      RTORRENT_HOST: 'rtorrent'
-#      RTORRENT_PORT: 80
-#      RTORRENT_PATH: '/RPC2'
-#    links:
-#      - rtorrent
+  dtorrent:
+    build: .
+    environment:
+      RTORRENT_HOST: 'rtorrent'
+      RTORRENT_PORT: 80
+      RTORRENT_PATH: '/RPC2'
+      MONGO_HOST: 'mongo'
+      MONGO_PORT: 27017
+    links:
+      - rtorrent
+      - mongo

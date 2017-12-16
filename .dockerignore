@@ -1,9 +1,4 @@
-Docker
 .data
-.env
-.env.dist
-.eslintrc.json
-.gitignore
 .git
 .nvmrc
 Dockerfile

@@ -9,12 +9,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "ssh://git@gitlab.deuxmax.fr:22022/torrent/deamon-torrent.git"
+    "url": "ssh://git@gitlab.deuxmax.fr/torrent/deamon-torrent.git"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "dotenv": "^4.0.0",
-    "dtorrent": "git+ssh://git@gitlab.deuxmax.fr/2Max/dtorrent.git"
+    "dtorrent": "git+ssh://git@gitlab.deuxmax.fr/torrent/dtorrent.git"
   }
 }
