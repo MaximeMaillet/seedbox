@@ -27,7 +27,13 @@ check_hash = yes
 schedule = watch_directory,15,15,load_start=/var/rtorrent/torrents/*.torrent
 
 # Dès que le téléchargement est achevé, le fichier est déplacé dans le répertoire .
-system.method.set_key = event.download.finished,move_complete,"execute=mv,-u,$d.get_base_path=,/var/rtorrent/downloaded/;d.set_directory=~/torrent_finis/"
+system.method.set_key = event.download.finished,move_complete,"execute=mv,-u,$d.get_base_path=,/var/rtorrent/downloaded/"
+
+system.method.set_key = event.download.inserted_new,notify_new,"execute=/home/torrent/event_new.sh"
+system.method.set_key = event.download.erased,notify_erased,"execute=/home/torrent/event_erased.sh"
+system.method.set_key = event.download.paused,notify_paused,"execute=/home/torrent/event_paused.sh"
+system.method.set_key = event.download.resumed,notify_resumed,"execute=/home/torrent/event_resumed.sh"
+
 
 # Activation de DHT pour les torrents sans trackers.
 # Il est obligatoire de définir un répertoire de session (voir plus haut).
@@ -42,4 +48,4 @@ encryption = allow_incoming,require,require_rc4
 
 log.open_file = "rtorrent", /var/rtorrent/logs/rtorrent.log
 
-scgi_port = 127.0.0.1:5001
+scgi_port = localhost:5001

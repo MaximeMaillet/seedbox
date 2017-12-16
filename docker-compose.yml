@@ -9,4 +9,5 @@ services:
       - ${STORAGE}/downloaded:/var/rtorrent/downloaded
       - ${STORAGE}/torrent:/var/rtorrent/torrents
       - ${STORAGE}/logs:/var/rtorrent/logs
+      - ./Docker/rtorrent:/home/torrent
     tty: true

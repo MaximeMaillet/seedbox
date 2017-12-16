@@ -13,6 +13,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "dtorrent": "git+ssh://git@gitlab.deuxmax.fr:22022/2Max/dtorrent.git"
+    "dotenv": "^4.0.0",
+    "dtorrent": "git+ssh://git@gitlab.deuxmax.fr:22022/2Max/dtorrent.git",
+    "xmlrpc-es6-promise": "^1.4.2"
   }
 }
