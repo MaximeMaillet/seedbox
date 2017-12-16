@@ -12,6 +12,11 @@ services:
       - ./Docker/rtorrent:/home/torrent
     tty: true
 
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+
 #  dtorrent:
 #    build: .
 #    environment:

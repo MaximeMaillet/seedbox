@@ -14,6 +14,7 @@ const dListener = {
 	 */
 	onUpload: function(torrent) {
 		console.log('client event uploaded %s', torrent.hash);
+		console.log(torrent);
 	},
 	/**
 	 * Function called when torrent is downloading
@@ -21,6 +22,7 @@ const dListener = {
 	 */
 	onDownload: function(torrent) {
 		console.log('client event download %s', torrent.hash);
+		console.log(torrent);
 	},
 	/**
 	 * Function called when torrent is finished
