@@ -24,3 +24,15 @@ services:
     links:
       - rtorrent
       - mongo
+
+  maria:
+    image: mariadb:10.1.23
+    ports:
+      - 127.0.0.1:3306:3306
+    volumes:
+      - ${STORAGE_PATH}/mariadb:/var/lib/mysql
+    environment:
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}

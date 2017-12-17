@@ -1,34 +1,12 @@
 const dtorrent = require('dtorrent');
+const api = require('./src/api');
 
-const dListener = {
-	/**
-	 * Function called when torrent is inserted
-	 * @param torrent
-	 */
-	onInsert: function(torrent) {
-		// console.log('client Event insert %s', torrent.hash);
-	},
-	/**
-	 * Function called when torrent is uploading
-	 * @param torrent
-	 */
-	onUpload: function(torrent) {
-		// console.log('client event uploaded %s', torrent.hash);
-	},
-	/**
-	 * Function called when torrent is downloading
-	 * @param torrent
-	 */
-	onDownload: function(torrent) {
-		//console.log(torrent.name);
-	},
-	/**
-	 * Function called when torrent is finished
-	 * @param torrent
-	 */
-	onFinished: function(torrent) {
-		// console.log('client event on finished %s', torrent.hash);
-	}
-};
+const express = require('express');
+const app = express();
 
-dtorrent.start(dListener);
+dtorrent.useExpress(app);
+dtorrent.start();
+
+api(app);
+
+app.listen(process.env.API_PORT);
