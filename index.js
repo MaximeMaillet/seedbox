@@ -1,6 +1,8 @@
+'use strict';
+
 const dtorrent = require('dtorrent');
-const api = require('./src/api');
 const express = require('express');
+const auth = require('2max-express-authenticate');
 
 const app = express();
 
@@ -19,9 +21,39 @@ app.use((req, res, next) => {
 	next();
 });
 
-dtorrent.useExpress(app);
-dtorrent.start();
-
-api(app);
+main(app);
 
 app.listen(process.env.API_PORT);
+
+/**
+ * Enable dTorrent
+ * @param app
+ */
+function enableDtorrent(app) {
+	/**
+	 * Enable api
+	 */
+	dtorrent.enableExpressApi(app);
+
+	/**
+	 * Enable listener
+	 */
+	dtorrent.start();
+}
+
+async function main(app) {
+	const util = await auth(app, {
+		'persistence': {
+			'host': process.env.MYSQL_HOST,
+			'user': process.env.MYSQL_USER,
+			'password': process.env.MYSQL_PASSWORD,
+			'database': process.env.MYSQL_DATABASE,
+			'dialect': 'mysql'
+		}
+	});
+	util.secure([
+		'/auth'
+	]);
+
+	// enableDtorrent(app);
+}
