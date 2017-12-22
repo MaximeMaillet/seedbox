@@ -10,4 +10,6 @@ RUN chown -R node. /var/app
 
 USER node
 
+RUN npm i
+
 CMD ["npm", "start"]

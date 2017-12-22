@@ -3,3 +3,6 @@
 .nvmrc
 Dockerfile
 docker-compose.yml
+dtorrent
+express-authenticate
+node_modules
