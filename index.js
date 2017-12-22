@@ -55,5 +55,11 @@ async function main(app) {
 		'/auth'
 	]);
 
-	// enableDtorrent(app);
+	app.use((req, res, next) => {
+		console.log(req.url);
+		console.log(req.method);
+		next();
+	});
+
+	enableDtorrent(app);
 }
