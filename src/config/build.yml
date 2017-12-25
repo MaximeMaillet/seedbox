@@ -1,0 +1,13 @@
+css:
+  - 'node_modules/bootstrap/dist/css/*.min.css'
+  - 'node_modules/angular-ui-bootstrap/dist/*.css'
+  - 'node_modules/font-awesome/css/*.min.css'
+
+js:
+  - 'node_modules/angular/*.min.js'
+  - 'node_modules/jquery/dist/*.min.js'
+  - 'node_modules/angular-ui-bootstrap/dist/*.js'
+  - 'node_modules/bootstrap-notify/*.min.js'
+
+fonts:
+  - 'node_modules/font-awesome/fonts/*'

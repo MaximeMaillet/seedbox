@@ -1,0 +1,23 @@
+<div class="row">
+    <div class="col-md-9">
+        <uib-progressbar
+                ng-class="{'progress-striped': !bind.is_finished, 'active': bind.playing}"
+                value="bind.progress"
+                max="100"
+                type="{{bind.is_finished && 'success' || 'info' }}">
+            {{ bind.name }}
+        </uib-progressbar>
+        <small class="pull-right">Uploaded : {{ (bind.mb_uploaded/(1024*1024)) | number:2 }} Mo</small>
+        <small class="pull-left">Downloaded : {{ (bind.mb_downloaded/(1024*1024)) | number:2}} / {{ (bind.mb_total/(1024*1024))  | number:2}} Mo</small>
+        <br>
+        <small class="pull-right">Leechers : {{ bind.nb_leechers }}</small>
+        <small class="pull-left">Seeders : {{ bind.nb_seeders }}</small>
+        <br>
+        <small>Ratio : {{ bind.ratio }}</small>
+    </div>
+    <div class="col-md-3 text-right">
+        <button class="btn btn-primary btn-success" ng-click="playTorrent()" ng-if="!bind.is_active"><i class="fa fa-play" aria-hidden="true"></i></button>
+        <button class="btn btn-primary btn-warning" ng-click="pauseTorrent()" ng-if="bind.is_active"><i class="fa fa-pause" aria-hidden="true"></i></button>
+        <button class="btn btn-primary btn-danger" ng-click="removeTorrent()"><i class="fa fa-times" aria-hidden="true"></i></button>
+    </div>
+</div>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="dragNTorrent">
+<head>
+    <meta charset="UTF-8">
+    <title>dTorrent 0.0.2</title>
+    <link rel="stylesheet" href="static/css/script.min.css" />
+    <link rel="stylesheet" href="static/css/main.css" />
+    <script src="static/js/script.min.js"></script>
+</head>
+<body ng-controller="MainCtrl">
+    <header ng-controller="connectionListenerController">
+        <div class="pull-right">
+            <button
+                class="btn btn-dtorrent"
+                ng-class="{connected: listenerConnected, disconnected: !listenerConnected}"
+                ng-click="connectListener()"
+                ng-disabled="listenerConnected">
+                <i class="fa fa-plug" aria-hidden="true"></i>
+            </button>
+            <a href="/logout" class="btn btn-dtorrent">
+                <i class="fa fa-sign-out"></i>
+            </a>
+        </div>
+        {{ title }} {{ user.username }}
+    </header>
+
+    <section class="loaded" ng-if="loaded_in_progress">
+        <i class="fa fa-spinner fa-spin"></i>
+    </section>
+
+    <section class="noloaded" ng-if="!loaded_in_progress && !loaded_done">
+        <p ng-if="connection_attempts < 5" ng-bind="noloaded_message"></p>
+        <p ng-if="connection_attempts >= 5">
+            N'abuse pas quand même !<br>
+            <small>
+                <time ng-bind="seconde_before_new_connect"></time> secondes avant nouvel essai
+            </small>
+        </p>
+        <p>
+            <button class="btn btn-primary btn-danger" ng-click="connect()" ng-if="connection_attempts < 5">Reconnect</button>
+        </p>
+    </section>
+
+    <section class="row" ng-if="!loaded_in_progress && loaded_done">
+        <div class="col-xs-4 hide">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="panel">
+                        <div class="panel-heading">
+                            <strong>Drag and drop yout torrent's files</strong>
+                        </div>
+                        <div class="panel-body">
+                            <upload
+                                    tr-action="addTorrent(torrent)"
+                                    ng-model="user.token"
+                                    tp=".">
+                            </upload>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="panel panel panel-info">
+                        <div class="panel-heading">
+                            <strong>State server</strong>
+                        </div>
+                        <div class="panel-body">
+                            Todo
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-xs-12" ng-controller="torrentListController">
+            <div class="panel">
+                <div class="panel-heading">
+                    <strong><i class="fa fa-download" aria-hidden="true"></i> About my torrents</strong>
+                </div>
+                <div class="panel-body">
+                    <ul class="list-group">
+                        <li class="list-group-item" ng-repeat="data in torrents">
+                            <torrent bind="data"></torrent>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script src="static/js/app.min.js"></script>
+</body>
+</html>

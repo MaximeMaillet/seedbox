@@ -1,30 +1,32 @@
 version: '3'
 services:
-  dtorrent:
-    build: .
-    environment:
-      RTORRENT_HOST: rtorrent
-      RTORRENT_PORT: 80
-      RTORRENT_PATH: /RPC2
-      MONGO_HOST: mongo
-      MONGO_PORT: 27017
-      API_PORT: ${API_PORT}
-      API_WEBSOCKET: 1
-      MYSQL_HOST: maria
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-    ports:
-      - 8080:${API_PORT}
-    links:
-      - mongo
-      - maria
-      - rtorrent
+#  dtorrent:
+#    build: .
+#    environment:
+#      RTORRENT_HOST: rtorrent
+#      RTORRENT_PORT: 80
+#      RTORRENT_PATH: /RPC2
+#      MONGO_HOST: mongo
+#      MONGO_PORT: 27017
+#      API_PORT: ${API_PORT}
+#      API_WEBSOCKET: 1
+#      MYSQL_HOST: maria
+#      MYSQL_USER: ${MYSQL_USER}
+#      MYSQL_DATABASE: ${MYSQL_DATABASE}
+#      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+#      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+#    ports:
+#      - 8080:${API_PORT}
+#    links:
+#      - mongo
+#      - maria
+#      - rtorrent
 
   rtorrent:
     image: ${IMAGE_RTORRENT_DEAMON}
     restart: always
+    ports:
+      - ${RTORRENT_PORT}:80
     volumes:
       - ${STORAGE}/dtorrent/downloaded:/var/rtorrent/downloaded
       - ${STORAGE}/dtorrent/torrent:/var/rtorrent/torrents
@@ -32,11 +34,15 @@ services:
 
   mongo:
     image: mongo:latest
+    ports:
+      - 27017:${MONGO_PORT}
     volumes:
       - ${STORAGE}/mongo:/data/db
 
   maria:
     image: mariadb:10.1.23
+    ports:
+      - 3306:3306
     volumes:
       - ${STORAGE}/mariadb:/var/lib/mysql
     environment:

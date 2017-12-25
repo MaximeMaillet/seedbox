@@ -1,29 +1,65 @@
+require('dotenv').config();
 'use strict';
 
 const dtorrent = require('dtorrent');
 const express = require('express');
 const auth = require('2max-express-authenticate');
+const bodyParser = require('body-parser');
+const nunjucks = require('nunjucks');
 
 const app = express();
 
-/**
- * Allow Cros origin
- */
-app.use((req, res, next) => {
-	const allowedOrigins = ['http://localhost:3000', 'http://localhost:3737'];
-	const {origin} = req.headers;
-	if(allowedOrigins.indexOf(origin) > -1){
-		res.setHeader('Access-Control-Allow-Origin', origin);
-	}
-	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-	res.setHeader('Access-Control-Allow-Credentials', true);
+async function main(app) {
 
-	next();
-});
+	const util = await auth(app, {
+		'persistence': {
+			'host': process.env.MYSQL_HOST,
+			'user': process.env.MYSQL_USER,
+			'password': process.env.MYSQL_PASSWORD,
+			'database': process.env.MYSQL_DATABASE,
+			'dialect': 'mysql'
+		}
+	});
+	util.ignore([
+	]);
+	util.secure([
+		'/'
+	], {
+		'redirect': '/login'
+	});
+	util.override({
+		'login': (req, res) => {
+			res.redirect('/');
+		},
+		'logout': (req, res) => {
+			res.redirect('/login');
+		},
+		'signup': (req, res) => {
+			res.redirect('/');
+		}
+	});
+
+	enableDtorrent(app);
+
+	const prefix = '';
+	nunjucks.configure(`${__dirname}/src/html`, {
+		autoescape: true,
+		express: app,
+	});
+
+	app.use(`${prefix}/static`, express.static(`${__dirname}/public`));
+	app.use(`${prefix}/uib`, express.static(`${__dirname}/node_modules/angular-ui-bootstrap`));
+	app.get('/login', (req, res) => {
+		res.render('login.html', { title: 'Hey', message: 'Hello there!' });
+	});
+	app.get('/', (req, res) => {
+		res.render('index.html', { title: 'Hey', user: req.session.user });
+	});
+}
 
 main(app);
 
-app.listen(process.env.API_PORT);
+app.listen(process.env.APP_PORT);
 
 /**
  * Enable dTorrent
@@ -38,22 +74,5 @@ function enableDtorrent(app) {
 	/**
 	 * Enable listener
 	 */
-	dtorrent.start();
-}
-
-async function main(app) {
-	const util = await auth(app, {
-		'persistence': {
-			'host': process.env.MYSQL_HOST,
-			'user': process.env.MYSQL_USER,
-			'password': process.env.MYSQL_PASSWORD,
-			'database': process.env.MYSQL_DATABASE,
-			'dialect': 'mysql'
-		}
-	});
-	util.secure([
-		'/auth'
-	]);
-
-	enableDtorrent(app);
+	// dtorrent.start();
 }
