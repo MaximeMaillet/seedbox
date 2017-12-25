@@ -9,7 +9,7 @@ WORKDIR /var/app
 RUN chown -R node. /var/app
 
 USER node
-
-RUN npm i
+WORKDIR /var/app
+RUN mkdir public && npm i
 
 CMD ["npm", "start"]

@@ -8,20 +8,13 @@
     <script src="static/js/script.min.js"></script>
 </head>
 <body ng-controller="MainCtrl">
-    <header ng-controller="connectionListenerController">
+    <header>
         <div class="pull-right">
-            <button
-                class="btn btn-dtorrent"
-                ng-class="{connected: listenerConnected, disconnected: !listenerConnected}"
-                ng-click="connectListener()"
-                ng-disabled="listenerConnected">
-                <i class="fa fa-plug" aria-hidden="true"></i>
-            </button>
             <a href="/logout" class="btn btn-dtorrent">
                 <i class="fa fa-sign-out"></i>
             </a>
         </div>
-        {{ title }} {{ user.username }}
+        {{ title }} {{ user.username }} {{ user.token }}
     </header>
 
     <section class="loaded" ng-if="loaded_in_progress">
@@ -41,49 +34,56 @@
         </p>
     </section>
 
-    <section class="row" ng-if="!loaded_in_progress && loaded_done">
-        <div class="col-xs-4 hide">
-            <div class="row">
-                <div class="col-xs-12">
-                    <div class="panel">
-                        <div class="panel-heading">
-                            <strong>Drag and drop yout torrent's files</strong>
+    <section ng-if="!loaded_in_progress && loaded_done">
+        <div class="row">
+            <div class="col-md-8 col-xs-8">
+                <div class="panel">
+                    <div class="panel-heading">
+                        <strong>Drag and drop yout torrent's files</strong>
+                    </div>
+                    <div class="panel-body">
+                        <div class="pull-right">
+                            <!--<button class="btn btn-dtorrent" ng-click=""><i class="fa fa-plus"></i> Ajouter</button>-->
                         </div>
-                        <div class="panel-body">
-                            <upload
-                                    tr-action="addTorrent(torrent)"
-                                    ng-model="user.token"
-                                    tp=".">
-                            </upload>
-                        </div>
+                        <upload
+                            style="clear:both"
+                            tr-action="addTorrent(torrent)"
+                            user-token="'{{ user.token }}'"
+                            >
+                        </upload>
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-xs-12">
-                    <div class="panel panel panel-info">
-                        <div class="panel-heading">
-                            <strong>State server</strong>
-                        </div>
-                        <div class="panel-body">
-                            Todo
-                        </div>
+            <div class="col-md-4 col-xs-4" ng-controller="connectionListenerController">
+                <div class="panel">
+                    <div class="panel-heading">
+                        <strong>State server</strong>
+                    </div>
+                    <div class="panel-body">
+                        <small ng-class="{connected: listenerConnected, disconnected: !listenerConnected}"><i class="fa fa-plug" aria-hidden="true"></i> Server
+                            <span ng-if="listenerConnected">connected</span>
+                            <span ng-if="!listenerConnected">disconnect</span>
+                        </small>
+                        <a href="#" ng-click="connectListener()" ng-if="!listenerConnected">refresh</a>
+                        <br>
+                        <small>Free space : 0.00Go</small>
                     </div>
                 </div>
             </div>
-
         </div>
-        <div class="col-xs-12" ng-controller="torrentListController">
-            <div class="panel">
-                <div class="panel-heading">
-                    <strong><i class="fa fa-download" aria-hidden="true"></i> About my torrents</strong>
-                </div>
-                <div class="panel-body">
-                    <ul class="list-group">
-                        <li class="list-group-item" ng-repeat="data in torrents">
-                            <torrent bind="data"></torrent>
-                        </li>
-                    </ul>
+        <div class="row">
+            <div class="col-xs-12" ng-controller="torrentListController">
+                <div class="panel">
+                    <div class="panel-heading">
+                        <strong><i class="fa fa-download" aria-hidden="true"></i> About my torrents</strong>
+                    </div>
+                    <div class="panel-body">
+                        <ul class="list-group">
+                            <li class="list-group-item" ng-repeat="data in torrents">
+                                <torrent bind="data"></torrent>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>

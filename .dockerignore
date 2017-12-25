@@ -3,6 +3,9 @@
 .nvmrc
 Dockerfile
 docker-compose.yml
+docker-compose.dev.yml
 dtorrent
 express-authenticate
 node_modules
+package-lock.json
+public

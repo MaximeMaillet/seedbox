@@ -3,7 +3,6 @@ angular.module('dragNTorrent')
 	.controller('DragndropCtrl', ['$scope', '$http', 'connectListener', 'notify',
 		function($scope, $http, connectionListener, notify) {
 
-			const eventsToUpdate = ['paused', 'restart', 'update'];
 			$scope.title = 'Torrent Go!';
 			$scope.torrentController = [];
 			$scope.torrents = [];

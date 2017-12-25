@@ -86,6 +86,6 @@ gulp.task('watch', () => {
 	gulp.watch([`${__dirname}/src/**/*.html`]).on('change', browserSync.reload);
 });
 
-gulp.task('dev', ['start-server', 'browser-sync', 'npm:fonts', 'npm:css', 'npm:js', 'app:js', 'app:css', 'app:templates', 'watch']);
+gulp.task('dev', ['npm:fonts', 'npm:css', 'npm:js', 'app:js', 'app:css', 'app:templates', 'watch']);
 
 gulp.task('prod', ['npm:fonts', 'npm:css', 'npm:js', 'app:js', 'app:css', 'app:templates']);
