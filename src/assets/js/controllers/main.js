@@ -7,8 +7,6 @@ angular.module('dragNTorrent')
 		['$scope',
 		function($scope) {
 
-			const eventsToUpdate = ['paused', 'restart', 'update'];
-			$scope.torrentController = [];
 			$scope.torrents = [];
 			$scope.connection_attempts = 0;
 			$scope.listenerConnected = false;

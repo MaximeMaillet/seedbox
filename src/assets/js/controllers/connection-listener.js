@@ -28,9 +28,11 @@ angular
 						onEmit: function(data) {
 							switch(data.event) {
 								case 'insert':
-									$scope.insert(data.torrent);
+									$scope.$apply(() => {
+										TorrentList.add(data.torrent);
+									});
 									break;
-								case 'upload':
+								case 'update':
 									$scope.$apply(() => {
 										const torrent = TorrentList.getOne(data.torrent.hash);
 										const newTorrent = data.torrent;
@@ -42,11 +44,15 @@ angular
 										torrent.is_finished = newTorrent.is_finished;
 									});
 									break;
-								case 'download':
-									$scope.download(data.torrent);
-									break;
 								case 'finish':
-									$scope.finish(data.torrent);
+									$scope.$apply(() => {
+										const torrent = TorrentList.getOne(data.torrent.hash);
+										const newTorrent = data.torrent;
+										torrent.progress = 100;
+										torrent.mb_downloaded = newTorrent.mb_total;
+										torrent.playing = false;
+										torrent.is_finished = true;
+									});
 									break;
 								case 'remove':
 									$scope.$apply(() => {

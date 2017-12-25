@@ -6,6 +6,7 @@ const express = require('express');
 const auth = require('2max-express-authenticate');
 const bodyParser = require('body-parser');
 const nunjucks = require('nunjucks');
+const engines = require('consolidate');
 
 const app = express();
 
@@ -16,14 +17,7 @@ async function main(app) {
 	enableDtorrent(app);
 
 	const prefix = '';
-	// nunjucks.configure(`${__dirname}/src/html`, {
-	// 	autoescape: true,
-	// 	express: app,
-	// });
-
 	app.set('views', `${__dirname}/src/html`);
-	var engines = require('consolidate');
-
 	app.engine('html', engines.mustache);
 	app.set('view engine', 'html');
 
