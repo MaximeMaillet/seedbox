@@ -8,6 +8,7 @@ const bodyParser = require('body-parser');
 
 const session = require('express-session');
 const cookieSession = require('cookie-session');
+const multer = require('multer');
 
 const Sequelize = require('sequelize');
 const parseTorrent = require('parse-torrent');
@@ -53,6 +54,7 @@ async function enableFront(app) {
  * @return {Promise.<void>}
  */
 async function enableApi(app) {
+	const manager = await dtorrent.start(false);
 	const userController = await require('./src/api/controllers/user')({
 		'persistence': {
 			'host': process.env.MYSQL_HOST,
@@ -62,8 +64,9 @@ async function enableApi(app) {
 			'dialect': 'mysql'
 		}
 	});
-
 	const dashboardController = require('./src/api/controllers/dashboard');
+	const websocketController = require('./src/api/controllers/web-socket')(manager);
+	const torrentController = require('./src/api/controllers/torrent')(manager);
 
 	const cookieDate = new Date();
 	cookieDate.setDate(cookieDate.getDate() + 30);
@@ -76,9 +79,24 @@ async function enableApi(app) {
 		maxAge: 30 * 24 * 60 * 60 * 1000
 	}));
 
+	app.use(bodyParser.urlencoded({
+		limit: '500mb',
+		extended: true,
+		parameterLimit: 1000000
+	}));
+	app.use(bodyParser.json());
+
+	const upload = multer({dest: `${__dirname}/../../public/uploads/`});
+	upload.fields([
+		{ name: 'torrent', maxCount: 1 },
+		{ name: 'file', maxCount: 8 }
+	]);
+
 	await routes(app, {
 		dashboardController,
-		userController
+		userController,
+		websocketController,
+		torrentController
 	});
 }
 
@@ -90,9 +108,8 @@ async function enableApi(app) {
  */
 async function routes(app, controllers) {
 
-	const {userController, dashboardController} = controllers;
+	const {userController, dashboardController, websocketController, torrentController} = controllers;
 
-	await dtorrent.enableExpressApi(app);
 	app.post('/api/torrents', (req, res, next) => {
 		if(!req.session || !req.session.user) {
 			return res.redirect('/login');
@@ -100,11 +117,16 @@ async function routes(app, controllers) {
 		next();
 	});
 
+	app.get('/api/torrents', torrentController.getAll);
+
 	app.post('/api/login', userController.login);
 	app.post('/api/logout', userController.logout);
 	app.post('/api/signup', userController.post);
+
 	app.get('/', dashboardController.index);
 	app.get(/^\/(login|login\.html)$/, dashboardController.login);
+
+	app.get('/api/torrents/listener', websocketController.listener);
 }
 
 /**
