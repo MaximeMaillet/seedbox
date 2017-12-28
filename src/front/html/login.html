@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="dragNTorrent">
+<head>
+    <meta charset="UTF-8">
+    <title>dTorrent 0.0.5 - login.html</title>
+    <link rel="stylesheet" href="static/css/script.min.css" />
+    <link rel="stylesheet" href="static/css/main.css" />
+    <script type="text/javascript" src="static/js/script.min.js"></script>
+    <script type="text/javascript" src="static/js/app.min.js"></script>
+</head>
+<body>
+<header>
+    dTorrent - Login
+</header>
+<section class="container">
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <form method="post" action="/login" class="panel" ng-controller="LoginController">
+                <div class="panel-heading">Log in</div>
+                <div class="panel-body">
+                    <label for="username">Username : </label><input type="text" name="username" id="username" ng-model="model.username"><br>
+                    <label for="password">Password</label><input type="password" name="password" id="password" ng-model="model.password"><br>
+                    <button class="btn btn-info" type="button" ng-click="login()">Login</button>
+                    <p class="text-center">
+                        <a href="#" ng-click="subscribe()">I wan't subscribe</a>
+                    </p>
+                </div>
+                <div class="panel-footer text-right" >
+                    <a href="#" ng-click="forgotPassword()">Forgot password ?</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+</body>
+</html>

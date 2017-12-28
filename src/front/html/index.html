@@ -2,7 +2,7 @@
 <html lang="en" ng-app="dragNTorrent">
 <head>
     <meta charset="UTF-8">
-    <title>dTorrent 0.0.2</title>
+    <title>dTorrent 0.0.5</title>
     <link rel="stylesheet" href="static/css/script.min.css" />
     <link rel="stylesheet" href="static/css/main.css" />
     <script src="static/js/script.min.js"></script>
@@ -10,11 +10,13 @@
 <body ng-controller="MainCtrl">
     <header>
         <div class="pull-right">
-            <a href="/logout" class="btn btn-dtorrent">
-                <i class="fa fa-sign-out"></i>
-            </a>
+            <form method="post" action="/api/logout">
+                <button class="btn btn-dtorrent" type="submit">
+                    <i class="fa fa-sign-out"></i>
+                </button>
+            </form>
         </div>
-        {{ title }} {{ user.username }} {{ user.token }}
+        {{ title }} {{ user.username }}
     </header>
 
     <section class="loaded" ng-if="loaded_in_progress">
@@ -65,8 +67,8 @@
                             <span ng-if="!listenerConnected">disconnect</span>
                         </small>
                         <a href="#" ng-click="connectListener()" ng-if="!listenerConnected">refresh</a>
-                        <br>
-                        <small>Free space : 0.00Go</small>
+                        <!--<br>-->
+                        <!--<small>Free space : 0.00Go</small>-->
                     </div>
                 </div>
             </div>

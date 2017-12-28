@@ -3,63 +3,57 @@ require('dotenv').config();
 
 const dtorrent = require('dtorrent');
 const express = require('express');
-const auth = require('2max-express-authenticate');
-const bodyParser = require('body-parser');
-const nunjucks = require('nunjucks');
 const engines = require('consolidate');
+const bodyParser = require('body-parser');
+
+const session = require('express-session');
+const cookieSession = require('cookie-session');
+
+const Sequelize = require('sequelize');
+const parseTorrent = require('parse-torrent');
 
 const app = express();
 
 async function main(app) {
 
-	// await enableAuth(app);
+	try {
 
-	enableDtorrent(app);
+		await enableApi(app);
 
-	const prefix = '';
-	app.set('views', `${__dirname}/src/html`);
-	app.engine('html', engines.mustache);
-	app.set('view engine', 'html');
+		await enableFront(app);
 
-	app.use(`${prefix}/static`, express.static(`${__dirname}/public`));
-	app.use(`${prefix}/uib`, express.static(`${__dirname}/node_modules/angular-ui-bootstrap`));
-	app.get('/login', (req, res) => {
-		res.render('login.html', { title: 'Hey', message: 'Hello there!' });
-	});
-	app.get('/', (req, res) => {
-		res.render('index.html', {
-			title: 'Hey',
-			// user: req.session.user
-			user: {
-				username: 'Coco',
-				token: 'ABCDE',
-			}
-		});
-	});
+		// await enableDtorrent(app);
+	} catch(e) {
+		console.log(e);
+	}
 }
 
 main(app);
 
 app.listen(process.env.APP_PORT);
 
-/**
- * Enable dTorrent
- * @param app
- */
-function enableDtorrent(app) {
-	/**
-	 * Enable api
-	 */
-	dtorrent.enableExpressApi(app);
 
-	/**
-	 * Enable listener
-	 */
-	dtorrent.start();
+/**
+ * Enable front
+ * @param app
+ * @return {Promise.<void>}
+ */
+async function enableFront(app) {
+	app.set('views', `${__dirname}/src/front/html`);
+	app.engine('html', engines.mustache);
+	app.set('view engine', 'html');
+
+	app.use('/static', express.static(`${__dirname}/public`));
+	app.use('/uib', express.static(`${__dirname}/node_modules/angular-ui-bootstrap`));
 }
 
-async function enableAuth(auth) {
-	const util = await auth(app, {
+/**
+ * Enable api
+ * @param app
+ * @return {Promise.<void>}
+ */
+async function enableApi(app) {
+	const userController = await require('./src/api/controllers/user')({
 		'persistence': {
 			'host': process.env.MYSQL_HOST,
 			'user': process.env.MYSQL_USER,
@@ -68,22 +62,54 @@ async function enableAuth(auth) {
 			'dialect': 'mysql'
 		}
 	});
-	util.ignore([
-	]);
-	util.secure([
-		'/'
-	], {
-		'redirect': '/login'
+
+	const dashboardController = require('./src/api/controllers/dashboard');
+
+	const cookieDate = new Date();
+	cookieDate.setDate(cookieDate.getDate() + 30);
+	app.use(bodyParser.urlencoded({ extended: true }));
+	app.use(bodyParser.json());
+
+	app.use(cookieSession({
+		name: 'session',
+		keys: ['dTorrentIsAGoodApiisnthe'],
+		maxAge: 30 * 24 * 60 * 60 * 1000
+	}));
+
+	await routes(app, {
+		dashboardController,
+		userController
 	});
-	util.override({
-		'login': (req, res) => {
-			res.redirect('/');
-		},
-		'logout': (req, res) => {
-			res.redirect('/login');
-		},
-		'signup': (req, res) => {
-			res.redirect('/');
+}
+
+/**
+ * Define routes of app
+ * @param app
+ * @param controllers
+ * @return {Promise.<void>}
+ */
+async function routes(app, controllers) {
+
+	const {userController, dashboardController} = controllers;
+
+	await dtorrent.enableExpressApi(app);
+	app.post('/api/torrents', (req, res, next) => {
+		if(!req.session || !req.session.user) {
+			return res.redirect('/login');
 		}
+		next();
 	});
+
+	app.post('/api/login', userController.login);
+	app.post('/api/logout', userController.logout);
+	app.post('/api/signup', userController.post);
+	app.get('/', dashboardController.index);
+	app.get(/^\/(login|login\.html)$/, dashboardController.login);
+}
+
+/**
+ * Enable dTorrent listener
+ */
+function enableDtorrent() {
+	// dtorrent.start();
 }

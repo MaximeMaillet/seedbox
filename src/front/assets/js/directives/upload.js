@@ -9,7 +9,9 @@ angular.module('dragNTorrent')
 				userToken: '=',
 			},
 			template: '<div class="droper">Drag here to upload</div>',
-			link: function(scope, element, attrs, controllers) {
+			link: function(scope, element) {
+
+				console.log(scope);
 
 				const upload = function(files) {
 					const data = new FormData();

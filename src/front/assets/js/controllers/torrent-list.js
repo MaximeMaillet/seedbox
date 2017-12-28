@@ -21,7 +21,8 @@ angular
 				} catch(e) {
 					$scope.loaded_done = false;
 					$scope.noloaded_message = 'dragNTorrent-server off';
-					notify.danger('????', 'danger');
+					console.log(e);
+					notify.danger(e.message, 'danger');
 				}
 			};
 			$scope.loadTorrent();

@@ -5,7 +5,7 @@ const less = require('gulp-less');
 const browserSync = require('browser-sync').create();
 const exec = require('child_process').exec;
 
-const src = `${__dirname}/src/assets`;
+const src = `${__dirname}/src/front/assets`;
 const dest = `${__dirname}/public`;
 
 gulp.task('browser-sync', () => {
