@@ -42,6 +42,7 @@ angular
 										torrent.ratio = newTorrent.ratio;
 										torrent.playing = newTorrent.playing;
 										torrent.is_finished = newTorrent.is_finished;
+										torrent.status = 'ok';
 									});
 									break;
 								case 'finish':

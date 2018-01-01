@@ -1,7 +1,4 @@
-/**
- * Created by MaximeMaillet on 25/05/2017.
- */
-"use strict";
+'use strict';
 
 angular
 	.module('dragNTorrent')
@@ -25,8 +22,8 @@ angular
 				allow_dismiss: false,
 				newest_on_top: true,
 				placement: {
-					from: "bottom",
-					align: "right"
+					from: 'bottom',
+					align: 'right'
 				},
 				delay: 2000,
 				timer: 1000,

@@ -9,12 +9,20 @@ angular
 					if(!this.torrents) {
 						this.torrents = [];
 					}
-					if(torrent.length > 0) {
-						for(let i=0; i<torrent.length; i++) {
-							this.torrents.push(torrent[i]);
+					if(Array.isArray(torrent)) {
+						if(torrent.length > 0) {
+							for(let i=0; i<torrent.length; i++) {
+								this.torrents.push(torrent[i]);
+							}
 						}
-					} else {
-						this.torrents.push(torrent);
+					}
+					else {
+						const _torrent = this.getOne(torrent.hash);
+						if(_torrent) {
+							Object.assign(_torrent, torrent);
+						} else {
+							this.torrents.push(torrent);
+						}
 					}
 				},
 				set: (torrents) => {
@@ -36,7 +44,8 @@ angular
 							return this.torrents[i];
 						}
 					}
-				},
+					return null;
+				}
 			};
 
 			TorrentList.torrents = [];

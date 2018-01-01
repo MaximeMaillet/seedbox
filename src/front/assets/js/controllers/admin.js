@@ -87,6 +87,10 @@ angular
 				$scope.edit();
 			};
 
+			/**
+			 * Remove user
+			 * @param id
+			 */
 			$scope.remove = function(id) {
 				UserApi.delete(id)
 					.then((success) => {

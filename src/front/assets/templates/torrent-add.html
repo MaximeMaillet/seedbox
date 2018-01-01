@@ -1,0 +1,29 @@
+<div class="modal-header">
+    <button type="button" class="close" ng-click="$dismiss('cancel')" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    <h3 class="modal-title text-center">Add torrent</h3>
+</div>
+<div class="modal-body">
+    <form>
+        <label for="torrents">Torrents :</label>
+        <input type="file" ng-model="torrentModel.torrents" id="torrents" multiple onchange="angular.element(this).scope().fileNameChanged(this)"><br>
+    </form>
+    <hr>
+    <form>
+        <label for="torrent">Torrent :</label>
+        <input type="file" ng-model="torrentModel.torrent" id="torrent"><br>
+        <label for="data">Data :</label>
+        <input type="file" ng-model="torrentModel.data" id="data"><br>
+    </form>
+    <hr>
+    <form>
+        <label for="dataalone">Data :</label>
+        <input type="file" ng-model="torrentModel.dataalone" id="dataalone"><br>
+    </form>
+</div>
+<div class="modal-footer">
+    <div class="pull-right">
+        <button type="button" class="btn btn-primary btn-block" ng-click="add()">Add</button>
+    </div>
+</div>

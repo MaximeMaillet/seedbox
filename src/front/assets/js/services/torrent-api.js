@@ -10,10 +10,12 @@ angular
 
 		const url = '/api';
 
-		function send(method, endpoint) {
+		function send(method, endpoint, data, headers) {
 			return $http({
 					'method': method,
-					'url': url+endpoint
+					'url': url+endpoint,
+					'headers': headers,
+					'data': data
 				}).then((response) => {
 					return response.data;
 				}, (error) => {
@@ -60,5 +62,9 @@ angular
 		this.getList = (details) => {
 			details = details || false;
 			return send('GET', `/torrents?details=${details}`);
+		};
+
+		this.create = (models) => {
+			return send('POST', '/torrents', models, {'Content-Type': undefined });
 		};
 	}]);

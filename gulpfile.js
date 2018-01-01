@@ -85,6 +85,7 @@ gulp.task('app:templates', () => {
 gulp.task('watch', () => {
 	gulp.watch([`${src}/js/**/*.js`], ['app:js']);
 	gulp.watch([`${src}/css/*.less`], ['app:css']);
+	gulp.watch([`${src}/templates/**/*.html`], ['app:templates']);
 	gulp.watch([`${__dirname}/src/**/*.html`]).on('change', browserSync.reload);
 	gulp.watch([`${__dirname}/src/**/*.twig`]).on('change', browserSync.reload);
 });
