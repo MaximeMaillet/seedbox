@@ -1,11 +1,11 @@
 'use strict';
 
-const {uid} = require('rand-token');
 
-const RoleModel = require('../../models/role');
 const UserModel = require('../../models/user');
 const userTransformer = require('../../transformers/user');
 const userService = require('../../services/user');
+const userForm = require('../../forms/user');
+const roleService = require('../../services/role');
 
 const session = require('express-session');
 const sessionStore = require('../../lib/session');
@@ -60,24 +60,24 @@ module.exports.post = async(req, res) => {
 	}
 
 	try {
-		const user = await UserModel
-			.model()
-			.create({
-				username: req.body.username,
-				password: req.body.password,
-				space: req.body.space * (1024*1024*1024),
-				roles: RoleModel.getMask('user'),
-				token: uid(32),
-			});
+		const form = await userForm(null, req.body, req.session.user);
 
-		await user.save();
-		res.status(200).send({message: 'User created'});
+		if(form.isSuccess()) {
+			const user = await form.flush(UserModel.model());
+			res.status(200).send(userTransformer.transform(user, req.session.user));
+		} else {
+			res.status(422).send(form.errors());
+		}
 
 	} catch(error) {
 		if(error.name === 'SequelizeUniqueConstraintError') {
-			res.status(409).send({error: 'This user already exists'});
-		} else {
-			res.status(500).send({error: error.name});
+			res.status(409).send({message: 'This user already exists'});
+		}
+		else if(error.name === 'SequelizeValidationError') {
+			res.status(409).send({message: error.message});
+		}
+		else {
+			res.status(500).send({message: error.name});
 		}
 	}
 };
@@ -135,27 +135,24 @@ module.exports.delete = async(req, res) => {
  */
 module.exports.patch = async(req, res) => {
 	try {
-		const user = await UserModel.model().findOne({raw: true, where: { id: req.params.user }});
+		const user = await UserModel.model().findOne({where: { id: req.params.user }});
 		if(user === null) {
 			return res.status(404).send({message: 'User does not exists'});
 		}
 
-		if(req.session.user.id !== user.id || !userService.isGranted(req.session.user, 'admin')) {
-			return res.status(403);
+		if(req.session.user.id !== user.id && !userService.isGranted(req.session.user, 'admin')) {
+			return res.status(403).send();
 		}
 
-		user.username = req.body.username;
-		if(req.body.password) {
-			user.password = req.body.password;
+		const form = await userForm(user, req.body, req.session.user);
+
+		if(form.isSuccess()) {
+			const newUser = await form.flush(UserModel().model());
+			return res.send(userTransformer.transform(newUser, req.session.user));
+		} else {
+			res.status(422).send(form.errors());
 		}
 
-		if(userService.isGranted(req.session.user, 'admin')) {
-			user.roles = req.body.roles;
-			user.space = req.body.space;
-		}
-
-		await user.save({fields: ['username', 'password', 'roles', 'space']});
-		return res.send({success: true});
 	} catch(e) {
 		return res.status(500).send({error: e.message});
 	}

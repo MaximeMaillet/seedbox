@@ -2,6 +2,7 @@
 require('dotenv').config();
 const Sequelize = require('sequelize');
 const bcrypt = require('bcrypt');
+
 const sequelize = require('../lib/sequelize')();
 const salt = bcrypt.genSaltSync();
 let User = null;
@@ -46,6 +47,11 @@ module.exports = () => {
 					if(user.changed('password')) {
 						console.log('update mother fucker');
 						user.password = bcrypt.hashSync(user.password, salt);
+					}
+				},
+				beforeBulkUpdate: (user) => {
+					if(user.fields.indexOf('password') !== -1) {
+						user.attributes.password = bcrypt.hashSync(user.attributes.password, salt);
 					}
 				}
 			}

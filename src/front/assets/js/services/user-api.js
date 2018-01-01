@@ -10,10 +10,13 @@ angular
 			return $http({
 				'method': method,
 				'url': url+endpoint,
-				'data': data,
-				'withCredentials': true
-			}).then((response) => {
+				'data': data
+			})
+			.then((response) => {
 				return response.data;
+			})
+			.catch((e) => {
+				throw e.data;
 			});
 		}
 

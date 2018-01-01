@@ -29,7 +29,7 @@ function transformUser(user, owner) {
 		id: user.id,
 		username: user.username,
 		roles: roleString.substring(0, roleString.length - 1),
-		space: user.space,
+		space: user.space / (1024*1024*1024),
 		createdAt: user.createdAt,
 		updatedAt: user.updatedAt
 	};

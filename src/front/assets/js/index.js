@@ -4,13 +4,11 @@ angular
 	])
 	.config(['$httpProvider', '$interpolateProvider',
 		($httpProvider, $interpolateProvider) => {
-			$httpProvider.defaults.withCredentials = true;
 			$interpolateProvider.startSymbol('{[{').endSymbol('}]}');
 		}
 	])
-	// .run(['$http', '$cookies',
-	// 	($http, $cookies) => {
-	// 		$http.defaults.headers.post['X-CSRFToken'] = $cookies.csrftoken;
-	// 	}
-	// ])
+	.constant('_', window._)
+	.run(($rootScope) => {
+		$rootScope._ = window._;
+	});
 ;
