@@ -7,8 +7,28 @@ angular
 		($scope, torrentApi, notify, TorrentList, $uibModal) => {
 
 			$scope.torrents = [];
-			$scope.torrentModel = {};
+			$scope.torrentModel = new FormData();
+			$scope.model = {};
 			let modalInstance = null;
+			$scope.step = {
+				zero: true,
+				one: false,
+				two: false,
+				three: false
+			};
+
+			/**
+			 * @param step
+			 */
+			$scope.updateStep = (step) => {
+				Object.keys($scope.step).forEach((key) => {
+					$scope.step[key] = key === step;
+				});
+
+				if(step !== 'zero') {
+					$scope.torrentModel = new FormData();
+				}
+			};
 
 			/**
 			 * Download torrents list about user
@@ -28,6 +48,57 @@ angular
 				}
 			};
 
+			/**
+			 * Add torrent
+			 * @param ele
+			 */
+			$scope.torrentsAdded = (ele) => {
+				const {files} = ele;
+				for (let i = 0; i < files.length; i++) {
+					$scope.torrentModel.append('torrents', files[i]);
+					$scope.model.hasTorrent = true;
+				}
+			};
+
+			/**
+			 * Add data
+			 * @param ele
+			 */
+			$scope.filesAdded = (ele) => {
+				const {files} = ele;
+				for (let i = 0; i < files.length; i++) {
+					$scope.torrentModel.set('files', files[i]);
+					$scope.model.hasFile = true;
+				}
+			};
+
+			/**
+			 * Add torrent, torrent+file or file
+			 */
+			$scope.add = () => {
+				Object.keys($scope.step).forEach((key) => {
+					if($scope.step[key]) {
+						if (
+							(key === 'two' && $scope.model.hasFile && $scope.model.hasTorrent)
+							|| (key === 'one' && $scope.model.hasTorrent)
+						) {
+							create();
+						}
+						else if(key === 'three' && $scope.model.hasFile && $scope.model.tracker) {
+							$scope.torrentModel.append('tracker', $scope.model.tracker);
+							create();
+						}
+						else {
+							notify.danger('You need upload torrent + data');
+						}
+					}
+				});
+			};
+
+			/**
+			 * Open modal for add torrent
+			 * @return {*}
+			 */
 			$scope.openAdd = function() {
 				modalInstance = $uibModal.open({
 					animation: true,
@@ -37,14 +108,8 @@ angular
 				return modalInstance;
 			};
 
-			$scope.fileNameChanged = (ele) => {
-				const {files} = ele;
-				const data = new FormData();
-
-				for (let i = 0; i < files.length; i++) {
-					data.append('torrents', files[i]);
-				}
-				torrentApi.create(data)
+			function create() {
+				torrentApi.create($scope.torrentModel)
 					.then((torrent) => {
 						for(const i in torrent) {
 							if(torrent[i].success) {
@@ -65,7 +130,7 @@ angular
 					.catch((e) => {
 						notify.danger(`Error : ${e.message}`);
 					});
-			};
+			}
 
 			$scope.loadTorrent();
 		}]);

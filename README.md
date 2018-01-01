@@ -1,4 +1,6 @@
 TODO :
 
-* Gérer l'authentification en front
-*
+* Terminer l'endpoint POST /api/torrents
+* Tester l'endpoint POST /api/torrents
+* Diminuer l'espace disque d'un user quand il télécharge
+* Ajouter un historique quand l'user upload
