@@ -6,24 +6,24 @@
 </div>
 <div class="modal-body modal-torrent-added">
     <div class="row" ng-class="{'show': step.zero, 'hide': !step.zero}">
-        <div class="col-sm-4 cols-xs-4 text-center upload-choose">
+        <div class="col-sm-6 cols-xs-6 text-center upload-choose">
             <a class="btn btn-choose-upload" ng-click="updateStep('one')">
                 <i class="fa fa-upload" aria-hidden="true"></i>
                 One or many torrents
             </a>
         </div>
-        <div class="col-sm-4 cols-xs-4 text-center upload-choose">
+        <div class="col-sm-6 cols-xs-6 text-center upload-choose">
             <a class="btn btn-choose-upload" ng-click="updateStep('two')">
                 <i class="fa fa-compress" aria-hidden="true"></i>
                 Torrent + file
             </a>
         </div>
-        <div class="col-sm-4 cols-xs-4 text-center upload-choose">
-            <a class="btn btn-choose-upload" ng-click="updateStep('three')">
-                <i class="fa fa-file" aria-hidden="true"></i>
-                Only file
-            </a>
-        </div>
+        <!--<div class="col-sm-4 cols-xs-4 text-center upload-choose">-->
+            <!--<a class="btn btn-choose-upload" ng-click="updateStep('three')">-->
+                <!--<i class="fa fa-file" aria-hidden="true"></i>-->
+                <!--Only file-->
+            <!--</a>-->
+        <!--</div>-->
     </div>
     <div class="row" ng-class="{'show': step.one, 'hide': !step.one}">
         <form class="col-md-12 col-xs-12">
