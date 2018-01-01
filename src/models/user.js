@@ -1,24 +1,13 @@
+'use strict';
+require('dotenv').config();
 const Sequelize = require('sequelize');
 const bcrypt = require('bcrypt');
+const sequelize = require('../lib/sequelize')();
+const salt = bcrypt.genSaltSync();
+let User = null;
 
-module.exports.model = (persistence, model, hooks) => {
-	const sequelize = new Sequelize(persistence.database, persistence.user, persistence.password, {
-		host: persistence.host,
-		dialect: persistence.dialect,
-		pool: {
-			max: 5,
-			min: 0,
-			acquire: 30000,
-			idle: 10000
-		},
-		operatorsAliases: false
-	});
-
-	for(const i in hooks) {
-		sequelize.addHook(hooks[i].name, hooks[i].function);
-	}
-
-	const User = sequelize.define('users', {
+module.exports = () => {
+	User = sequelize.define('users', {
 			username: {
 				type: Sequelize.STRING,
 				unique: true,
@@ -34,35 +23,45 @@ module.exports.model = (persistence, model, hooks) => {
 			},
 			token: {
 				type: Sequelize.STRING,
-					unique: true,
-					allowNull: false
+				unique: true,
+				allowNull: false
 			},
 			is_validated: {
 				type: Sequelize.BOOLEAN,
-					allowNull: false,
-					defaultValue: 0,
+				allowNull: false,
+				defaultValue: 0,
 			},
 			space: {
-				type: Sequelize.INTEGER,
-					allowNull: false,
-					defaultValue: 10*1024*1024,
+				type: Sequelize.BIGINT,
+				allowNull: false,
+				defaultValue: 10*1024*1024*1024,
 			}
 		},
 		{
-		hooks: {
-			beforeCreate: (user) => {
-				const salt = bcrypt.genSaltSync();
-				user.password = bcrypt.hashSync(user.password, salt);
+			hooks: {
+				beforeCreate: (user) => {
+					user.password = bcrypt.hashSync(user.password, salt);
+				},
+				beforeUpdate: (user) => {
+					if(user.changed('password')) {
+						console.log('update mother fucker');
+						user.password = bcrypt.hashSync(user.password, salt);
+					}
+				}
 			}
-		}
-	});
+		});
 
 	User.prototype.validPassword = function(password) {
 		return bcrypt.compareSync(password, this.password);
 	};
 
-	return sequelize.sync()
-	.then(() => {
-		return User;
-	});
+	return module.exports;
+};
+
+module.exports.model = () => {
+	return User;
+};
+
+module.exports.sync = () => {
+	return sequelize.sync();
 };

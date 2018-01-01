@@ -12,7 +12,7 @@ gulp.task('browser-sync', () => {
 	browserSync.init({
 		startPath: '/',
 		open: false,
-		proxy: 'localhost:8081'
+		proxy: 'localhost:8080'
 	});
 });
 
@@ -50,7 +50,6 @@ gulp.task('npm:js', () => {
 			`${__dirname}/node_modules/jquery/dist/*.min.js`,
 			`${__dirname}/node_modules/angular-ui-bootstrap/dist/*.js`,
 			`${__dirname}/node_modules/bootstrap-notify/*.min.js`,
-			// `${__dirname}/node_modules/nunjucks/browser/*.js`,
 		])
 		.pipe(concat('script.min.js'))
 		.pipe(uglify())
@@ -76,7 +75,9 @@ gulp.task('app:js', () => {
 });
 
 gulp.task('app:templates', () => {
-	return gulp.src(`${src}/templates/**/*.html`)
+	return gulp.src([
+			`${src}/templates/**/*.html`
+		])
 		.pipe(gulp.dest(`${dest}/templates`));
 });
 
@@ -84,8 +85,9 @@ gulp.task('watch', () => {
 	gulp.watch([`${src}/js/**/*.js`], ['app:js']);
 	gulp.watch([`${src}/css/*.less`], ['app:css']);
 	gulp.watch([`${__dirname}/src/**/*.html`]).on('change', browserSync.reload);
+	gulp.watch([`${__dirname}/src/**/*.twig`]).on('change', browserSync.reload);
 });
 
-gulp.task('dev', ['npm:fonts', 'npm:css', 'npm:js', 'app:js', 'app:css', 'app:templates', 'watch']);
+gulp.task('dev', ['npm:fonts', 'npm:css', 'npm:js', 'app:js', 'app:css', 'app:templates', 'watch', 'browser-sync']);
 
 gulp.task('prod', ['npm:fonts', 'npm:css', 'npm:js', 'app:js', 'app:css', 'app:templates']);

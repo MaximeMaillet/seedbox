@@ -1,0 +1,59 @@
+{% extends 'app.twig' %}
+{% set active_page = 'admin' %}
+
+{% block body %}
+    <section class="container container-admin" ng-controller="AdminController">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="panel">
+                    <div class="panel-heading">Server</div>
+                    <div class="panel-body"></div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="panel">
+                    <div class="panel-heading">
+                        <div class="pull-right">
+                            <a href="#" ng-click="add()" class="btn btn-dtorrent"><i class="fa fa-plus" aria-hidden="true"></i></a>
+                        </div>
+                        Users
+                    </div>
+                    <div class="panel-body">
+                        <table class="table table-striped table-sm table-user">
+                            <thead class="thead-dark">
+                            <tr>
+                                <th>Username</th>
+                                <th>Roles</th>
+                                <th>Space</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="user in users" ng-class="{'not_validated': !user.is_validated}">
+                                    <td>{[{ user.username }]}</td>
+                                    <td>{[{ user.roles }]}</td>
+                                    <td>{[{ user.space / (1024*1024*1024) }]} Go</td>
+                                    <td>
+                                        <a href="#" ng-if="!user.is_validated" ng-click="validated(user.id)"><i class="fa fa-check" aria-hidden="true"></i></a>
+                                        <a href="#" ng-click="edit(user.id)"><i class="fa fa-edit" aria-hidden="true"></i></a>
+                                        <a href="#" ng-click="remove(user.id)"><i class="fa fa-remove" aria-hidden="true"></i></a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="panel-footer"></div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel">
+                    <div class="panel-heading">Torrents</div>
+                    <div class="panel-body"></div>
+                    <div class="panel-footer"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

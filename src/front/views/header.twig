@@ -1,0 +1,32 @@
+{% set navigation_bar = [
+{href: '/', id: 'dashboard', caption:'Dashboard'},
+{href:'/torrents', id:'torrents', caption:'Torrents'},
+{href:'/admin', id:'admin', caption:'Admin'}
+] -%}
+
+{% set active_page = active_page|default('dasboard') -%}
+
+<header>
+    <div class="row">
+        <div class="col-md-2 col-xs-1 vcenter">
+            <h1>dTorrent v{{ version }}</h1>
+            <h2>Seedbox</h2>
+        </div>
+        <div class="col-md-8 col-xs-10">
+            <ul class="nav nav-pills nav-dtorrent text-center">
+                {% for value in navigation_bar %}
+                    <li{% if value.id == active_page %} class="active"{% endif %}>
+                        <a href="{{ value.href }}">{{ value.caption|e }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="col-md-2 col-xs-1 text-right">
+            <form method="post" action="/api/users/logout">
+                <button class="btn btn-dtorrent" type="submit">
+                    <i class="fa fa-sign-out"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</header>

@@ -1,29 +1,11 @@
+'use strict';
+require('dotenv').config();
 const Sequelize = require('sequelize');
+const sequelize = require('../lib/sequelize')();
+
 let Role = null;
 
-module.exports.mask = (name) => {
-	return Role.findOne({where: {name: name}})
-	.then((result) => {
-		if(!result) {
-			throw new Error('No result found');
-		}
-		return result.dataValues.mask;
-	});
-};
-
-module.exports.model = (persistence) => {
-	const sequelize = new Sequelize(persistence.database, persistence.user, persistence.password, {
-		host: persistence.host,
-		dialect: persistence.dialect,
-		pool: {
-			max: 5,
-			min: 0,
-			acquire: 30000,
-			idle: 10000
-		},
-		operatorsAliases: false,
-	});
-
+module.exports = () => {
 	Role = sequelize.define('roles', {
 		name: {
 			type: Sequelize.STRING,
@@ -35,7 +17,32 @@ module.exports.model = (persistence) => {
 			allowNull: false
 		}
 	});
+	return module.exports;
+};
 
+module.exports.mask = async(name) => {
+	const result = Role.findOne({where: {name: name}});
+	if(!result) {
+		throw new Error('Result not found');
+	} else {
+		return result.dataValues;
+	}
+};
+
+module.exports.getMask = (name) => {
+	const masks = {
+		user: 1 << 1,
+		admin: 1 << 2,
+		moderator: 1 << 3
+	};
+	return masks[name];
+};
+
+module.exports.model = () => {
+	return Role;
+};
+
+module.exports.sync = () => {
 	return sequelize.sync()
 	.then(() => {
 		const roles = [
@@ -49,8 +56,5 @@ module.exports.model = (persistence) => {
 		});
 
 		return Promise.all(promises);
-	})
-	.then(() => {
-		return Role;
 	});
 };

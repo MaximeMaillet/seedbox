@@ -4,3 +4,4 @@ node_modules
 dtorrent
 express-authenticate
 public/*
+sessions
