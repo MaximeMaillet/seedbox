@@ -29,7 +29,7 @@ angular
 							switch(data.event) {
 								case 'insert':
 									$scope.$apply(() => {
-										TorrentList.add(data.torrent);
+										TorrentList.add(Object.assign(data.torrent, {status:'ok'}));
 									});
 									break;
 								case 'update':

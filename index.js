@@ -152,7 +152,8 @@ async function routes(app, controllers) {
 	app.get('/api/torrents/listener', websocketController.listener);
 	app.get('/api/torrents', torrentController.getAll);
 	const t = upload.fields([
-		{ name: 'torrents', maxCount: 10}
+		{ name: 'torrents'},
+		{ name: 'files'}
 	]);
 	app.post('/api/torrents', t, torrentController.post);
 }
