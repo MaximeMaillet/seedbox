@@ -3,24 +3,55 @@ require('dotenv').config();
 
 const dtorrent = require('dtorrent');
 const express = require('express');
-
 const Twig = require('twig');
 const bodyParser = require('body-parser');
 const fs = require('fs');
-
 const session = require('express-session');
-const sessionStore = require('./src/lib/session');
-
 const multer = require('multer');
-const upload = multer({dest: `${__dirname}/public/uploads/`});
+const debug = require('debug');
 
+const lDebug = debug('dTorrent:daemon:debug');
+const sessionStore = require('./src/lib/session');
+const upload = multer({dest: `${__dirname}/public/uploads/`});
 const app = express();
 
 async function main(app) {
 
 	try {
 
-		const manager = await dtorrent.start(true);
+		await dtorrent.start();
+		const manager = await dtorrent.manager();
+		// manager.addWebHook('http://localhost:8080/connard', {
+		// 	onFailed: (Url, status, body, headers) => {
+		// 		console.log(status);
+		// 		console.log(body);
+		// 		console.log(headers);
+		// 	},
+		// 	onError: (Url, err) => {
+		// 		console.log(err);
+		// 	}
+		// });
+		// manager.addListener({
+		// 	onAdded: async(torrent) => {
+		// 		console.log(`added : ${torrent.hash}`);
+		// 	},
+		// 	onRemoved: async(torrent) => {
+		// 		console.log(`remove : ${torrent.hash}`);
+		// 	},
+		// 	onUpdated: async(torrent, diff) => {
+		// 		console.log(`update : ${torrent.hash}`);
+		// 		console.log(diff);
+		// 	},
+		// 	onPaused: async(torrent) => {
+		// 		console.log(`pause : ${torrent.hash}`);
+		// 	},
+		// 	onResumed: async(torrent) => {
+		// 		console.log(`resume : ${torrent.hash}`);
+		// 	},
+		// 	onFinished: async(torrent) => {
+		// 		console.log(`finish : ${torrent.hash}`);
+		// 	}
+		// });
 
 		await initDatabase();
 
@@ -79,24 +110,6 @@ async function initDatabase() {
 }
 
 /**
- * Enable front
- * @param app
- * @return {Promise.<void>}
- */
-async function enableFront(app) {
-	app.set('views', `${__dirname}/src/front/views`);
-
-	app.set('twig options', {
-		strict_variables: false
-	});
-
-	enableTwig('./src/front/twig');
-
-	app.use('/static', express.static(`${__dirname}/public`));
-	app.use('/uib', express.static(`${__dirname}/node_modules/angular-ui-bootstrap`));
-}
-
-/**
  * Configuration for express
  * @param app
  */
@@ -112,7 +125,7 @@ function configExpress(app) {
 		resave: true,
 		saveUninitialized: false,
 		cookie: {
-			maxAge: 60*60*24*30
+			maxAge: 60*60*24*30*1000
 		}
 	}));
 	app.use(bodyParser.urlencoded({
@@ -121,7 +134,24 @@ function configExpress(app) {
 		parameterLimit: 1000000
 	}));
 	app.use(bodyParser.json());
+}
 
+/**
+ * Enable front
+ * @param app
+ * @return {Promise.<void>}
+ */
+async function enableFront(app) {
+	app.set('views', `${__dirname}/src/front/views`);
+
+	app.set('twig options', {
+		strict_variables: false
+	});
+
+	enableTwig('./src/front/twig');
+
+	app.use('/static', express.static(`${__dirname}/public`));
+	app.use('/uib', express.static(`${__dirname}/node_modules/angular-ui-bootstrap`));
 }
 
 /**
@@ -149,8 +179,11 @@ async function routes(app, controllers) {
 	app.patch('/api/users/:user', userController.patch);
 
 	// Api for torrents
-	app.get('/api/torrents/listener', websocketController.listener);
+	// app.get('/api/torrents/listener', websocketController.listener);
 	app.get('/api/torrents', torrentController.getAll);
+	app.put('/api/torrents/:hash/pause', torrentController.pause);
+	app.put('/api/torrents/:hash/resume', torrentController.resume);
+	app.delete('/api/torrents/:hash', torrentController.delete);
 	const t = upload.fields([
 		{ name: 'torrents'},
 		{ name: 'files'}

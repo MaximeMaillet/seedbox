@@ -38,7 +38,8 @@ gulp.task('npm:css', () => {
 	return gulp.src([
 			`${__dirname}/node_modules/bootstrap/dist/css/*.min.css`,
 			`${__dirname}/node_modules/angular-ui-bootstrap/dist/*.css`,
-			`${__dirname}/node_modules/font-awesome/css/*.min.css`
+			`${__dirname}/node_modules/font-awesome/css/*.min.css`,
+			`${__dirname}/node_modules/font-awesome-animation/dist/*.min.css`,
 		])
 		.pipe(concat('script.min.css'))
 		.pipe(gulp.dest(`${dest}/css`));

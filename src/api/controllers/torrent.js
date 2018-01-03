@@ -25,7 +25,62 @@ module.exports.getAll = async(req, res) => {
 		return res.redirect('/login');
 	}
 
-	res.send((await manager.getAll()));
+	try {
+		res.send((await manager.getAll()));
+	} catch(e) {
+		res.status(500).send(e);
+	}
+};
+
+/**
+ * @param req
+ * @param res
+ * @return {Promise.<void>}
+ */
+module.exports.pause = async(req, res) => {
+	if(!req.session || !req.session.user) {
+		return res.redirect('/login');
+	}
+
+	try {
+		res.send((await manager.pause(req.params.hash)));
+	} catch(e) {
+		res.status(500).send(e);
+	}
+};
+
+/**
+ * @param req
+ * @param res
+ * @return {Promise.<void>}
+ */
+module.exports.resume = async(req, res) => {
+	if(!req.session || !req.session.user) {
+		return res.redirect('/login');
+	}
+
+	try {
+		res.send((await manager.resume(req.params.hash)));
+	} catch(e) {
+		res.status(500).send(e);
+	}
+};
+
+/**
+ * @param req
+ * @param res
+ * @return {Promise.<void>}
+ */
+module.exports.delete = async(req, res) => {
+	if (!req.session.user || !userService.isGranted(req.session.user, 'admin')) {
+		return res.status(403).send();
+	}
+
+	try {
+		res.send((await manager.delete(req.params.hash)));
+	} catch(e) {
+		res.status(500).send(e);
+	}
 };
 
 module.exports.post = async(req, res) => {
