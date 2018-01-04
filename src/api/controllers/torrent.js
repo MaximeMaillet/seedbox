@@ -120,6 +120,16 @@ module.exports.delete = async(req, res) => {
 	}
 };
 
+module.exports.download = async(req, res) => {
+	if(!req.session || !req.session.user) {
+		return res.redirect('/login');
+	}
+
+	const torrent = await manager.getOne(req.params.hash);
+	const file = `${process.env.STORAGE}/dtorrent/downloaded/${torrent.name}`;
+	res.download(file);
+};
+
 /**
  * Add torrent
  * @param req

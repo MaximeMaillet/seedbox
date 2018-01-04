@@ -23,6 +23,10 @@ angular
 				});
 		}
 
+		this.download = function(hash) {
+			return send('GET', `/torrents/${hash}/download`);
+		};
+
 		/**
 		 * Put torrent in pause
 		 * @param hash

@@ -44,8 +44,8 @@ angular
 				notify.danger('Get out on Netflix !');
 			};
 
-			$scope.download = function() {
-				notify.danger('This is illegal !');
+			$scope.download = async function() {
+				window.location = `/api/torrents/${$scope.bind.hash}/download`;
 			};
 
 			function update(torrent) {

@@ -185,6 +185,7 @@ async function routes(app, controllers) {
 	app.get('/api/torrents/:hash/metadata', torrentController.getOneMetadata);
 	app.put('/api/torrents/:hash/pause', torrentController.pause);
 	app.put('/api/torrents/:hash/resume', torrentController.resume);
+	app.get('/api/torrents/:hash/download', torrentController.download);
 	app.delete('/api/torrents/:hash', torrentController.delete);
 	const t = upload.fields([
 		{ name: 'torrents'},
