@@ -33,23 +33,23 @@ async function main(app) {
 		// });
 		// manager.addListener({
 		// 	onAdded: async(torrent) => {
-		// 		console.log(`added : ${torrent.hash}`);
+		// 		console.log(`added : ${torrent.name}`);
 		// 	},
 		// 	onRemoved: async(torrent) => {
-		// 		console.log(`remove : ${torrent.hash}`);
+		// 		console.log(`remove : ${torrent.name}`);
 		// 	},
 		// 	onUpdated: async(torrent, diff) => {
-		// 		console.log(`update : ${torrent.hash}`);
+		// 		console.log(`update : ${torrent.name}`);
 		// 		console.log(diff);
 		// 	},
 		// 	onPaused: async(torrent) => {
-		// 		console.log(`pause : ${torrent.hash}`);
+		// 		console.log(`pause : ${torrent.name}`);
 		// 	},
 		// 	onResumed: async(torrent) => {
-		// 		console.log(`resume : ${torrent.hash}`);
+		// 		console.log(`resume : ${torrent.name}`);
 		// 	},
 		// 	onFinished: async(torrent) => {
-		// 		console.log(`finish : ${torrent.hash}`);
+		// 		console.log(`finish : ${torrent.name}`);
 		// 	}
 		// });
 
@@ -181,6 +181,8 @@ async function routes(app, controllers) {
 	// Api for torrents
 	// app.get('/api/torrents/listener', websocketController.listener);
 	app.get('/api/torrents', torrentController.getAll);
+	app.get('/api/torrents/:hash', torrentController.getOne);
+	app.get('/api/torrents/:hash/metadata', torrentController.getOneMetadata);
 	app.put('/api/torrents/:hash/pause', torrentController.pause);
 	app.put('/api/torrents/:hash/resume', torrentController.resume);
 	app.delete('/api/torrents/:hash', torrentController.delete);

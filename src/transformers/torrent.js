@@ -14,7 +14,7 @@ module.exports.transform = (torrent, owner) => {
 
 function transformTorrent(torrent, owner) {
 	const Torrent = {
-		hash: torrent.infoHash,
+		hash: torrent.infoHash || torrent.hash,
 		name: torrent.name,
 		progress: torrent.progress || 0,
 		// down_rate: Number,

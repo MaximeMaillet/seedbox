@@ -64,6 +64,10 @@ angular
 			return send('GET', `/torrents?details=${details}`);
 		};
 
+		this.getMetadata = (hash) => {
+			return send('GET', `/torrents/${hash}/metadata`);
+		};
+
 		this.create = (models) => {
 			return send('POST', '/torrents', models, {'Content-Type': undefined });
 		};

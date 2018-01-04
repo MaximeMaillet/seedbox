@@ -38,7 +38,6 @@ angular
 					const torrents = await torrentApi.getList(true);
 					$scope.$apply(() => {
 						TorrentList.add(torrents);
-						console.log(TorrentList.get());
 						$scope.torrents = TorrentList.get();
 					});
 				} catch(e) {
@@ -85,7 +84,9 @@ angular
 							create();
 						}
 						else if(key === 'three' && $scope.model.hasFile && $scope.model.tracker) {
-							$scope.torrentModel.append('tracker', $scope.model.tracker);
+							if(!$scope.torrentModel.get('tracker')) {
+								$scope.torrentModel.append('tracker', $scope.model.tracker);
+							}
 							create();
 						}
 						else {
@@ -118,11 +119,8 @@ angular
 									status: 'ok'
 								}));
 							}
-							else if(!torrent[i].success && torrent[i].message === 'waiting') {
-								notify.danger(`Torrent waiting : ${torrent[i].torrent.name}`);
-								$scope.torrents.push(Object.assign(torrent[i].torrent, {
-									status: torrent[i].message
-								}));
+							else if(!torrent[i].success) {
+								notify.danger(`Fail : ${torrent[i].message}`);
 							}
 						}
 						modalInstance.dismiss('cancel');
