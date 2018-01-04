@@ -120,6 +120,11 @@ module.exports.delete = async(req, res) => {
 	}
 };
 
+/**
+ * @param req
+ * @param res
+ * @return {Promise.<void>}
+ */
 module.exports.download = async(req, res) => {
 	if(!req.session || !req.session.user) {
 		return res.redirect('/login');
