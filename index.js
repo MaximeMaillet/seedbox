@@ -25,8 +25,8 @@ console.log(`start on ${process.env.APP_PORT}`);
 async function main(app) {
 
 	try {
-		await dtorrent.fake();
-		// await dtorrent.start();
+		// await dtorrent.fake();
+		await dtorrent.start();
 		const manager = await dtorrent.manager();
 		// manager.addWebHook('http://localhost:8080/connard', {
 		// 	onFailed: (Url, status, body, headers) => {
