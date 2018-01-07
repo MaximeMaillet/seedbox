@@ -2,44 +2,26 @@
 {% set active_page = 'dashboard' %}
 
 {% block body %}
-<section>
-    <div class="row">
-        <div class="col-md-8 col-xs-8">
-            <div class="panel">
-                <div class="panel-heading">
-                    <strong>Drag and drop yout torrent's files</strong>
-                </div>
-                <div class="panel-body">
-                    <div class="pull-right">
-                        <!--<button class="btn btn-dtorrent" ng-click=""><i class="fa fa-plus"></i> Ajouter</button>-->
+    <section class="container container-torrents" ng-controller="connectionListenerController">
+        <div class="row">
+            <div class="col-xs-12" ng-controller="torrentListController">
+                <div class="panel">
+                    <div class="panel-heading">
+                        <div class="pull-right">
+                            <a href="#" ng-click="openAdd()" class="btn btn-dtorrent"><i class="fa fa-plus" aria-hidden="true"></i></a>
+                        </div>
+                        <strong><i class="fa fa-download" aria-hidden="true"></i> About my torrents</strong>
                     </div>
-                    <upload
-                            style="clear:both"
-                            tr-action="addTorrent(torrent)"
-                            user-token="'{{ user.token }}'"
-                    >
-                    </upload>
+                    <div class="panel-body">
+                        <ul class="list-group">
+                            <li class="list-group-item" ng-show="torrents.length === 0">No torrents</li>
+                            <div ng-repeat="data in torrents">
+                                <torrent bind="data"></torrent>
+                            </div>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4 col-xs-4">
-            <div class="panel">
-                <div class="panel-heading">
-                    <strong>State server</strong>
-                </div>
-                <div class="panel-body">
-                    <small ng-class="{connected: listenerConnected, disconnected: !listenerConnected}"><i class="fa fa-plug" aria-hidden="true"></i> Server
-                        <span ng-if="listenerConnected">connected</span>
-                        <span ng-if="!listenerConnected">disconnect</span>
-                    </small>
-                    <a href="#" ng-click="connectListener()" ng-if="!listenerConnected">refresh</a>
-                    <!--<br>-->
-                    <!--<small>Free space : 0.00Go</small>-->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    </div>
-</section>
+    </section>
 {% endblock %}

@@ -2,8 +2,8 @@
 angular
 	.module('dragNTorrent')
 	.controller('torrentController',
-		['$scope', 'connectListener', 'notify', 'torrentApi', '$uibModal',
-		($scope, connectListener, notify, torrentApi, $uibModal) => {
+		['$scope', 'notify', 'torrentApi', '$uibModal',
+		($scope, notify, torrentApi, $uibModal) => {
 
 			$scope.isLoaded = false;
 			let instanceModal = null;

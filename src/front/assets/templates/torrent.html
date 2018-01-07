@@ -1,32 +1,29 @@
-<div class="row" ng-if="!removed">
-    <div class="col-md-10">
-        <uib-progressbar
-                ng-class="{'progress-striped': !bind.finished, 'active': bind.playing}"
-                value="bind.progress"
-                max="100"
-                type="{[{bind.finished && 'success' || 'info' }]}">
-            {[{ bind.name }]}
-        </uib-progressbar>
-        <div class="data" ng-if="!bind.status || bind.status === 'ok'">
-            <small class="pull-right">Uploaded : {[{ (bind.uploaded/(1024*1024)) | number:2 }]} Mo</small>
-            <small class="pull-left">Downloaded : {[{ (bind.downloaded/(1024*1024)) | number:2}]} / {{ (bind.size/(1024*1024))  | number:2}} Mo</small>
-            <br>
-            <small>Ratio : {{ bind.ratio }}</small>
+<li class="list-group-item" ng-class="{'removed': bind.removed}">
+    <div class="row">
+        <div class="col-md-10">
+            <uib-progressbar
+                    ng-class="{'progress-striped': !bind.finished, 'active': bind.playing}"
+                    value="bind.progress"
+                    max="100"
+                    type="{[{bind.finished && 'success' || 'info' }]}">
+                {[{ bind.name }]}
+            </uib-progressbar>
+            <div class="data" ng-if="!bind.status || bind.status === 'ok'">
+                <small class="pull-right">Uploaded : {[{ (bind.uploaded/(1024*1024)) | number:2 }]} Mo</small>
+                <small class="pull-left">Downloaded : {[{ (bind.downloaded/(1024*1024)) | number:2}]} / {{ (bind.size/(1024*1024))  | number:2}} Mo</small>
+                <br>
+                <small>Ratio : {{ bind.ratio }}</small>
+            </div>
+            <div class="message" ng-if="bind.status && bind.status === 'waiting'">
+                Torrent waiting to downloaded
+            </div>
         </div>
-        <div class="message" ng-if="bind.status && bind.status === 'waiting'">
-            Torrent waiting to downloaded
+        <div class="col-md-2 text-right">
+            <i class="fa fa-spinner faa-spin animated" ng-if="isLoaded"></i>
+            <button class="btn btn-primary btn-info" ng-click="infoTorrent()"><i class="fa fa-search" aria-hidden="true"></i></button>
+            <button class="btn btn-primary btn-success" ng-click="playTorrent()" ng-if="!bind.active"><i class="fa fa-play" aria-hidden="true"></i></button>
+            <button class="btn btn-primary btn-warning" ng-click="pauseTorrent()" ng-if="bind.active"><i class="fa fa-pause" aria-hidden="true"></i></button>
+            <button class="btn btn-primary btn-danger" ng-click="removeTorrent()"><i class="fa fa-times" aria-hidden="true"></i></button>
         </div>
     </div>
-    <div class="col-md-2 text-right">
-        <i class="fa fa-spinner faa-spin animated" ng-if="isLoaded"></i>
-        <button class="btn btn-primary btn-info" ng-click="infoTorrent()"><i class="fa fa-search" aria-hidden="true"></i></button>
-        <button class="btn btn-primary btn-success" ng-click="playTorrent()" ng-if="!bind.active"><i class="fa fa-play" aria-hidden="true"></i></button>
-        <button class="btn btn-primary btn-warning" ng-click="pauseTorrent()" ng-if="bind.active"><i class="fa fa-pause" aria-hidden="true"></i></button>
-        <button class="btn btn-primary btn-danger" ng-click="removeTorrent()"><i class="fa fa-times" aria-hidden="true"></i></button>
-    </div>
-</div>
-<div class="row" ng-if="removed">
-    <div class="col-md-12">
-        <h3><i class="fa fa-spinner faa-spin animated"></i> Torrent is removing</h3>
-    </div>
-</div>
+</li>

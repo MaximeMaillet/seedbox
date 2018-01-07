@@ -1,6 +1,6 @@
 angular.module('dragNTorrent')
-	.controller('AuthCtrl', ['$scope', '$http', 'connectListener', 'notify',
-		function($scope, $http, connectionListener, notify) {
+	.controller('AuthCtrl', ['$scope', '$http', 'notify',
+		function($scope, $http, notify) {
 
 			/**
 			 * Display dashboard, load torrents and open connection

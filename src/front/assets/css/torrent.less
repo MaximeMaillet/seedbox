@@ -20,3 +20,14 @@
     }
   }
 }
+
+.container-torrents {
+  li {
+    transition: background 2s, opacity 3s;
+  }
+
+  li.removed {
+    background-color: @color_gradient_two;
+    opacity: 0;
+  }
+}

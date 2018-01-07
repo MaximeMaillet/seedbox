@@ -17,12 +17,13 @@ angular
 						}
 					}
 					else {
-						const _torrent = this.getOne(torrent.hash);
-						if(_torrent) {
-							Object.assign(_torrent, torrent);
-						} else {
-							this.torrents.push(torrent);
+						for(let i=0; i<this.torrents.length; i++) {
+							if(this.torrents[i].hash === torrent.hash) {
+								return Object.assign(this.torrents[i], torrent);
+							}
 						}
+
+						this.torrents.push(torrent);
 					}
 				},
 				set: (torrents) => {

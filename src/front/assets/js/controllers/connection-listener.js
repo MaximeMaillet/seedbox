@@ -3,67 +3,56 @@
 angular
 	.module('dragNTorrent')
 	.controller('connectionListenerController',
-		['$scope', 'torrentApi', 'connectListener', 'notify', 'TorrentList',
-			($scope, torrentApi, connectListener, notify, TorrentList) => {
-				/**
-				 * Open torrent listener
-				 */
-				$scope.connectListener = () => {
-					connectListener.startAllTorrent(null, {
-						onInit: function() {
-							$scope.listenerConnected = true;
-						},
-						onClose: function() {
-							$scope.$apply(() => {
-								$scope.listenerConnected = false;
-							});
-							notify.danger('Connection torrents close');
-						},
-						onError: function(event) {
-							$scope.$apply(() => {
-								$scope.listenerConnected = false;
-							});
-							notify.danger('Error! Connection closed');
-						},
-						onEmit: function(data) {
-							switch(data.event) {
-								case 'insert':
-									$scope.$apply(() => {
-										TorrentList.add(Object.assign(data.torrent, {status:'ok'}));
-									});
-									break;
-								case 'update':
-									$scope.$apply(() => {
-										const torrent = TorrentList.getOne(data.torrent.hash);
-										const newTorrent = data.torrent;
-										torrent.progress = newTorrent.progress;
-										torrent.mb_uploaded = newTorrent.mb_uploaded;
-										torrent.mb_downloaded = newTorrent.mb_downloaded;
-										torrent.ratio = newTorrent.ratio;
-										torrent.playing = newTorrent.playing;
-										torrent.is_finished = newTorrent.is_finished;
-										torrent.status = 'ok';
-									});
-									break;
-								case 'finish':
-									$scope.$apply(() => {
-										const torrent = TorrentList.getOne(data.torrent.hash);
-										const newTorrent = data.torrent;
-										torrent.progress = 100;
-										torrent.mb_downloaded = newTorrent.mb_total;
-										torrent.playing = false;
-										torrent.is_finished = true;
-									});
-									break;
-								case 'remove':
-									$scope.$apply(() => {
-										TorrentList.remove(data.torrent.hash);
-									});
-									break;
-							}
-						}
-					});
-				};
+		['$scope', 'torrentApi', 'notify', 'TorrentList',
+		($scope, torrentApi, notify, TorrentList) => {
 
-				$scope.connectListener();
+				const socket = io.connect('http://localhost:8080');
+
+				// setTimeout(() => {
+				// 	const t = TorrentList.get();
+				// 	for(const i in t) {
+				// 		$scope.$apply(() => {
+				// 			t[i].removed = true;
+				// 			console.log('ok');
+				// 		});
+				// 	}
+				// }, 1000);
+
+				socket.on('torrent-added', (data) => {
+					const torrent = JSON.parse(data);
+					$scope.$apply(() => {
+						TorrentList.add(torrent);
+					});
+				});
+
+				socket.on('torrent-updated', (data) => {
+					const newTorrent = JSON.parse(data);
+					$scope.$apply(() => {
+						const torrent = TorrentList.getOne(newTorrent.hash);
+						torrent.progress = newTorrent.progress;
+						torrent.uploaded = newTorrent.uploaded;
+						torrent.downloaded = newTorrent.downloaded;
+						torrent.ratio = newTorrent.ratio;
+						torrent.playing = newTorrent.playing;
+					});
+				});
+
+				socket.on('torrent-finished', (data) => {
+					const newTorrent = JSON.parse(data);
+					const torrent = TorrentList.getOne(newTorrent.hash);
+					$scope.$apply(() => {
+						torrent.finished = newTorrent.finished;
+					});
+				});
+
+				socket.on('torrent-removed', (data) => {
+					const _torrent = JSON.parse(data);
+					const torrent = TorrentList.getOne(_torrent.hash);
+					$scope.$apply(() => {
+						torrent.removed = true;
+						setTimeout(() => {
+							TorrentList.remove(torrent.hash);
+						}, 1800);
+					});
+				});
 			}]);

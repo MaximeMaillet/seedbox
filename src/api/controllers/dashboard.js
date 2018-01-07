@@ -1,5 +1,6 @@
 'use strict';
 
+const pjson = require('../../../package.json');
 const userService = require('../../services/user');
 
 /**
@@ -13,7 +14,7 @@ module.exports.index = async(req, res) => {
 	}
 
 	return res.render('index.twig', {
-		version: '0.0.5',
+		version: pjson.version,
 		user: req.session.user,
 	});
 };
@@ -29,7 +30,7 @@ module.exports.torrents = async(req, res) => {
 	}
 
 	res.render('torrents.twig', {
-		version: '0.0.5',
+		version: pjson.version,
 		user: req.session.user
 	});
 };
@@ -45,7 +46,7 @@ module.exports.admin = async(req, res) => {
 	}
 
 	res.render('admin.twig', {
-		version: '0.0.5',
+		version: pjson.version,
 		user: req.session.user
 	});
 };
@@ -62,6 +63,6 @@ module.exports.login = async(req, res) => {
 	}
 
 	res.render('login.twig', {
-		version: '0.0.5'
+		version: pjson.version
 	});
 };

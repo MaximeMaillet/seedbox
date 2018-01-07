@@ -13,13 +13,20 @@ const debug = require('debug');
 const lDebug = debug('dTorrent:daemon:debug');
 const sessionStore = require('./src/lib/session');
 const upload = multer({dest: `${__dirname}/public/uploads/`});
+
 const app = express();
+const server = require('http').createServer(app);
+
+main(app);
+
+server.listen(process.env.APP_PORT);
+console.log(`start on ${process.env.APP_PORT}`);
 
 async function main(app) {
 
 	try {
-
-		await dtorrent.start();
+		await dtorrent.fake();
+		// await dtorrent.start();
 		const manager = await dtorrent.manager();
 		// manager.addWebHook('http://localhost:8080/connard', {
 		// 	onFailed: (Url, status, body, headers) => {
@@ -31,27 +38,6 @@ async function main(app) {
 		// 		console.log(err);
 		// 	}
 		// });
-		// manager.addListener({
-		// 	onAdded: async(torrent) => {
-		// 		console.log(`added : ${torrent.name}`);
-		// 	},
-		// 	onRemoved: async(torrent) => {
-		// 		console.log(`remove : ${torrent.name}`);
-		// 	},
-		// 	onUpdated: async(torrent, diff) => {
-		// 		console.log(`update : ${torrent.name}`);
-		// 		console.log(diff);
-		// 	},
-		// 	onPaused: async(torrent) => {
-		// 		console.log(`pause : ${torrent.name}`);
-		// 	},
-		// 	onResumed: async(torrent) => {
-		// 		console.log(`resume : ${torrent.name}`);
-		// 	},
-		// 	onFinished: async(torrent) => {
-		// 		console.log(`finish : ${torrent.name}`);
-		// 	}
-		// });
 
 		await initDatabase();
 
@@ -61,7 +47,7 @@ async function main(app) {
 
 		const dashboardController = require('./src/api/controllers/dashboard');
 		const userController = require('./src/api/controllers/user');
-		const websocketController = require('./src/api/controllers/web-socket')(manager);
+		const websocketController = require('./src/api/controllers/web-socket')(server, manager);
 		const torrentController = require('./src/api/controllers/torrent')(manager);
 
 		await routes(app, {
@@ -75,12 +61,6 @@ async function main(app) {
 		console.log(e);
 	}
 }
-
-main(app);
-
-app.listen(process.env.APP_PORT);
-console.log(`start on ${process.env.APP_PORT}`);
-
 
 /**
  * @return {Promise.<void>}

@@ -52,6 +52,7 @@ gulp.task('npm:js', () => {
 			`${__dirname}/node_modules/angular-ui-bootstrap/dist/*.js`,
 			`${__dirname}/node_modules/bootstrap-notify/*.min.js`,
 			`${__dirname}/node_modules/lodash/lodash.js`,
+			`${__dirname}/node_modules/socket.io-client/dist/*.js`,
 		])
 		.pipe(concat('script.min.js'))
 		.pipe(uglify())
