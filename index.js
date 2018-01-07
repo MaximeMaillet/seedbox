@@ -86,6 +86,7 @@ console.log(`start on ${process.env.APP_PORT}`);
  * @return {Promise.<void>}
  */
 async function initDatabase() {
+	lDebug('Configuration database');
 	if(!process.env.MYSQL_HOST) {
 		process.env.MYSQL_HOST = '127.0.0.1';
 	}
@@ -102,11 +103,12 @@ async function initDatabase() {
 		process.env.MYSQL_DIALECT = 'mysql';
 	}
 
-	const userModel = require('./src/models/user')();
-	const roleModel = require('./src/models/role')();
-
-	await userModel.sync();
-	await roleModel.sync();
+	lDebug('Initialization models');
+	const models = fs.readdirSync('./src/models');
+	for(const i in models) {
+		const model = require(`./src/models/${models[i]}`)();
+		model.sync();
+	}
 }
 
 /**

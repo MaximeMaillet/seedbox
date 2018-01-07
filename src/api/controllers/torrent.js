@@ -3,6 +3,8 @@
 const torrentTransformer = require('../../transformers/torrent');
 const userService = require('../../services/user');
 
+const userTorrent = require('../../models/user-torrent')();
+
 let manager = null;
 
 /**
@@ -169,11 +171,21 @@ module.exports.post = async(req, res) => {
 	}
 
 	Promise.all(promises)
-	.then((torrents) => {
+	.then(async(torrents) => {
 		for(const i in torrents) {
 			torrents[i].torrent = Object.assign(
 				torrentTransformer.transform(torrents[i].torrent, req.session.user),
-				torrents[i].torrent);
+				torrents[i].torrent
+			);
+
+			if(torrents[i].success) {
+				const uT = await userTorrent.model().create({
+					hash: torrents[i].torrent.hash,
+					ratio: torrents[i].torrent.ratio,
+					userId: req.session.user.id,
+				});
+				uT.save();
+			}
 		}
 		res.status(200).send(torrents);
 	})
