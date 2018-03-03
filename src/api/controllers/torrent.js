@@ -134,7 +134,8 @@ module.exports.download = async(req, res) => {
 
 	const torrent = await manager.getOne(req.params.hash);
 	const file = `${process.env.STORAGE}/dtorrent/downloaded/${torrent.name}`;
-	res.download(file);
+	const path = require('path');
+	res.download(path.resolve(file), 'registrazioni.avi');
 };
 
 /**

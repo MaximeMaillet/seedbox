@@ -10,6 +10,8 @@ const session = require('express-session');
 const multer = require('multer');
 const debug = require('debug');
 
+const parsetorrent = require('parse-torrent');
+
 const lDebug = debug('dTorrent:daemon:debug');
 const sessionStore = require('./src/lib/session');
 const upload = multer({dest: `${__dirname}/public/uploads/`});
@@ -28,6 +30,15 @@ async function main(app) {
 		// await dtorrent.fake();
 		await dtorrent.start();
 		const manager = await dtorrent.manager();
+
+		manager.addListener({
+			onAdded: (torrent) => {
+				// console.log(torrent);
+				// console.log(parsetorrent(fs.readFileSync(torrent.file_path)));
+			}
+		});
+
+		// console.log(parsetorrent(fs.readFileSync('.data/dtorrent/torrent/[oxtorrent.com] Youv-Dee-2017-Gear-2.torrent')));
 		// manager.addWebHook('http://localhost:8080/connard', {
 		// 	onFailed: (Url, status, body, headers) => {
 		// 		console.log(status);
@@ -40,22 +51,22 @@ async function main(app) {
 		// });
 
 		await initDatabase();
-
-		configExpress(app);
-
-		await enableFront(app);
-
-		const dashboardController = require('./src/api/controllers/dashboard');
-		const userController = require('./src/api/controllers/user');
-		const websocketController = require('./src/api/controllers/web-socket')(server, manager);
-		const torrentController = require('./src/api/controllers/torrent')(manager);
-
-		await routes(app, {
-			dashboardController,
-			userController,
-			websocketController,
-			torrentController
-		});
+		//
+		// configExpress(app);
+		//
+		// await enableFront(app);
+		//
+		// const dashboardController = require('./src/api/controllers/dashboard');
+		// const userController = require('./src/api/controllers/user');
+		// const websocketController = require('./src/api/controllers/web-socket')(server, manager);
+		// const torrentController = require('./src/api/controllers/torrent')(manager);
+		//
+		// await routes(app, {
+		// 	dashboardController,
+		// 	userController,
+		// 	websocketController,
+		// 	torrentController
+		// });
 
 	} catch(e) {
 		console.log(e);
@@ -84,11 +95,10 @@ async function initDatabase() {
 	}
 
 	lDebug('Initialization models');
-	const models = fs.readdirSync('./src/models');
-	for(const i in models) {
-		const model = require(`./src/models/${models[i]}`)();
-		model.sync();
-	}
+	const models = require('./src/lib/sequelize');
+	models.sequelize.sync().then(() => {
+
+	});
 }
 
 /**
