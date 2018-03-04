@@ -11,6 +11,7 @@ const session = require('express-session');
 const sessionStore = require('../../lib/session');
 
 /**
+ * @deprecated
  * Log out user
  * @param req
  * @param res
@@ -23,6 +24,7 @@ module.exports.logout = async(req, res) => {
 };
 
 /**
+ * @deprecated
  * Log user
  * @param req
  * @param res
@@ -49,6 +51,7 @@ module.exports.login = async(req, res) => {
 };
 
 /**
+ * @deprecated
  * Create user
  * @param req
  * @param res

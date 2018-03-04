@@ -1,0 +1,6 @@
+{
+  "verbose": false,
+  "restartable": "rs",
+  "ignore": ["src/front/*", "sessions", ".git", "node_modules"],
+  "ext": "js twig html"
+}

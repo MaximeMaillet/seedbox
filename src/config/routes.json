@@ -1,0 +1,31 @@
+{
+  "_middlewares": [
+    {
+      "target": "*",
+      "action": [
+        "apiMiddleware#bodyParserJson",
+        "apiMiddleware#bodyParserUrlencoded",
+        "apiMiddleware#session"
+      ]
+    }
+  ],
+  "/api": {
+    "/authenticate": {
+      "/login": {
+        "post": "AuthenticateController#login"
+      },
+      "/subscribe": {
+        "post": "AuthenticateController#subscribe"
+      },
+      "/forgot": {
+        "post": "AuthenticateController#forgot"
+      },
+      "/password": {
+        "post": "AuthenticateController#password"
+      },
+      "/logout": {
+        "get": "AuthenticateController#logout"
+      }
+    }
+  }
+}

@@ -1,3 +1,28 @@
+# Seedbox - Back end
+
+Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTorrent](https://github.com/MaximeMaillet/dtorrent).
+
+
+# Install
+
+```bash
+nvm install
+npm install
+```
+
+# Workflow
+
+* API
+  * /api/authenticate/login
+  * /api/authenticate/subscribe
+    > MariaDB
+    > crypt password
+    > send email
+  * /api/authenticate/forgot
+    > send email
+  * /api/authenticate/password?token=
+  * /api/authenticate/logout
+
 # Roadmap
 
 ### Release 0.0.6

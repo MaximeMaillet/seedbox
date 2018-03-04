@@ -1,42 +1,59 @@
 require('dotenv').config();
-'use strict';
-
-const dtorrent = require('dtorrent');
-const express = require('express');
-const Twig = require('twig');
-const bodyParser = require('body-parser');
-const fs = require('fs');
-const session = require('express-session');
-const multer = require('multer');
 const debug = require('debug');
-
-const parsetorrent = require('parse-torrent');
-
 const lDebug = debug('dTorrent:daemon:debug');
-const sessionStore = require('./src/lib/session');
-const upload = multer({dest: `${__dirname}/public/uploads/`});
+
+const express = require('express');
+const router = require('express-imp-router');
+
+// initDatabase();
 
 const app = express();
-const server = require('http').createServer(app);
+router(app);
+router.route([
+  {
+    routes: `${__dirname}/src/config/routes.json`,
+    controllers: `${__dirname}/src/controllers`,
+    middlewares: `${__dirname}/src/middlewares`
+  }
+]);
 
-main(app);
+app.listen(process.env.API_PORT);
+console.log(`API listen on ${process.env.API_PORT}`);
 
-server.listen(process.env.APP_PORT);
-console.log(`start on ${process.env.APP_PORT}`);
+// const dtorrent = require('dtorrent');
+// const bodyParser = require('body-parser');
+//
+//
+// const multer = require('multer');
+// const debug = require('debug');
+//
+// const parsetorrent = require('parse-torrent');
+//
+// const lDebug = debug('dTorrent:daemon:debug');
+// const sessionStore = require('./src/lib/session');
+// const upload = multer({dest: `${__dirname}/public/uploads/`});
+//
+//
+// const server = require('http').createServer(app);
+//
+// // main(app);
+//
+// server.listen(process.env.APP_PORT);
+// console.log(`start on ${process.env.APP_PORT}`);
 
 async function main(app) {
 
 	try {
 		// await dtorrent.fake();
-		await dtorrent.start();
-		const manager = await dtorrent.manager();
-
-		manager.addListener({
-			onAdded: (torrent) => {
-				// console.log(torrent);
-				// console.log(parsetorrent(fs.readFileSync(torrent.file_path)));
-			}
-		});
+		// // await dtorrent.start();
+		// const manager = await dtorrent.manager();
+    //
+		// manager.addListener({
+		// 	onAdded: (torrent) => {
+		// 		// console.log(torrent);
+		// 		// console.log(parsetorrent(fs.readFileSync(torrent.file_path)));
+		// 	}
+		// });
 
 		// console.log(parsetorrent(fs.readFileSync('.data/dtorrent/torrent/[oxtorrent.com] Youv-Dee-2017-Gear-2.torrent')));
 		// manager.addWebHook('http://localhost:8080/connard', {
@@ -102,51 +119,6 @@ async function initDatabase() {
 }
 
 /**
- * Configuration for express
- * @param app
- */
-function configExpress(app) {
-	const cookieDate = new Date();
-	cookieDate.setDate(cookieDate.getDate() + 30);
-	app.use(bodyParser.urlencoded({ extended: true }));
-	app.use(bodyParser.json());
-
-	app.use(session({
-		store: sessionStore(session),
-		secret: 'dT0rr3n7',
-		resave: true,
-		saveUninitialized: false,
-		cookie: {
-			maxAge: 60*60*24*30*1000
-		}
-	}));
-	app.use(bodyParser.urlencoded({
-		limit: '500mb',
-		extended: true,
-		parameterLimit: 1000000
-	}));
-	app.use(bodyParser.json());
-}
-
-/**
- * Enable front
- * @param app
- * @return {Promise.<void>}
- */
-async function enableFront(app) {
-	app.set('views', `${__dirname}/src/front/views`);
-
-	app.set('twig options', {
-		strict_variables: false
-	});
-
-	enableTwig('./src/front/twig');
-
-	app.use('/static', express.static(`${__dirname}/public`));
-	app.use('/uib', express.static(`${__dirname}/node_modules/angular-ui-bootstrap`));
-}
-
-/**
  * Define routes of app
  * @param app
  * @param controllers
@@ -184,18 +156,4 @@ async function routes(app, controllers) {
 		{ name: 'files'}
 	]);
 	app.post('/api/torrents', t, torrentController.post);
-}
-
-/**
- * Enable custom twig
- * @param twigDirectory
- */
-function enableTwig(twigDirectory) {
-	let fn = null;
-	fs.readdir(twigDirectory, (err, files) => {
-		files.forEach(file => {
-			fn = require(`${twigDirectory}/${file}`);
-			Twig.extendFunction(fn.name, fn.main);
-		});
-	});
 }

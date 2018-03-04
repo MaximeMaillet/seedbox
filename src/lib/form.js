@@ -3,10 +3,57 @@
 const userService = require('../services/user');
 const roleService = require('../services/role');
 
-const data = {};
-const errors = [];
-let isSuccess = true;
-let original = null;
+class Form {
+
+  constructor(data, original, errors) {
+    this.data = data;
+    this.errors = [];
+    this.original = original;
+  }
+
+  async flush(model) {
+    if(Object.keys(this.data).length > 0) {
+      if(this.original) {
+        return model.update(this.data, {where: {id: this.original.id}})
+          .then((success) => {
+            if(success) {
+              return Object.assign(this.original.dataValues, this.data);
+            } else {
+              return null;
+            }
+          });
+      } else {
+        try {
+          return await model.create(this.data);
+        } catch(e) {
+          throw e;
+        }
+      }
+    }
+  };
+
+  /**
+   * Voire plus tard pour l'ajout de requirements spécifiques
+   * @return {boolean}
+   */
+  isSuccess() {
+    return this.errors.length === 0;
+  };
+
+  /**
+   * @return {{}}
+   */
+  data() {
+    return this.data;
+  };
+
+  /**
+   * Voire plus tard pour l'ajout de requirements spécifiques
+   */
+  errors() {
+    return this.errors;
+  };
+};
 
 /**
  * @param _original
@@ -15,40 +62,42 @@ let original = null;
  */
 module.exports.run = async(_original, values, owner) => {
 
-	original = _original;
+	const original = _original;
+	const data = {};
+	const errors = [];
 
-	for(const i in values) {
-		// Check content
-		if(isEmpty(values[i].value)) {
-			if(!isEmpty(values[i].default)) {
-				values[i].value = values[i].default;
+  for(const i in values) {
+    console.log(values[i]);
+    // Check content
+    if(isEmpty(values[i].value)) {
+      if(values[i].required) {
+        continue;
+      } else if(!isEmpty(values[i].default)) {
+        values[i].value = values[i].default;
 			} else {
-				continue;
+        continue;
 			}
 		}
 
 		// Check rights
-		if(original) {
-			if(values[i].canEdit && (!owner || !userService.isGranted(owner, values[i].canEdit, original))) {
-				continue;
-			}
-		}
-		else {
-			if(values[i].canCreate && (!owner || !userService.isGranted(owner, values[i].canCreate, original))) {
-				continue;
-			}
-		}
+    // @TODO
+    if(values[i].canSet) {
+      if(!owner) {
+        values[i].value = values[i].default;
+      }
+    }
 
 		// Transform according to type, if exists
 		if(values[i].type) {
 			if(values[i].type === 'Role') {
 				values[i].value = roleService.transformToMask(values[i].value);
 			} else {
-				isSuccess = false;
 				errors.push({error: `Type not recognized ${values[i].type}`});
 				continue;
 			}
 		}
+
+    console.log(values[i]);
 
 		// Check diff + assignation
 		if(original) {
@@ -72,52 +121,7 @@ module.exports.run = async(_original, values, owner) => {
 		}
 	}
 
-	return  module.exports;
-};
-
-module.exports.flush = async(model) => {
-	if(Object.keys(data).length > 0) {
-		if(original) {
-			return model.update(data, {where: {id: original.id}})
-				.then((success) => {
-					if(success) {
-						return Object.assign(original.dataValues, data);
-					} else {
-						return null;
-					}
-				});
-		} else {
-			try {
-				const user = await model.create(data);
-				await user.save();
-				return user;
-			} catch(e) {
-				throw e;
-			}
-		}
-	}
-};
-
-/**
- * Voire plus tard pour l'ajout de requirements spécifiques
- * @return {boolean}
- */
-module.exports.isSuccess = () => {
-	return isSuccess;
-};
-
-/**
- * @return {{}}
- */
-module.exports.data = () => {
-	return data;
-};
-
-/**
- * Voire plus tard pour l'ajout de requirements spécifiques
- */
-module.exports.errors = () => {
-	return errors;
+	return new Form(data, original, errors);
 };
 
 /**

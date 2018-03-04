@@ -1,6 +1,6 @@
 'use strict';
 
-const roleModel = require('../models/role')();
+const roleModel = require('../models/role');
 
 /**
  * Check user roles
