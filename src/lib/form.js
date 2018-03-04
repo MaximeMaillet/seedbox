@@ -67,7 +67,6 @@ module.exports.run = async(_original, values, owner) => {
 	const errors = [];
 
   for(const i in values) {
-    console.log(values[i]);
     // Check content
     if(isEmpty(values[i].value)) {
       if(values[i].required) {
@@ -96,8 +95,6 @@ module.exports.run = async(_original, values, owner) => {
 				continue;
 			}
 		}
-
-    console.log(values[i]);
 
 		// Check diff + assignation
 		if(original) {

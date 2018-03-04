@@ -36,9 +36,9 @@ async function login(req, res) {
   try {
     const {username, password} = req.body;
     return UserModel
-      .model()
       .findOne({ where: { username: username, is_validated: true } })
       .then((user) => {
+        console.log(user);
         if (!user || !user.validPassword(password)) {
           return res.status(401).send('Authenticate failed');
         } else {
