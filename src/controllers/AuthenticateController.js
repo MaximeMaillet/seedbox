@@ -1,6 +1,9 @@
+require('dotenv').config();
 const UserModel = require('../models').users;
 const userTransformer = require('../transformers/user');
 const userForm = require('../forms/user');
+const mailer = require('../lib/mailer');
+const template = require('../lib/template');
 
 const session = require('express-session');
 const sessionStore = require('../middlewares/apiMiddleware').fileStore;
@@ -10,7 +13,9 @@ module.exports = {
   login,
   subscribe,
   forgot,
-  password,
+  passwordPost,
+  passwordGet,
+  confirm,
 };
 
 /**
@@ -62,6 +67,13 @@ async function subscribe(req, res) {
 
     if(form.isSuccess()) {
       const user = await form.flush(UserModel);
+      const body = await template.twigToHtml('email.subscribe.html.twig', {
+        username: user.username,
+        link: `${process.env.BASE_API}/authenticate/confirm?token=${user.token}`
+      });
+      mailer.send('maxime.maillet93@gmail.com', 'Welcome on dTorrent', body);
+      // @TODO
+
       res.status(200).send(userTransformer.transform(user, req.session.user));
     } else {
       res.status(422).send(form.errors());
@@ -80,10 +92,41 @@ async function subscribe(req, res) {
   }
 }
 
+/**
+ * @param req
+ * @param res
+ * @return {Promise.<void>}
+ */
+async function confirm(req, res) {
+  if(!req.query.token) {
+    return res.status(401).send();
+  }
+
+  const user = await UserModel.findOne({ where: { token: req.query.token, is_validated: false } });
+
+  if(!user) {
+    return res.status(401).send();
+  }
+
+  user.is_validated = true;
+  await user.save();
+
+  const body = await template.twigToHtml('subscribe.confirm.html.twig', {
+    username: user.username,
+    link: `${process.env.BASE_URL}`
+  });
+
+  res.send(body);
+}
+
 async function forgot(req, res) {
   res.status(404).send();
 }
 
-async function password(req, res) {
+async function passwordGet(req, res) {
+  res.status(404).send();
+}
+
+async function passwordPost(req, res) {
   res.status(404).send();
 }

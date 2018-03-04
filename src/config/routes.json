@@ -13,9 +13,6 @@
   ],
   "/api": {
     "/authenticate": {
-      "/isco": {
-        "get": "AuthenticateController#isCo"
-      },
       "/login": {
         "post": "AuthenticateController#login"
       },
@@ -26,11 +23,15 @@
         "post": "AuthenticateController#forgot"
       },
       "/password": {
-        "post": "AuthenticateController#password"
+        "get": "AuthenticateController#passwordGet",
+        "post": "AuthenticateController#passwordPost"
       },
       "/logout": {
         "get": "AuthenticateController#logout"
       }
     }
+  },
+  "/authenticate/confirm": {
+    "get": "AuthenticateController#confirm"
   }
 }
