@@ -1,6 +1,5 @@
 const UserModel = require('../models').users;
 const userTransformer = require('../transformers/user');
-const userService = require('../services/user');
 const userForm = require('../forms/user');
 
 const session = require('express-session');
@@ -11,7 +10,7 @@ module.exports = {
   login,
   subscribe,
   forgot,
-  password
+  password,
 };
 
 /**
@@ -23,7 +22,7 @@ module.exports = {
 async function logout(req, res) {
   sessionStore(session).clear((d,r) => {});
   req.session = null;
-  return res.redirect('/login');
+  return res.send({});
 }
 
 /**
@@ -38,13 +37,12 @@ async function login(req, res) {
     return UserModel
       .findOne({ where: { username: username, is_validated: true } })
       .then((user) => {
-        console.log(user);
         if (!user || !user.validPassword(password)) {
           return res.status(401).send('Authenticate failed');
         } else {
           req.session.user = user.dataValues;
           delete user.dataValues['password'];
-          return res.status(200).send(user.dataValues);
+          return res.status(200).send(userTransformer.transform(user.dataValues, user.dataValues));
         }
       });
   } catch(e) {

@@ -1,4 +1,7 @@
+require('dotenv').config();
+const _cors = require('cors');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const _session = require('express-session');
 const FileStore = require('session-file-store')(_session);
 const fileStore = new FileStore({
@@ -12,19 +15,34 @@ const bodyParserUrlencoded = bodyParser.urlencoded({
   parameterLimit: 1000000
 });
 
+const cookie = cookieParser();
+
 const session = _session({
   store: fileStore,
   secret: 'dT0rr3n7',
   resave: true,
-  saveUninitialized: false,
+  saveUninitialized: true,
   cookie: {
-    maxAge: 60*60*24*30*1000
+    maxAge: 60*60*24*30*1000,
+    path: '/'
   }
 });
+
+const whiteList = process.env.CORS_DOMAIN.split(',');
+const corsOptions = {
+  origin: whiteList,
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'PATCH', 'POST'],
+  credentials: true,
+};
+
+const cors = _cors(corsOptions);
 
 module.exports = {
   bodyParserJson,
   bodyParserUrlencoded,
+  cookie,
   session,
+  cors,
   fileStore
 };

@@ -3,14 +3,19 @@
     {
       "target": "*",
       "action": [
+        "apiMiddleware#cors",
         "apiMiddleware#bodyParserJson",
         "apiMiddleware#bodyParserUrlencoded",
+        "apiMiddleware#cookie",
         "apiMiddleware#session"
       ]
     }
   ],
   "/api": {
     "/authenticate": {
+      "/isco": {
+        "get": "AuthenticateController#isCo"
+      },
       "/login": {
         "post": "AuthenticateController#login"
       },
