@@ -72,7 +72,7 @@ async function subscribe(req, res) {
         link: `${process.env.BASE_API}/authenticate/confirm?token=${user.token}`
       });
       mailer.send('maxime.maillet93@gmail.com', 'Welcome on dTorrent', body);
-      // @TODO
+      // @TODO change email
 
       res.status(200).send(userTransformer.transform(user, req.session.user));
     } else {
@@ -120,7 +120,24 @@ async function confirm(req, res) {
 }
 
 async function forgot(req, res) {
-  res.status(404).send();
+  try {
+    const {email} = req.body;
+    const user = await UserModel.findOne({ where: { email: email, is_validated: true } });
+
+    if (!user) {
+      return res.status(404).send();
+    } else {
+      const body = await template.twigToHtml('email.forgotten.html.twig', {
+        username: user.username,
+        link: `${process.env.BASE_API}/authenticate/password/${user.token}` // @TODO generate new token
+      });
+      await mailer.send(email, 'dTorrent - password forgotten', body);
+      return res.status(200).send();
+    }
+  } catch(e) {
+    console.log(e);
+    return res.status(404).send({message: e.message});
+  }
 }
 
 async function passwordGet(req, res) {

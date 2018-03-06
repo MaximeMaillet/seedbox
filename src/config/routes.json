@@ -23,7 +23,6 @@
         "post": "AuthenticateController#forgot"
       },
       "/password": {
-        "get": "AuthenticateController#passwordGet",
         "post": "AuthenticateController#passwordPost"
       },
       "/logout": {
@@ -31,7 +30,12 @@
       }
     }
   },
-  "/authenticate/confirm": {
-    "get": "AuthenticateController#confirm"
+  "/authenticate": {
+    "/confirm": {
+      "get": "AuthenticateController#confirm"
+    },
+    "/password/:token": {
+      "get": "AuthenticateController#passwordGet"
+    }
   }
 }
