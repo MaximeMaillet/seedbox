@@ -6,9 +6,6 @@ Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTo
 # Workflow
 
 * API
-  * /api/authenticate/forgot (TODO)
-    > send email
-  * /api/authenticate/password?token= (TODO)
   * /api/users (TODO)
 
 | Method | Endpoint                    | Params        |
@@ -29,7 +26,7 @@ Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTo
 
 ###### Refacto
 
-* [ ] Authenticate system (login, subscribe, forgot password, etc)
+* [x] Authenticate system (login, subscribe, forgot password, etc)
 * [x] User model : replace username by email
 * [ ] Api /users
 

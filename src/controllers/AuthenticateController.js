@@ -1,7 +1,13 @@
 require('dotenv').config();
-const UserModel = require('../models').users;
+const {uid} = require('rand-token');
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
+
+const {users: UserModel, tokens: TokenModel} = require('../models');
+
 const userTransformer = require('../transformers/user');
 const userForm = require('../forms/user');
+const passwordForm = require('../forms/password');
 const mailer = require('../lib/mailer');
 const template = require('../lib/template');
 
@@ -71,8 +77,7 @@ async function subscribe(req, res) {
         email: user.email,
         link: `${process.env.BASE_API}/authenticate/confirm?token=${user.token}`
       });
-      mailer.send('maxime.maillet93@gmail.com', 'Welcome on dTorrent', body);
-      // @TODO change email
+      mailer.send(user.email, 'Welcome on dTorrent', body);
 
       res.status(200).send(userTransformer.transform(user, req.session.user));
     } else {
@@ -127,14 +132,23 @@ async function confirm(req, res) {
 async function forgot(req, res) {
   try {
     const {email} = req.body;
-    const user = await UserModel.findOne({ where: { email: email, is_validated: true } });
+    const user = await UserModel.findOne({ where: { email, is_validated: true } });
 
     if (!user) {
-      return res.status(404).send();
+      return res.status(404).send({
+        message: 'This email does not exists',
+      });
     } else {
+
+      const token = await TokenModel.create({
+        token: uid(32),
+        type: 1,
+        userId: user.id,
+      });
+
       const body = await template.twigToHtml('email.forgotten.html.twig', {
         email: user.email,
-        link: `${process.env.BASE_API}/authenticate/password/${user.token}` // @TODO generate new token
+        link: `${process.env.BASE_API}/authenticate/password/${token.token}`
       });
       await mailer.send(email, 'dTorrent - password forgotten', body);
       return res.status(200).send();
@@ -144,10 +158,58 @@ async function forgot(req, res) {
   }
 }
 
+/**
+ * @param req
+ * @param res
+ * @return {Promise.<void>}
+ */
 async function passwordGet(req, res) {
-  res.status(404).send();
+  return res.redirect(`${process.env.BASE_URL}/authenticate/password/${req.params.token}`);
 }
 
+/**
+ * When user register a new password with token
+ * @param req
+ * @param res
+ * @return {Promise.<void>}
+ */
 async function passwordPost(req, res) {
-  res.status(404).send();
+  try {
+    const {token, password, password2} = req.body;
+
+    if(!password || password !== password2) {
+      return res.status(409).send({
+        message: 'Password are not same'
+      });
+    }
+
+    const userToken = await TokenModel.findOne({
+      where: {
+        token,
+        date_expired: {
+          [Op.gt]: new Date(),
+        }
+      }
+    });
+
+    if(!userToken) {
+      return res.status(409).send({
+        message: 'This token has expired',
+      });
+    }
+
+    const user = await UserModel.findOne({where: {id: userToken.dataValues.userId}});
+    const form = await passwordForm(user, req.body, user);
+
+    if(form.isSuccess()) {
+      const user = await form.flush(UserModel);
+      userToken.destroy();
+      res.status(200).send(userTransformer.transform(user));
+    } else {
+      res.status(422).send(form.errors());
+    }
+  } catch(e) {
+    res.status(500).send(e);
+  }
 }
+

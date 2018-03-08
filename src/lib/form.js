@@ -30,7 +30,7 @@ class Form {
         }
       }
     }
-  };
+  }
 
   /**
    * Voire plus tard pour l'ajout de requirements spécifiques
@@ -38,22 +38,22 @@ class Form {
    */
   isSuccess() {
     return this.errors.length === 0;
-  };
+  }
 
   /**
    * @return {{}}
    */
-  data() {
+  getData() {
     return this.data;
-  };
+  }
 
   /**
    * Voire plus tard pour l'ajout de requirements spécifiques
    */
   errors() {
     return this.errors;
-  };
-};
+  }
+}
 
 /**
  * @param _original

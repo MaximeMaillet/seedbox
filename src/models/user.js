@@ -58,6 +58,13 @@ module.exports = (sequelize, DataTypes) => {
 				allowNull: false
 			}
 		});
+
+    models.users.hasMany(models.tokens, {
+      onDelete: 'CASCADE',
+      foreignKey: {
+        allowNull: false,
+      }
+    });
 	};
 
 	users.prototype.validPassword = function(password) {
