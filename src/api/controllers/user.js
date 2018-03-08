@@ -32,10 +32,10 @@ module.exports.logout = async(req, res) => {
  */
 module.exports.login = async(req, res) => {
 	try {
-		const {username, password} = req.body;
+		const {email, password} = req.body;
 		return UserModel
 			.model()
-			.findOne({ where: { username: username, is_validated: true } })
+			.findOne({ where: { email, is_validated: true } })
 			.then((user) => {
 				if (!user || !user.validPassword(password)) {
 					return res.status(401).send('Authenticate failed');

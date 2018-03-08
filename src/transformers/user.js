@@ -27,7 +27,7 @@ function transformUser(user, owner) {
 
 	const User = {
 		id: user.id,
-		username: user.username,
+		email: user.email,
 		roles: roleString.substring(0, roleString.length - 1),
 		space: user.space / (1024*1024*1024),
 		createdAt: user.createdAt,

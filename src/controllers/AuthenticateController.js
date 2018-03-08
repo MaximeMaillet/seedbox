@@ -38,9 +38,9 @@ async function logout(req, res) {
  */
 async function login(req, res) {
   try {
-    const {username, password} = req.body;
+    const {email, password} = req.body;
     return UserModel
-      .findOne({ where: { username: username, is_validated: true } })
+      .findOne({ where: { email, is_validated: true } })
       .then((user) => {
         if (!user || !user.validPassword(password)) {
           return res.status(401).send('Authenticate failed');
@@ -68,7 +68,7 @@ async function subscribe(req, res) {
     if(form.isSuccess()) {
       const user = await form.flush(UserModel);
       const body = await template.twigToHtml('email.subscribe.html.twig', {
-        username: user.username,
+        email: user.email,
         link: `${process.env.BASE_API}/authenticate/confirm?token=${user.token}`
       });
       mailer.send('maxime.maillet93@gmail.com', 'Welcome on dTorrent', body);
@@ -112,13 +112,18 @@ async function confirm(req, res) {
   await user.save();
 
   const body = await template.twigToHtml('subscribe.confirm.html.twig', {
-    username: user.username,
+    email: user.email,
     link: `${process.env.BASE_URL}`
   });
 
   res.send(body);
 }
 
+/**
+ * @param req
+ * @param res
+ * @return {Promise.<void>}
+ */
 async function forgot(req, res) {
   try {
     const {email} = req.body;
@@ -128,14 +133,13 @@ async function forgot(req, res) {
       return res.status(404).send();
     } else {
       const body = await template.twigToHtml('email.forgotten.html.twig', {
-        username: user.username,
+        email: user.email,
         link: `${process.env.BASE_API}/authenticate/password/${user.token}` // @TODO generate new token
       });
       await mailer.send(email, 'dTorrent - password forgotten', body);
       return res.status(200).send();
     }
   } catch(e) {
-    console.log(e);
     return res.status(404).send({message: e.message});
   }
 }

@@ -17,7 +17,15 @@ if(!process.env.MYSQL_DIALECT) {
 	process.env.MYSQL_DIALECT = 'mysql';
 }
 
-const models = require('../src/lib/sequelize');
-models.sequelize.sync().then(() => {
-	console.log('Database synced');
-});
+const db = require('../src/models');
+db.sequelize.sync({
+  alter: true,
+})
+  .then(() => {
+    console.log('Database synchronized');
+    process.exit();
+  })
+  .catch((err) => {
+    console.log(err);
+    process.exit();
+  });

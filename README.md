@@ -30,7 +30,7 @@ Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTo
 ###### Refacto
 
 * [ ] Authenticate system (login, subscribe, forgot password, etc)
-* [ ] User model : replace username by email
+* [x] User model : replace username by email
 * [ ] Api /users
 
 ###### Upload

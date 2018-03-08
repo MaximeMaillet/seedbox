@@ -9,8 +9,8 @@ module.exports = async(user, data, owner) => {
 		user,
 		[
 			{
-        name: 'username',
-        value: data.username,
+        name: 'email',
+        value: data.email,
         required: true,
       },
 			{
