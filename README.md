@@ -10,13 +10,18 @@ Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTo
 
 | Method | Endpoint                    | Params        |
 |:------:| --------------------------- |:-------------:|
-| POST   | /api/authenticate/login     | {username, password} |
-| POST   | /api/authenticate/subscribe | {username, password} |
+| POST   | /api/authenticate/login     | {email, password} |
+| POST   | /api/authenticate/subscribe | {email, password} |
 | GET    | /api/authenticate/confirm   | ?token= |
 | POST   | /api/authenticate/forgot    | {email} |
 | GET    | /api/authenticate/password  | ?token= |
 | PATCH  | /api/authenticate/password  | {token, password} |
 | GET    | /api/authenticate/logout    | |
+|        |                             | |
+| GET    | /api/users                  | |
+| GET    | /api/users/:id              | |
+| PATCH  | /api/users/:id              | {email, etc.} |
+| DELETE | /api/users/:id              | |
 
 
 
@@ -28,7 +33,7 @@ Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTo
 
 * [x] Authenticate system (login, subscribe, forgot password, etc)
 * [x] User model : replace username by email
-* [ ] Api /users
+* [x] Api /users
 
 ###### Upload
 

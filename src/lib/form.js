@@ -17,7 +17,8 @@ class Form {
         return model.update(this.data, {where: {id: this.original.id}})
           .then((success) => {
             if(success) {
-              return Object.assign(this.original.dataValues, this.data);
+              const t = Object.assign(this.original, this.data);
+              return t;
             } else {
               return null;
             }
@@ -30,6 +31,8 @@ class Form {
         }
       }
     }
+
+    return this.original;
   }
 
   /**
@@ -59,8 +62,9 @@ class Form {
  * @param _original
  * @param values
  * @param owner
+ * @param options
  */
-module.exports.run = async(_original, values, owner) => {
+module.exports.run = async(_original, values, owner, options) => {
 
 	const original = _original;
 	const data = {};
@@ -71,7 +75,7 @@ module.exports.run = async(_original, values, owner) => {
     if(isEmpty(values[i].value)) {
       if(values[i].required) {
         continue;
-      } else if(!isEmpty(values[i].default)) {
+      } else if(!isEmpty(values[i].default) && options.method.toUpperCase() === 'POST') {
         values[i].value = values[i].default;
 			} else {
         continue;
@@ -81,8 +85,12 @@ module.exports.run = async(_original, values, owner) => {
 		// Check rights
     // @TODO
     if(values[i].canSet) {
-      if(!owner) {
-        values[i].value = values[i].default;
+      if(!userService.isGranted(owner, values[i].canSet.join(','))) {
+        if(options.method.toUpperCase() === 'POST') {
+          values[i].value = values[i].default;
+        } else {
+          values[i].value = original[values[i].name];
+        }
       }
     }
 

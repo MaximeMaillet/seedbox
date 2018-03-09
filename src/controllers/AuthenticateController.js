@@ -69,7 +69,9 @@ async function login(req, res) {
  */
 async function subscribe(req, res) {
   try {
-    const form = await userForm(null, req.body, req.session.user);
+    const form = await userForm(null, req.body, req.session.user, {
+      method: 'POST',
+    });
 
     if(form.isSuccess()) {
       const user = await form.flush(UserModel);
@@ -199,7 +201,9 @@ async function passwordPost(req, res) {
     }
 
     const user = await UserModel.findOne({where: {id: userToken.dataValues.userId}});
-    const form = await passwordForm(user, req.body, user);
+    const form = await passwordForm(user, req.body, user, {
+      method: 'PATCH'
+    });
 
     if(form.isSuccess()) {
       const user = await form.flush(UserModel);

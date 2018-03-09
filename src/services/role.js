@@ -4,10 +4,10 @@ const roleModel = require('../models/role');
 
 module.exports.transformToMask = (roles) => {
 	const allRoles = roles.split(',');
-	let roleMask = 1 << 1;
+	let roleMask = null;
 	for(const i in allRoles) {
 		roleMask = roleMask | roleModel.getMask(allRoles[i].replace(/\s/g, ''));
 	}
 
-	return roleMask;
+	return new Buffer(roleMask.toString(), 'binary');
 };

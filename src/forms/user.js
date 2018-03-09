@@ -3,7 +3,7 @@
 const form = require('../lib/form');
 const {uid} = require('rand-token');
 
-module.exports = async(user, data, owner) => {
+module.exports = async(user, data, owner, options) => {
 
 	return form.run(
 		user,
@@ -44,5 +44,7 @@ module.exports = async(user, data, owner) => {
         canSet: []
       }
 		],
-		owner);
+		owner,
+    options
+  );
 };

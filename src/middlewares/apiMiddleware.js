@@ -16,7 +16,6 @@ const bodyParserUrlencoded = bodyParser.urlencoded({
 });
 
 const cookie = cookieParser();
-
 const session = _session({
   store: fileStore,
   secret: 'dT0rr3n7',
@@ -27,6 +26,12 @@ const session = _session({
     path: '/'
   }
 });
+function rewriteSession(req, res, next) {
+  if(req.session && req.session.user) {
+    req.session.user.roles = new Buffer(req.session.user.roles);
+  }
+  next();
+}
 
 const whiteList = process.env.CORS_DOMAIN.split(',');
 const corsOptions = {
@@ -43,6 +48,7 @@ module.exports = {
   bodyParserUrlencoded,
   cookie,
   session,
+  rewriteSession,
   cors,
   fileStore
 };

@@ -17,14 +17,15 @@ module.exports.isGranted = (user, roles, object) => {
 
 	const allRoles = roles.split(',');
 	const isGranted = [];
+  let currentRole = null;
 	for(const i in allRoles) {
-
-		if(allRoles[i].replace(/\s/g, '') === 'owner' && object) {
-			if(object.getOwnerID() !== user.id) {
+    currentRole = allRoles[i].replace(/\s/g, '');
+		if(currentRole === 'owner' && object) {
+			if(object.id !== user.id) {
 				isGranted.push(false);
 			}
 		} else {
-			if(new Buffer(user.roles).toString() & roleModel.getMask(allRoles[i].replace(/\s/g, ''))) {
+			if(new Buffer(user.roles).toString() & roleModel.getMask(currentRole)) {
 				isGranted.push(true);
 			} else {
 				isGranted.push(false);
