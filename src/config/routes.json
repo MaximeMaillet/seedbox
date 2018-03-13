@@ -14,6 +14,11 @@
     {
       "target": ["/api/users"],
       "action": ["userMiddleware#connected"]
+    },
+    {
+      "target": ["/api/torrents"],
+      "type": "inject",
+      "action": ["apiMiddleware#multer"]
     }
   ],
   "/api": {
@@ -29,9 +34,6 @@
       },
       "/password": {
         "post": "AuthenticateController#passwordPost"
-      },
-      "/logout": {
-        "get": "AuthenticateController#logout"
       }
     },
     "/users": {
@@ -40,6 +42,15 @@
         "get": "UserController#getUser",
         "patch": "UserController#patchUser",
         "delete": "UserController#deleteUser"
+      }
+    },
+    "/torrents": {
+      "_middlewares": ["userMiddleware#connected"],
+      "_services": ["dtorrent", "tracker"],
+      "get": "TorrentController#getTorrents",
+      "post": "TorrentController#postTorrent",
+      "/:id": {
+        "get": "TorrentController#getTorrent"
       }
     }
   },
@@ -50,5 +61,8 @@
     "/password/:token": {
       "get": "AuthenticateController#passwordGet"
     }
+  },
+  "/logout": {
+    "get": "AuthenticateController#logout"
   }
 }

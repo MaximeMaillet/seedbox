@@ -4,16 +4,26 @@ const lDebug = debug('dTorrent:daemon:debug');
 
 const express = require('express');
 const router = require('express-imp-router');
-
-// initDatabase();
+const dtorrent = require('dtorrent');
 
 const app = express();
 router(app);
+router.enableDebug();
 router.route([
   {
     routes: `${__dirname}/src/config/routes.json`,
     controllers: `${__dirname}/src/controllers`,
-    middlewares: `${__dirname}/src/middlewares`
+    middlewares: `${__dirname}/src/middlewares`,
+    services: [
+      {
+        name: 'dtorrent',
+        service: dtorrent.manager()
+      },
+      {
+        name: 'tracker',
+        service: require('./src/services/tracker')
+      }
+    ]
   }
 ]);
 
@@ -151,9 +161,9 @@ async function routes(app, controllers) {
 	app.put('/api/torrents/:hash/resume', torrentController.resume);
 	app.get('/api/torrents/:hash/download', torrentController.download);
 	app.delete('/api/torrents/:hash', torrentController.delete);
-	const t = upload.fields([
-		{ name: 'torrents'},
-		{ name: 'files'}
-	]);
+	// const t = upload.fields([
+	// 	{ name: 'torrents'},
+	// 	{ name: 'files'}
+	// ]);
 	app.post('/api/torrents', t, torrentController.post);
 }

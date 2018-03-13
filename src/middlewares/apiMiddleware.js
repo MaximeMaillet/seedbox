@@ -7,6 +7,7 @@ const FileStore = require('session-file-store')(_session);
 const fileStore = new FileStore({
   path: './sessions'
 });
+const _multer = require('multer');
 
 const bodyParserJson = bodyParser.json();
 const bodyParserUrlencoded = bodyParser.urlencoded({
@@ -43,6 +44,12 @@ const corsOptions = {
 
 const cors = _cors(corsOptions);
 
+const upload = _multer({dest: './public/uploads/'});
+const multer = upload.fields([
+  { name: 'torrents'},
+  { name: 'files'}
+]);
+
 module.exports = {
   bodyParserJson,
   bodyParserUrlencoded,
@@ -50,5 +57,6 @@ module.exports = {
   session,
   rewriteSession,
   cors,
-  fileStore
+  fileStore,
+  multer
 };

@@ -31,7 +31,7 @@ module.exports = {
  * @return {Promise.<*>}
  */
 async function logout(req, res) {
-  sessionStore(session).clear((d,r) => {});
+  sessionStore.clear((d,r) => {});
   req.session = null;
   return res.send({});
 }

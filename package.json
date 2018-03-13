@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js -v",
+    "start": "./node_modules/.bin/nodemon --config deamon.json -vvvv",
     "cou": "node test.js",
     "db:update": "node bin/syncdatabase.js",
     "test": "echo \"Error: no test specified\" && exit 1",
