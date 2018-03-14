@@ -8,26 +8,24 @@ Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTo
 * API
   * /api/users (TODO)
 
-| Method | Endpoint                    | Params        |
-|:------:| --------------------------- |:-------------:|
-| POST   | /api/authenticate/login     | {email, password} |
-| POST   | /api/authenticate/subscribe | {email, password} |
-| GET    | /api/authenticate/confirm   | ?token= |
-| POST   | /api/authenticate/forgot    | {email} |
-| GET    | /api/authenticate/password  | ?token= |
-| PATCH  | /api/authenticate/password  | {token, password} |
-| GET    | /api/authenticate/logout    | |
-|        |                             | |
-| GET    | /api/users                  | |
-| GET    | /api/users/:id              | |
-| PATCH  | /api/users/:id              | {email, etc.} |
-| DELETE | /api/users/:id              | |
-|        |                             | |
-| GET    | /api/torrents               | |
-| GET    | /api/torrents/:id           | |
-| POST   | /api/torrents/              | |
-| PATCH  | /api/torrents/:id           | |
-| DELETE | /api/torrents/:id           | |
+| Release | Method | Endpoint                    | Params        |
+|:-------:|:------:| --------------------------- |:-------------:|
+| 0.0.6   | POST   | /api/authenticate/login     | {email, password} |
+| 0.0.6   | POST   | /api/authenticate/subscribe | {email, password} |
+| 0.0.6   | GET    | /api/authenticate/confirm   | ?token= |
+| 0.0.6   | POST   | /api/authenticate/forgot    | {email} |
+| 0.0.6   | GET    | /api/authenticate/password  | ?token= |
+| 0.0.6   | PATCH  | /api/authenticate/password  | {token, password} |
+| 0.0.6   | GET    | /api/authenticate/logout    | |
+| 0.0.6   | GET    | /api/users                  | |
+| 0.0.6   | GET    | /api/users/:id              | |
+| 0.0.6   | PATCH  | /api/users/:id              | {email, etc.} |
+| 0.0.6   | DELETE | /api/users/:id              | |
+| 0.0.6   | GET    | /api/torrents               | |
+| 0.0.6   | GET    | /api/torrents/:id           | |
+| 0.0.6   | POST   | /api/torrents/              | |
+| 0.0.7   | PATCH  | /api/torrents/:id           | |
+| 0.0.7   | DELETE | /api/torrents/:id           | |
 
 # Roadmap
 
@@ -38,35 +36,38 @@ Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTo
 * [x] Authenticate system (login, subscribe, forgot password, etc)
 * [x] User model : replace username by email
 * [x] Api /users
-* [ ] Api /torrents
 
 ###### Upload
 
-* [ ] Ajouter un/des torrents
+* [x] Ajouter un/des torrents
   * [x] Avec un ou plusieurs fichiers .torrent
-  * [ ] Avec un fichier .torrent + un fichier data
-  * [ ] Avec un fichier .torrent et plusieurs fichier data
 
 * [x] Blacklist/whitelist des tracker
 
 ###### Peristence
 
-* [ ] Stocker upload de tout les torrents pour garder le ratio
+* [x] Stocker upload de tout les torrents pour garder le ratio
 * [ ] Historique et appairage quand l'user upload un torrent
+  * [ ] Diminuer l'espace disque d'un user quand il upload
 
 ###### User
 
-* [ ] Diminuer l'espace disque d'un user quand il upload
 * [ ] Télécharger un fichier data
+
+### Release 0.0.7
+
+###### Refacto
+
+* [ ] Api /torrents
+
+###### Admin
+
+* [ ] Récupérer info serveur comme l'espace qu'il reste
 
 ###### Validation des torrents
 
 * [ ] Valider ou supprimer l'ajout d'un torrent
   * [ ] Un admin peut ou non valider un torrent avant upload
-
-###### Admin
-
-* [ ] Récupérer info serveur comme l'espace qu'il reste
 
 
 
@@ -75,7 +76,9 @@ Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTo
 ###### Upload
 
 * [ ] Ajouter un/des torrents
-  * [ ] Avec un fichier data
+  * [ ] Avec un fichier data + un/des tracker(s)
+  * [ ] Avec un fichier .torrent + un fichier data
+  * [ ] Avec un fichier .torrent et plusieurs fichier data
 
 ###### Torrent
 

@@ -1,6 +1,10 @@
 const parameters = require('../config/parameters.json');
 
 function isInWhiteList(urlArray) {
+  if(!parameters.tracker || !parameters.tracker.whitelist) {
+    return true;
+  }
+
   if(parameters.tracker.whitelist) {
     for (const i in urlArray) {
       if (parameters.tracker.whitelist.indexOf(extractDomain(urlArray[i])) !== -1) {
@@ -13,6 +17,10 @@ function isInWhiteList(urlArray) {
 }
 
 function isInBlackList(urlArray) {
+  if(!parameters.tracker || !parameters.tracker.blacklist) {
+    return false;
+  }
+
   if(parameters.tracker.blacklist) {
     for (const i in urlArray) {
       if (parameters.tracker.blacklist.indexOf(extractDomain(urlArray[i])) !== -1) {

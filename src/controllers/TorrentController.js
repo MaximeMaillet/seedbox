@@ -52,10 +52,16 @@ async function postTorrent(req, res) {
     const {dtorrent, tracker} = req.services;
     const promises = [];
 
-    if(files && files.length === 1 && torrents && torrents.length === 1) {
-      promises.push(dtorrent.createFromTorrentAndData(torrents[0].path, files[0].path));
+    if(files && torrents) {
+      if(files.length === 1 && torrents.length === 1) {
+        promises.push(dtorrent.createFromTorrentAndData(torrents[0].path, files[0].path));
+      }
+      else {
+        return res.status(422).send();
+      }
     }
-    else if(!files && torrents && torrents.length > 0) {
+
+    if(!files && torrents && torrents.length > 0) {
       let torrent = null;
       for(const i in torrents) {
         torrent = dtorrent.extractTorrentFile(torrents[i].path);
@@ -69,7 +75,8 @@ async function postTorrent(req, res) {
 
       if(promises.length === 0) {
         return res.status(422).send({
-          message: 'Your torrents are blacklisted'
+          message: 'Your torrents have no trackers authorized',
+          errors: torrent.announce,
         });
       }
     }
@@ -77,38 +84,24 @@ async function postTorrent(req, res) {
       return res.status(404).send();
     }
 
-    return Promise.all(promises)
-      .then(async(torrents) => {
-        for (const i in torrents) {
-          torrents[i].torrent = Object.assign(
-            torrentTransformer.transform(torrents[i].torrent, req.session.user),
-            torrents[i].torrent
-          );
+    const finalTorrents = await Promise.all(promises);
+    const dataReturn = [];
+    for (const i in finalTorrents) {
+      dataReturn.push(finalTorrents[i].torrent);
 
-          if (torrents[i].success) {
-            try {
-              await torrentModel.create({
-                hash: torrents[i].torrent.hash,
-                ratio: torrents[i].torrent.ratio,
-                userId: req.session.user.id,
-                name: torrents[i].torrent.name,
-                downloaded: torrents[i].torrent.downloaded,
-                uploaded: torrents[i].torrent.uploaded,
-              });
-            } catch(e) {
-             // @todo sentry or what ever or loose promise in the universe
-            }
-          }
-        }
-
-        return torrents;
-      })
-     .then((torrents) => {
-       return res.send(torrentTransformer.transform(torrents, req.session.user));
-     })
-    ;
+      if (finalTorrents[i].success) {
+        await torrentModel.create({
+          hash: finalTorrents[i].torrent.hash,
+          ratio: finalTorrents[i].torrent.ratio,
+          userId: req.session.user.id,
+          name: finalTorrents[i].torrent.name,
+          downloaded: finalTorrents[i].torrent.downloaded,
+          uploaded: finalTorrents[i].torrent.uploaded,
+        });
+      }
+    }
+    return res.send(torrentTransformer.transform(dataReturn, req.session.user));
   } catch(e) {
-    console.log(e);
     res.status(500).send(e);
   }
 }

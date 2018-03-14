@@ -1,6 +1,4 @@
 {
   "tracker": {
-    "blacklist": ["yggtorrent.com"],
-    "whitelist": ["yggtorrent.com"]
   }
 }
