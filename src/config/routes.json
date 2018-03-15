@@ -38,6 +38,9 @@
     },
     "/users": {
       "get": "UserController#getUsers",
+      "/me": {
+        "get": "UserController#getMe"
+      },
       "/:id": {
         "get": "UserController#getUser",
         "patch": "UserController#patchUser",
@@ -63,9 +66,9 @@
     },
     "/password/:token": {
       "get": "AuthenticateController#passwordGet"
+    },
+    "/logout": {
+      "get": "AuthenticateController#logout"
     }
-  },
-  "/logout": {
-    "get": "AuthenticateController#logout"
   }
 }

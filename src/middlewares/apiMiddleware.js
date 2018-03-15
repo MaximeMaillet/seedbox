@@ -24,7 +24,8 @@ const session = _session({
   saveUninitialized: true,
   cookie: {
     maxAge: 60*60*24*30*1000,
-    path: '/'
+    path: '/',
+    httpOnly: false,
   }
 });
 function rewriteSession(req, res, next) {

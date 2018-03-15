@@ -8,7 +8,18 @@ module.exports = {
   getUser,
   patchUser,
   deleteUser,
+  getMe
 };
+
+/**
+ * @deprecated
+ * @param req
+ * @param res
+ * @return {Promise.<void>}
+ */
+async function getMe(req, res) {
+  return res.send(userTransformer.transform(req.session.user, req.session.user));
+}
 
 /**
  * @param req
