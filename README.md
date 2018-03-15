@@ -47,75 +47,68 @@ Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTo
 ###### Peristence
 
 * [x] Stocker upload de tout les torrents pour garder le ratio
-* [ ] Historique et appairage quand l'user upload un torrent
-  * [ ] Diminuer l'espace disque d'un user quand il upload
+* [x] Historique et appairage quand l'user upload un torrent
+  * [x] Diminuer l'espace disque d'un user quand il upload
 
 ###### User
+* [ ] Download torrent (data)
 
-* [ ] Télécharger un fichier data
 
 ### Release 0.0.7
 
 ###### Refacto
-
 * [ ] Api /torrents
 
 ###### Admin
+* [ ] Get data from server (size, ram, etc.)
 
-* [ ] Récupérer info serveur comme l'espace qu'il reste
+###### Torrent
+* [ ] Put torrent in pause
+* [ ] Put torrent in play
 
-###### Validation des torrents
-
-* [ ] Valider ou supprimer l'ajout d'un torrent
-  * [ ] Un admin peut ou non valider un torrent avant upload
-
+###### Torrents validation
+* [ ] Validate or remove when user add torrent
+  * [ ] Admin can validate torrent
+  * [ ] Admin can post torrent without validation
 
 
 ### Release 0.1.0 - alpha test
 
 ###### Upload
-
-* [ ] Ajouter un/des torrents
-  * [ ] Avec un fichier data + un/des tracker(s)
-  * [ ] Avec un fichier .torrent + un fichier data
-  * [ ] Avec un fichier .torrent et plusieurs fichier data
-
-###### Torrent
-
-* [ ] Mettre un torrent en pause
-* [ ] Mettre un torrent en resume
+* [ ] Add one or many torrents
+  * [ ] With data + tracker
+  * [ ] With .torrent + one data
+  * [ ] With .torrent + many data
 
 
 ### Release 0.2.0 - Streaming
-
-* Générer des fichiers m3u8 (second temps)
 * Send data by chunks
+* To think ...
 
 
 ### Release 0.3.0
 
 ###### App mobile
-
-* Recevoir un push quand un torrent est ajouté
+* [ ] Webhook + events
+* [ ] Get notifications when events
 
 ###### Metadata
-
-* Récupérer les méta data d'un film
-* Photo, nom
-* persistence
+* [ ] Get meta data from external api
+* [ ] Picture, name, description, keywords
+* No Persistence
 
 
 ### Release 0.4.0
 
 ###### Module de recherche
 
-* Elasticsearch 
+* [ ] Elasticsearch 
 
 
 ###### Statistiques
 
-* Torrent nombre de fois téléchargé
-* Nombre de fois vue
+* [ ] Number of torrent downloaded
+* [ ] Number of movie seeing
 
 
 ### Release 0.7.0 - bêta test

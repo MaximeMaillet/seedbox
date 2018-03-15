@@ -50,7 +50,10 @@
       "get": "TorrentController#getTorrents",
       "post": "TorrentController#postTorrent",
       "/:id": {
-        "get": "TorrentController#getTorrent"
+        "get": "TorrentController#getTorrent",
+        "/download": {
+          "get": "TorrentController#downloadTorrent"
+        }
       }
     }
   },
