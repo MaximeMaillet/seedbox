@@ -2,12 +2,40 @@ require('dotenv').config();
 const _cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const _multer = require('multer');
+const unless = require('express-unless');
+const _jwt = require('express-jwt');
+const {secret} = require('../config/secret_key');
+const moment = require('moment');
+
 const _session = require('express-session');
 const FileStore = require('session-file-store')(_session);
 const fileStore = new FileStore({
   path: './sessions'
 });
-const _multer = require('multer');
+
+const jwt = _jwt({
+  secret,
+  credentialsRequired: false,
+  getToken: (req) => {
+    if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
+      return req.headers.authorization.split(' ')[1];
+    } else if (req.query && req.query.token) {
+      return req.query.token;
+    }
+    return null;
+  }
+}).unless({ path: [
+  '/api/authenticate/login',
+  '/api/authenticate/subscribe',
+  '/api/authenticate/forgot',
+  '/api/authenticate/password',
+  '/api/authenticate/password',
+  '/authenticate/confirm',
+  '/authenticate/password/:token',
+  '/authenticate/logout',
+  ]
+});
 
 const bodyParserJson = bodyParser.json();
 const bodyParserUrlencoded = bodyParser.urlencoded({
@@ -22,12 +50,9 @@ const session = _session({
   secret: 'dT0rr3n7',
   resave: true,
   saveUninitialized: true,
-  cookie: {
-    maxAge: 60*60*24*30*1000,
-    path: '/',
-    httpOnly: false,
-  }
 });
+
+
 function rewriteSession(req, res, next) {
   if(req.session && req.session.user) {
     req.session.user.roles = new Buffer(req.session.user.roles);
@@ -59,5 +84,6 @@ module.exports = {
   rewriteSession,
   cors,
   fileStore,
-  multer
+  multer,
+  jwt,
 };

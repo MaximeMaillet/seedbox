@@ -14,6 +14,9 @@ const template = require('../lib/template');
 const session = require('express-session');
 const sessionStore = require('../middlewares/apiMiddleware').fileStore;
 
+const jwt = require('jsonwebtoken');
+const {secret} = require('../config/secret_key');
+
 module.exports = {
   logout,
   login,
@@ -53,7 +56,12 @@ async function login(req, res) {
         } else {
           req.session.user = user.dataValues;
           delete user.dataValues['password'];
-          return res.status(200).send(userTransformer.transform(user.dataValues, user.dataValues));
+          const token = jwt.sign({user: user.dataValues}, secret, {
+            expiresIn: '1w'
+          });
+
+          return res.status(200).send({token});
+          // return res.status(200).send(userTransformer.transform(user.dataValues, user.dataValues));
         }
       });
   } catch(e) {

@@ -1,5 +1,6 @@
 const {torrents: torrentModel, users: userModel} = require('../models');
 const torrentTransformer = require('../transformers/torrent');
+const userService = require('../services/user');
 
 module.exports = {
   getTorrent,
@@ -15,6 +16,10 @@ module.exports = {
  */
 async function getTorrents(req, res) {
   try {
+    const whereClause = {};
+    if(!userService.isGranted(req.session.user, 'admin')) {
+      whereClause.where = {is_removed: false};
+    }
     const torrents = await torrentModel.findAll();
     return res.send(torrentTransformer.transform(torrents, req.session.user));
   } catch(e) {
@@ -141,18 +146,16 @@ async function downloadTorrent(req, res) {
 
     const fs = require('fs');
     console.log(torrent.dataValues.path);
-    fs.access(torrent.dataValues.path, (err) => {
-      console.log(err);
-    });
 
     return res.sendFile(__dirname+'/'+torrent.dataValues.path, options, (err) => {
       if(err) {
-        console.log(err);
+        res.status(404).send(err);
       } else {
         console.log('Sent');
       }
     });
   } catch(e) {
+    console.log(e);
     res.status(500).send(e);
   }
 }

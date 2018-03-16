@@ -8,7 +8,8 @@
         "apiMiddleware#bodyParserUrlencoded",
         "apiMiddleware#cookie",
         "apiMiddleware#session",
-        "apiMiddleware#rewriteSession"
+        "apiMiddleware#rewriteSession",
+        "apiMiddleware#jwt"
       ]
     },
     {

@@ -1,6 +1,5 @@
-'use strict';
-
 const userService = require('../services/user');
+const {get} = require('lodash');
 
 module.exports.transform = (torrent, owner) => {
 	if(Array.isArray(torrent)) {
@@ -14,25 +13,29 @@ module.exports.transform = (torrent, owner) => {
 
 function transformTorrent(torrent, owner) {
 	const Torrent = {
-		hash: torrent.infoHash || torrent.hash,
-		name: torrent.name,
-		progress: torrent.progress || 0,
-		// down_rate: Number,
-		// mb_downloaded: Number,
-		// mb_uploaded: Number,
-		// mb_total: Number,
-		// ratio: Number,
-		// nb_leechers: Number,
-		// nb_seeders: Number,
-		playing: torrent.playing || true,
-		is_finished: torrent.is_finished || false,
-		is_active: torrent.is_active || false,
-		is_removed: torrent.is_removed || false,
+    id: get(torrent, 'id'),
+		hash: get(torrent, 'hash', ''),
+		name: get(torrent,'name', ''),
 	};
 
 	if(owner && userService.isGranted(owner, 'admin')) {
 		//TODO
 	}
+
+  /**
+   * @TODO : put role user to all users
+   */
+  if(owner && (userService.isGranted(owner, 'user') || userService.isGranted(owner, 'admin'))) {
+    Torrent.progress = get(torrent, 'progress', 50);
+    Torrent.downloaded = get(torrent, 'downloaded', 0);
+    Torrent.uploaded = get(torrent, 'uploaded', 0);
+    Torrent.total = get(torrent, 'total', 0);
+    Torrent.ratio = get(torrent, 'ratio', 0);
+    Torrent.playing = get(torrent, 'playing', true);
+    Torrent.is_finished = get(torrent, 'is_finished', false);
+    Torrent.is_active = get(torrent, 'is_active', false);
+    Torrent.is_removed = get(torrent, 'is_removed', false);
+  }
 
 	return Torrent;
 }

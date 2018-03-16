@@ -22,6 +22,10 @@ module.exports = (sequelize, DataTypes) => {
 				type: DataTypes.BIGINT,
 				allowNull: false
 			},
+      total: {
+        type: DataTypes.BIGINT,
+        allowNull: false,
+      }
 		});
 
 	torrents.associate = (models) => {
