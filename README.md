@@ -37,6 +37,7 @@ Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTo
 * [x] User model : replace username by email
 * [x] Api /users
 * [x] Authentication with JWT
+* [ ] WebSocket
 
 ###### Upload
 
@@ -59,6 +60,7 @@ Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTo
 
 ###### Refacto
 * [ ] Api /torrents
+* [ ] Errors handlers
 
 ###### Admin
 * [ ] Get data from server (size, ram, etc.)

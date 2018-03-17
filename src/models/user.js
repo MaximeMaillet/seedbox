@@ -54,9 +54,6 @@ module.exports = (sequelize, DataTypes) => {
 	users.associate = (models) => {
 		models.users.hasMany(models.torrents, {
 			onDelete: 'CASCADE',
-			foreignKey: {
-				allowNull: false
-			}
 		});
 
     models.users.hasMany(models.tokens, {

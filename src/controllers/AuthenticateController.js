@@ -11,9 +11,6 @@ const passwordForm = require('../forms/password');
 const mailer = require('../lib/mailer');
 const template = require('../lib/template');
 
-const session = require('express-session');
-const sessionStore = require('../middlewares/apiMiddleware').fileStore;
-
 const jwt = require('jsonwebtoken');
 const {secret} = require('../config/secret_key');
 
@@ -34,7 +31,6 @@ module.exports = {
  * @return {Promise.<*>}
  */
 async function logout(req, res) {
-  sessionStore.clear((d,r) => {});
   req.session = null;
   return res.send({});
 }
@@ -54,14 +50,19 @@ async function login(req, res) {
         if (!user || !user.validPassword(password)) {
           return res.status(401).send('Authenticate failed');
         } else {
-          req.session.user = user.dataValues;
           delete user.dataValues['password'];
-          const token = jwt.sign({user: user.dataValues}, secret, {
+          const token = jwt.sign({user: {
+            id: user.dataValues.id,
+            email: user.dataValues.email,
+            roles: user.dataValues.roles
+          }}, secret, {
             expiresIn: '1w'
           });
 
-          return res.status(200).send({token});
-          // return res.status(200).send(userTransformer.transform(user.dataValues, user.dataValues));
+          return res.status(200).send({
+            token,
+            user: userTransformer.transform(user.dataValues, user.dataValues)
+          });
         }
       });
   } catch(e) {

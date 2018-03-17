@@ -6,29 +6,56 @@ const express = require('express');
 const router = require('express-imp-router');
 const dtorrent = require('dtorrent');
 
-const app = express();
-router(app);
-router.enableDebug();
-router.route([
-  {
-    routes: `${__dirname}/src/config/routes.json`,
-    controllers: `${__dirname}/src/controllers`,
-    middlewares: `${__dirname}/src/middlewares`,
-    services: [
-      {
-        name: 'dtorrent',
-        service: dtorrent.manager()
-      },
-      {
-        name: 'tracker',
-        service: require('./src/services/tracker')
-      }
-    ]
-  }
-]);
+const parameters = require('./src/config/parameters.json');
 
-app.listen(process.env.API_PORT);
-console.log(`API listen on ${process.env.API_PORT}`);
+try {
+  const dConfig = [
+    {
+      name: parameters.servers.local,
+      rtorrent_host: '127.0.0.1', // IP of client torrent
+      rtorrent_port: 8888, // Port of client torrent
+      rtorrent_path: '/RPC2', // Path to join client torrent via XML RPC
+      interval_check: 3500, // Interval for checks
+    },
+  ];
+
+  // dtorrent.fake(dConfig);
+  dtorrent.start(dConfig);
+
+  const app = express();
+  router(app);
+  router.enableDebug();
+  router.route([
+    {
+      routes: `${__dirname}/src/config/routes.json`,
+      controllers: `${__dirname}/src/controllers`,
+      middlewares: `${__dirname}/src/middlewares`,
+      services: [
+        {
+          name: 'dtorrent',
+          service: dtorrent.manager(),
+        },
+        {
+          name: 'tracker',
+          service: require('./src/services/tracker')
+        },
+        {
+          name: 'server',
+          service: require('./src/services/server'),
+        }
+      ]
+    }
+  ]);
+
+  app.listen(process.env.API_PORT);
+  console.log(`API listen on ${process.env.API_PORT}`);
+
+} catch(e) {
+  console.log(e);
+}
+
+
+
 
 // const dtorrent = require('dtorrent');
 // const bodyParser = require('body-parser');
@@ -51,7 +78,7 @@ console.log(`API listen on ${process.env.API_PORT}`);
 // server.listen(process.env.APP_PORT);
 // console.log(`start on ${process.env.APP_PORT}`);
 
-async function main(app) {
+async function main2(app) {
 
 	try {
 		// await dtorrent.fake();

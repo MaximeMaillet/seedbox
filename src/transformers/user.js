@@ -28,7 +28,6 @@ function transformUser(user, owner) {
 	const User = {
 		id: user.id,
 		email: user.email,
-		roles: roleString.substring(0, roleString.length - 1),
 		space: user.space / (1024*1024*1024),
 		createdAt: user.createdAt,
 		updatedAt: user.updatedAt
@@ -36,6 +35,7 @@ function transformUser(user, owner) {
 
 	if(owner && userService.isGranted(owner, 'admin')) {
 		User.is_validated = user.is_validated;
+    User.roles = roleString.substring(0, roleString.length - 1);
 	}
 
 	return User;

@@ -31,10 +31,11 @@ module.exports = (sequelize, DataTypes) => {
 	torrents.associate = (models) => {
 		models.torrents.hasMany(models.files, {
 			onDelete: 'CASCADE',
-			foreignKey: {
-				allowNull: false
-			}
 		});
+
+		torrents.belongsTo(models.users, {
+      onDelete: 'CASCADE',
+    });
 	};
 
 	return torrents;

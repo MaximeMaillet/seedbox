@@ -1,18 +1,11 @@
 require('dotenv').config();
 const _cors = require('cors');
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
 const _multer = require('multer');
 const unless = require('express-unless');
 const _jwt = require('express-jwt');
 const {secret} = require('../config/secret_key');
-const moment = require('moment');
-
-const _session = require('express-session');
-const FileStore = require('session-file-store')(_session);
-const fileStore = new FileStore({
-  path: './sessions'
-});
+const {users: userModel} = require('../models');
 
 const jwt = _jwt({
   secret,
@@ -44,19 +37,28 @@ const bodyParserUrlencoded = bodyParser.urlencoded({
   parameterLimit: 1000000
 });
 
-const cookie = cookieParser();
-const session = _session({
-  store: fileStore,
-  secret: 'dT0rr3n7',
-  resave: true,
-  saveUninitialized: true,
-});
+/**
+ * @param req
+ * @param res
+ * @param next
+ */
+async function rewriteSession(req, res, next) {
+  if(req.user && req.user.user) {
 
+    const user = await userModel.find({where: {id: req.user.user.id}});
 
-function rewriteSession(req, res, next) {
-  if(req.session && req.session.user) {
+    if(!user) {
+      return res.status(404).send({
+        message: 'This user does not exists',
+      });
+    }
+
+    req.session = {
+      user: user.dataValues
+    };
     req.session.user.roles = new Buffer(req.session.user.roles);
   }
+
   next();
 }
 
@@ -79,11 +81,8 @@ const multer = upload.fields([
 module.exports = {
   bodyParserJson,
   bodyParserUrlencoded,
-  cookie,
-  session,
   rewriteSession,
   cors,
-  fileStore,
   multer,
   jwt,
 };

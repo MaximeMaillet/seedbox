@@ -1,6 +1,11 @@
-const {torrents: torrentModel, users: userModel} = require('../models');
+const {
+  torrents: torrentModel,
+  users: userModel,
+  files: fileModel,
+} = require('../models');
 const torrentTransformer = require('../transformers/torrent');
 const userService = require('../services/user');
+const torrentService = require('../services/torrent');
 
 module.exports = {
   getTorrent,
@@ -20,7 +25,11 @@ async function getTorrents(req, res) {
     if(!userService.isGranted(req.session.user, 'admin')) {
       whereClause.where = {is_removed: false};
     }
-    const torrents = await torrentModel.findAll();
+    const torrents = await torrentModel.findAll({
+      where: {},
+      include: [userModel,fileModel]
+    });
+
     return res.send(torrentTransformer.transform(torrents, req.session.user));
   } catch(e) {
     res.status(500).send(e);
@@ -71,10 +80,15 @@ async function postTorrent(req, res) {
       let torrent = null;
       for(const i in torrents) {
         torrent = dtorrent.extractTorrentFile(torrents[i].path);
-        if(tracker.isInWhiteList(torrent.announce) && !tracker.isInBlackList(torrent.announce)) {
-          if(req.session.user.space > torrent.info.total_size) {
-            spaceToRemoveForUser += torrent.info.total_size;
-            promises.push(dtorrent.createFromTorrent(torrents[i].path));
+
+        if(userService.isGranted(req.session.user, 'admin')) {
+          promises.push(dtorrent.createFromTorrent(torrents[i].path, req.services.server.getServer()));
+        } else {
+          if(tracker.isInWhiteList(torrent.announce) && !tracker.isInBlackList(torrent.announce)) {
+            if(req.session.user.space > torrent.info.total_size) {
+              spaceToRemoveForUser += torrent.info.total_size;
+              promises.push(dtorrent.createFromTorrent(torrents[i].path, req.services.server.getServer()));
+            }
           }
         }
       }
@@ -96,19 +110,10 @@ async function postTorrent(req, res) {
       dataReturn.push(finalTorrents[i].torrent);
 
       if (finalTorrents[i].success) {
-        await torrentModel.create({
-          hash: finalTorrents[i].torrent.hash,
-          ratio: finalTorrents[i].torrent.ratio,
-          path: finalTorrents[i].torrent.path,
-          userId: req.session.user.id,
-          name: finalTorrents[i].torrent.name,
-          downloaded: finalTorrents[i].torrent.downloaded,
-          uploaded: finalTorrents[i].torrent.uploaded,
-        });
+        await torrentService.createTorrent(finalTorrents[i].torrent, req.session.user);
       }
     }
 
-    req.session.user.space -= spaceToRemoveForUser;
     await userModel.update(
       {space: spaceToRemoveForUser},
       {where: {id: req.session.user.id}}
@@ -116,6 +121,7 @@ async function postTorrent(req, res) {
 
     return res.send(torrentTransformer.transform(dataReturn, req.session.user));
   } catch(e) {
+    console.log(e);
     res.status(500).send(e);
   }
 }
@@ -135,8 +141,9 @@ async function downloadTorrent(req, res) {
       return res.status(404).send();
     }
 
+    const path = require('path');
     const options = {
-      // root: __dirname,
+      root: `${path.resolve('.data')}/dtorrent/downloaded/test`,
       dotfiles: 'deny',
       headers: {
         'x-timestamp': Date.now(),
@@ -144,11 +151,9 @@ async function downloadTorrent(req, res) {
       }
     };
 
-    const fs = require('fs');
-    console.log(torrent.dataValues.path);
-
-    return res.sendFile(__dirname+'/'+torrent.dataValues.path, options, (err) => {
+    return res.sendFile('/t.txt', options, (err) => {
       if(err) {
+        console.log(err);
         res.status(404).send(err);
       } else {
         console.log('Sent');

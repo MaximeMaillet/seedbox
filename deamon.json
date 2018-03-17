@@ -2,10 +2,10 @@
   "restartable": "rs",
   "verbose": true,
   "ignore": [".git/**", "node_modules/**", "sessions/**", "public/**", ".data/**"],
-  "watch": ["./index.js", "src/**"],
+  "watch": ["./index.js", "src/**", "node_modules/dtorrent/src/*"],
   "env": {
     "NODE_ENV": "development",
-    "DEBUG": "ExpressImpRouter*"
+    "DEBUG": "dTorrent*"
   },
   "execMap": {
     "js": "~/.nvm/versions/node/v8.9.1/bin/node --harmony index.js"

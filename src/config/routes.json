@@ -6,15 +6,9 @@
         "apiMiddleware#cors",
         "apiMiddleware#bodyParserJson",
         "apiMiddleware#bodyParserUrlencoded",
-        "apiMiddleware#cookie",
-        "apiMiddleware#session",
-        "apiMiddleware#rewriteSession",
-        "apiMiddleware#jwt"
+        "apiMiddleware#jwt",
+        "apiMiddleware#rewriteSession"
       ]
-    },
-    {
-      "target": ["/api/users"],
-      "action": ["userMiddleware#connected"]
     },
     {
       "target": ["/api/torrents"],
@@ -39,9 +33,6 @@
     },
     "/users": {
       "get": "UserController#getUsers",
-      "/me": {
-        "get": "UserController#getMe"
-      },
       "/:id": {
         "get": "UserController#getUser",
         "patch": "UserController#patchUser",
@@ -49,8 +40,7 @@
       }
     },
     "/torrents": {
-      "_middlewares": ["userMiddleware#connected"],
-      "_services": ["dtorrent", "tracker"],
+      "_services": ["dtorrent", "tracker", "server"],
       "get": "TorrentController#getTorrents",
       "post": "TorrentController#postTorrent",
       "/:id": {

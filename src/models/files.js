@@ -6,16 +6,17 @@ module.exports = (sequelize, DataTypes) => {
 			unique: false,
 			allowNull: false
 		},
-		size: {
-			type: DataTypes.BIGINT,
-			allowNull: false
-		},
 		path: {
 			type: DataTypes.STRING,
 			allowNull: false
 		},
 	});
 
+  files.associate = (models) => {
+    files.belongsTo(models.torrents, {
+      onDelete: 'CASCADE',
+    });
+  };
 
 	return files;
 };
