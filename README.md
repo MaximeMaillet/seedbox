@@ -53,7 +53,7 @@ Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTo
   * [x] Diminuer l'espace disque d'un user quand il upload
 
 ###### User
-* [ ] Download torrent (data)
+* [x] Download torrent (data)
 
 
 ### Release 0.0.7
@@ -110,7 +110,7 @@ Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTo
 
 ###### Statistiques
 
-* [ ] Number of torrent downloaded
+* [ ] Number of torrent/files downloaded
 * [ ] Number of movie seeing
 
 

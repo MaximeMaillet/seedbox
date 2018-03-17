@@ -15,11 +15,11 @@ function transformTorrent(file, owner) {
   const File = {
     id: get(file, 'id'),
     name: get(file,'name', ''),
-    path: get(file,'path', ''),
   };
 
   if(owner && userService.isGranted(owner, 'admin')) {
     File.torrent_id = get(file, 'torrentId', null);
+    File.path = get(file,'path', '');
   }
 
   return File;

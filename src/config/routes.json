@@ -45,8 +45,8 @@
       "post": "TorrentController#postTorrent",
       "/:id": {
         "get": "TorrentController#getTorrent",
-        "/download": {
-          "get": "TorrentController#downloadTorrent"
+        "/download/:fileId": {
+          "get": "TorrentController#downloadFile"
         }
       }
     }

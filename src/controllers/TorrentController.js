@@ -6,12 +6,14 @@ const {
 const torrentTransformer = require('../transformers/torrent');
 const userService = require('../services/user');
 const torrentService = require('../services/torrent');
+const path = require('path');
+const fs = require('fs');
 
 module.exports = {
   getTorrent,
   getTorrents,
   postTorrent,
-  downloadTorrent,
+  downloadFile,
 };
 
 /**
@@ -131,9 +133,9 @@ async function postTorrent(req, res) {
  * @param res
  * @return {Promise.<void>}
  */
-async function downloadTorrent(req, res) {
+async function downloadFile(req, res) {
   try {
-    const { id } = req.params;
+    const { id, fileId } = req.params;
 
     const torrent = await torrentModel.find({where: {id}});
 
@@ -141,26 +143,30 @@ async function downloadTorrent(req, res) {
       return res.status(404).send();
     }
 
-    const path = require('path');
+    const file = await fileModel.find({where: {id: fileId}});
+    const dataPath = path.resolve(file.dataValues.path);
+
+    if(!file || !fs.existsSync(dataPath)) {
+      return res.status(404).send({
+        message: 'File does not exists'
+      });
+    }
+
     const options = {
-      root: `${path.resolve('.data')}/dtorrent/downloaded/test`,
-      dotfiles: 'deny',
       headers: {
         'x-timestamp': Date.now(),
         'x-sent': true
       }
     };
 
-    return res.sendFile('/t.txt', options, (err) => {
+    return res.download(dataPath, file.name, options, (err) => {
       if(err) {
-        console.log(err);
-        res.status(404).send(err);
-      } else {
-        console.log('Sent');
+        res.status(404).send({
+          message: err.message
+        });
       }
     });
   } catch(e) {
-    console.log(e);
     res.status(500).send(e);
   }
 }
