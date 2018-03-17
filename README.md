@@ -33,6 +33,7 @@ Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTo
 ###### Refacto
 * [ ] Errors handlers via express-imp-router
 * [ ] Api /torrents
+* [ ] Path resolver for download
 
 ###### Admin
 * [ ] Get data from server (size, ram, etc.)

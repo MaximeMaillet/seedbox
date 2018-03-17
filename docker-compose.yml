@@ -1,26 +1,23 @@
 version: '3'
 services:
   dtorrent:
-    image: ${IMAGE_DTORRENT}
+    images: ${IMAGE_SEEDBOX}
     environment:
       RTORRENT_HOST: rtorrent
       RTORRENT_PORT: 80
       RTORRENT_PATH: /RPC2
-      MONGO_HOST: mongo
-      MONGO_PORT: 27017
-      APP_PORT: ${APP_PORT}
-      API_WEBSOCKET: 1
       MYSQL_HOST: maria
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-    volumes:
-      - ${STORAGE}/sessions:/var/app/sessions
+      MYSQL_CONNECTION_STRING: mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@maria/${MYSQL_DATABASE}
     ports:
-      - 8080:${APP_PORT}
+      - 127.0.0.1:8090:${API_PORT}
+      - 127.0.0.1:8091:${WS_PORT}
+    volumes:
+      - ${STORAGE}/dtorrent/downloaded:/var/app/.data/dtorrent/downloaded
     links:
-      - mongo
       - maria
       - rtorrent
 
@@ -32,11 +29,6 @@ services:
       - ${STORAGE}/dtorrent/torrent:/var/rtorrent/torrents
       - ${STORAGE}/dtorrent/logs:/var/rtorrent/logs
 
-  mongo:
-    image: mongo:latest
-    volumes:
-      - ${STORAGE}/mongo:/data/db
-
   maria:
     image: mariadb:10.1.23
     volumes:
@@ -46,3 +38,6 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+
+
+
