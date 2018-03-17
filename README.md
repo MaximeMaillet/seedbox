@@ -2,65 +2,34 @@
 
 Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTorrent](https://github.com/MaximeMaillet/dtorrent).
 
-
-# Workflow
-
-* API
-  * /api/users (TODO)
+## API
 
 | Release | Method | Endpoint                    | Params        |
 |:-------:|:------:| --------------------------- |:-------------:|
-| 0.0.6   | POST   | /api/authenticate/login     | {email, password} |
-| 0.0.6   | POST   | /api/authenticate/subscribe | {email, password} |
-| 0.0.6   | GET    | /api/authenticate/confirm   | ?token= |
-| 0.0.6   | POST   | /api/authenticate/forgot    | {email} |
-| 0.0.6   | GET    | /api/authenticate/password  | ?token= |
-| 0.0.6   | PATCH  | /api/authenticate/password  | {token, password} |
-| 0.0.6   | GET    | /api/authenticate/logout    | |
-| 0.0.6   | GET    | /api/users                  | |
-| 0.0.6   | GET    | /api/users/:id              | |
-| 0.0.6   | PATCH  | /api/users/:id              | {email, etc.} |
-| 0.0.6   | DELETE | /api/users/:id              | |
-| 0.0.6   | GET    | /api/torrents               | |
-| 0.0.6   | GET    | /api/torrents/:id           | |
-| 0.0.6   | POST   | /api/torrents/              | |
-| 0.0.7   | PATCH  | /api/torrents/:id           | |
-| 0.0.7   | DELETE | /api/torrents/:id           | |
+| 0.1.0   | POST   | /api/authenticate/login     | {email, password} |
+| 0.1.0   | POST   | /api/authenticate/subscribe | {email, password} |
+| 0.1.0   | GET    | /api/authenticate/confirm   | ?token= |
+| 0.1.0   | POST   | /api/authenticate/forgot    | {email} |
+| 0.1.0   | GET    | /api/authenticate/password  | ?token= |
+| 0.1.0   | PATCH  | /api/authenticate/password  | {token, password} |
+| 0.1.0   | GET    | /api/authenticate/logout    | |
+| 0.1.0   | GET    | /api/users                  | |
+| 0.1.0   | GET    | /api/users/:id              | |
+| 0.1.0   | PATCH  | /api/users/:id              | {email, etc.} |
+| 0.1.0   | DELETE | /api/users/:id              | |
+| 0.1.0   | GET    | /api/torrents               | |
+| 0.1.0   | GET    | /api/torrents/:id           | |
+| 0.1.0   | POST   | /api/torrents/              | |
+| 0.1.0   | DELETE | /api/torrents/:id           | |
+| 0.1.0   | GET    | /api/torrents/:id/download/:idFile | |
+| 0.2.0   | PATCH  | /api/torrents/:id           | |
 
-# Roadmap
+## Roadmap
 
-### Release 0.0.6
-
-###### Refacto
-
-* [x] Authenticate system (login, subscribe, forgot password, etc)
-* [x] User model : replace username by email
-* [x] Api /users
-* [x] Authentication with JWT
-* [ ] WebSocket
-
-###### Upload
-
-* [x] Ajouter un/des torrents
-  * [x] Avec un ou plusieurs fichiers .torrent
-
-* [x] Blacklist/whitelist des tracker
-
-###### Peristence
-
-* [x] Stocker upload de tout les torrents pour garder le ratio
-* [x] Historique et appairage quand l'user upload un torrent
-  * [x] Diminuer l'espace disque d'un user quand il upload
-
-###### User
-* [x] Download torrent (data)
-
-
-### Release 0.0.7
+### Release 0.2.0
 
 ###### Refacto
-* [ ] Api /torrents
-* [ ] Errors handlers
+* [ ] Errors handlers via express-imp-router
 
 ###### Admin
 * [ ] Get data from server (size, ram, etc.)
@@ -75,7 +44,7 @@ Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTo
   * [ ] Admin can post torrent without validation
 
 
-### Release 0.1.0 - alpha test
+### Release 0.3.0 - alpha test
 
 ###### Upload
 * [ ] Add one or many torrents
@@ -84,12 +53,12 @@ Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTo
   * [ ] With .torrent + many data
 
 
-### Release 0.2.0 - Streaming
+### Release 0.4.0 - Streaming
 * Send data by chunks
 * To think ...
 
 
-### Release 0.3.0
+### Release 0.5.0
 
 ###### App mobile
 * [ ] Webhook + events
@@ -101,7 +70,7 @@ Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTo
 * No Persistence
 
 
-### Release 0.4.0
+### Release 0.6.0
 
 ###### Module de recherche
 
