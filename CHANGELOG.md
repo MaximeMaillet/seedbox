@@ -1,4 +1,4 @@
-# Release 0.0.6
+# Release 0.1.0
 *2018-03-17*
 
 Clean API with [express-imp-router](https://github.com/MaximeMaillet/express-imp-router) and authentication with JWT.

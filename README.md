@@ -23,6 +23,8 @@ Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTo
 | 0.1.0   | DELETE | /api/torrents/:id           | |
 | 0.1.0   | GET    | /api/torrents/:id/download/:idFile | |
 | 0.2.0   | PATCH  | /api/torrents/:id           | |
+| 0.2.0   | GET    | /api/torrents/:id/play      | |
+| 0.2.0   | GET    | /api/torrents/:id/pause     | |
 
 ## Roadmap
 
@@ -30,6 +32,7 @@ Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTo
 
 ###### Refacto
 * [ ] Errors handlers via express-imp-router
+* [ ] Api /torrents
 
 ###### Admin
 * [ ] Get data from server (size, ram, etc.)

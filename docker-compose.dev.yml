@@ -14,6 +14,7 @@ services:
       MYSQL_CONNECTION_STRING: mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@maria/${MYSQL_DATABASE}
     ports:
       - 127.0.0.1:8090:${API_PORT}
+      - 127.0.0.1:8091:${WS_PORT}
     links:
       - maria
       - rtorrent

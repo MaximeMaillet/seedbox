@@ -14,10 +14,10 @@ try {
   const dConfig = [
     {
       name: parameters.servers.local,
-      rtorrent_host: '127.0.0.1', // IP of client torrent
-      rtorrent_port: 8888, // Port of client torrent
+      rtorrent_host: process.env.RTORRENT_HOST,
+      rtorrent_port: process.env.RTORRENT_PORT,
       rtorrent_path: '/RPC2', // Path to join client torrent via XML RPC
-      interval_check: 3500, // Interval for checks
+      interval_check: 2500, // Interval for checks
     },
   ];
 
