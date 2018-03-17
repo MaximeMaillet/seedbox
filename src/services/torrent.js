@@ -24,6 +24,17 @@ async function createTorrent(torrent, user) {
   }
 }
 
+async function updateTorrent(torrent) {
+  return (await torrentModel.update(
+    {
+      downloaded: torrent.downloaded,
+      uploaded: torrent.uploaded,
+    },
+    {where: {hash: torrent.hash}}
+  ));
+}
+
 module.exports = {
   createTorrent,
+  updateTorrent,
 };

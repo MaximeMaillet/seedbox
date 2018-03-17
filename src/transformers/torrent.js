@@ -25,13 +25,18 @@ function transformTorrent(torrent, owner) {
 	}
 
   if(owner && userService.isGranted(owner, 'user')) {
-    Torrent.progress = get(torrent, 'progress', 0);
     Torrent.downloaded = get(torrent, 'downloaded', 0);
     Torrent.uploaded = get(torrent, 'uploaded', 0);
     Torrent.total = get(torrent, 'total', 0);
-    Torrent.ratio = get(torrent, 'ratio', 0);
-    Torrent.playing = get(torrent, 'playing', true);
-    Torrent.is_finished = get(torrent, 'is_finished', false);
+    Torrent.progress = get(torrent, 'progress', Math.round((Torrent.downloaded*100) / Torrent.total));
+
+    const ratio = Torrent.uploaded / Torrent.total;
+    const factor = Math.pow(10, 2);
+    const calculRatio = Math.round(ratio * factor) / factor;
+    Torrent.ratio = get(torrent, 'ratio', calculRatio);
+
+    Torrent.playing = get(torrent, 'playing', false);
+    Torrent.is_finished = get(torrent, 'is_finished', Torrent.downloaded === Torrent.total);
     Torrent.is_active = get(torrent, 'is_active', false);
     Torrent.is_removed = get(torrent, 'is_removed', false);
     Torrent.user = userTransformer.transform(get(torrent, 'user', false), owner);

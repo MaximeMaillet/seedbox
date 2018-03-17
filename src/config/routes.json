@@ -45,6 +45,7 @@
       "post": "TorrentController#postTorrent",
       "/:id": {
         "get": "TorrentController#getTorrent",
+        "delete": "TorrentController#remove",
         "/download/:fileId": {
           "get": "TorrentController#downloadFile"
         }

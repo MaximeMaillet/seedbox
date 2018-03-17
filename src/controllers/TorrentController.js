@@ -14,6 +14,7 @@ module.exports = {
   getTorrents,
   postTorrent,
   downloadFile,
+  remove,
 };
 
 /**
@@ -168,5 +169,26 @@ async function downloadFile(req, res) {
     });
   } catch(e) {
     res.status(500).send(e);
+  }
+}
+
+/**
+ * @param req
+ * @param res
+ * @return {Promise.<void>}
+ */
+async function remove(req, res) {
+  try {
+    const {dtorrent} = req.services;
+    const {id} = req.params;
+    const torrent = await torrentModel.find({where: {id}});
+
+    const result = await dtorrent.remove(torrent.hash);
+    return res.send({success: result});
+
+  } catch(e) {
+    res.status(500).send({
+      message: e.message
+    });
   }
 }
