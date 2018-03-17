@@ -36,9 +36,9 @@ function transformTorrent(torrent, owner) {
     Torrent.ratio = get(torrent, 'ratio', calculRatio);
 
     Torrent.playing = get(torrent, 'playing', false);
-    Torrent.is_finished = get(torrent, 'is_finished', Torrent.downloaded === Torrent.total);
-    Torrent.is_active = get(torrent, 'is_active', false);
-    Torrent.is_removed = get(torrent, 'is_removed', false);
+    Torrent.finished = get(torrent, 'finished', Torrent.downloaded === Torrent.total);
+    Torrent.active = get(torrent, 'active', false);
+    Torrent.removed = get(torrent, 'removed', false);
     Torrent.user = userTransformer.transform(get(torrent, 'user', false), owner);
     Torrent.files = fileTransformer.transform(get(torrent, 'files', []), owner);
   }

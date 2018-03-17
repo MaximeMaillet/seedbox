@@ -6,6 +6,7 @@ const express = require('express');
 const router = require('express-imp-router');
 const dtorrent = require('dtorrent');
 const torrentListener = require('./src/listeners/torrents');
+const ws = require('./src/websocket/index');
 
 const parameters = require('./src/config/parameters.json');
 
@@ -21,6 +22,8 @@ try {
   ];
 
   torrentListener(dtorrent);
+
+  ws.start(dtorrent);
 
   // dtorrent.fake(dConfig);
   dtorrent.start(dConfig);

@@ -10,18 +10,26 @@ module.exports = async(dtorrent) => {
       onAdded: async(_torrent) => {
         const torrent = await torrentModel.find({where: {hash: _torrent.hash}});
 
-        if(torrent) {
-          updateTorrent(_torrent);
-        } else {
-          createTorrent(_torrent);
+        try {
+          if(torrent) {
+            updateTorrent(_torrent);
+          } else {
+            createTorrent(_torrent);
+          }
+        } catch(e) {
+          console.log(`Failed listener : ${e.message}`);
         }
       },
       onUpdated: async(_torrent, diff) => {
         const torrent = await torrentModel.find({where: {hash: _torrent.hash}});
-        if(torrent) {
-          updateTorrent(_torrent);
-        } else {
-          createTorrent(_torrent);
+        try {
+          if(torrent) {
+            updateTorrent(_torrent);
+          } else {
+            createTorrent(_torrent);
+          }
+        } catch(e) {
+          console.log(`Failed listener : ${e.message}`);
         }
       },
       onRemoved: async(_torrent) => {

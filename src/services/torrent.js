@@ -8,7 +8,7 @@ async function createTorrent(torrent, user) {
     hash: torrent.hash,
     ratio: torrent.ratio,
     path: torrent.path,
-    userId: user.id,
+    userId: user ? user.id : 1,
     total: torrent.total,
     name: torrent.name,
     downloaded: torrent.downloaded,
