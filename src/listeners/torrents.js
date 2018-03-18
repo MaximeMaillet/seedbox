@@ -1,5 +1,6 @@
 const {torrents: torrentModel} = require('../models');
 const {createTorrent, updateTorrent} = require('../services/torrent');
+const logger = require('../lib/logger');
 
 module.exports = async(dtorrent) => {
 
@@ -10,6 +11,8 @@ module.exports = async(dtorrent) => {
       onAdded: async(_torrent) => {
         const torrent = await torrentModel.find({where: {hash: _torrent.hash}});
 
+        logger.write(_torrent);
+
         try {
           if(torrent) {
             updateTorrent(_torrent);
@@ -17,7 +20,7 @@ module.exports = async(dtorrent) => {
             createTorrent(_torrent);
           }
         } catch(e) {
-          console.log(`Failed listener : ${e.message}`);
+          logger.write(`Failed listener : ${e.message}`, logger.LEVEL.ERROR);
         }
       },
       onUpdated: async(_torrent, diff) => {
@@ -29,7 +32,7 @@ module.exports = async(dtorrent) => {
             createTorrent(_torrent);
           }
         } catch(e) {
-          console.log(`Failed listener : ${e.message}`);
+          logger.write(`Failed listener : ${e.message}`, logger.LEVEL.ERROR);
         }
       },
       onRemoved: async(_torrent) => {

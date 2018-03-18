@@ -1,5 +1,7 @@
 FROM node:8.9.1
 
+ENV NODE_ENV=production
+
 RUN mkdir -p /var/app
 
 ADD . /var/app

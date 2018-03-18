@@ -8,6 +8,8 @@ const userService = require('../services/user');
 const torrentService = require('../services/torrent');
 const path = require('path');
 const fs = require('fs');
+const request = require('request');
+const logger = require('../lib/logger');
 
 module.exports = {
   getTorrent,
@@ -34,8 +36,14 @@ async function getTorrents(req, res) {
     });
 
     return res.send(torrentTransformer.transform(torrents, req.session.user));
-  } catch(e) {
-    res.status(500).send(e);
+  } catch(error) {
+    logger.write({
+      location: 'TorrentController',
+      error,
+    }, logger.LEVEL.ERROR);
+    res.status(500).send({
+      message: error.message,
+    });
   }
 }
 
@@ -52,8 +60,14 @@ async function getTorrent(req, res) {
       return res.status(404).send({message: 'Torrent not found'});
     }
     return res.send(torrentTransformer.transform(torrent, req.session.user));
-  } catch(e) {
-    res.status(500).send(e);
+  } catch(error) {
+    logger.write({
+      location: 'TorrentController',
+      error,
+    }, logger.LEVEL.ERROR);
+    res.status(500).send({
+      message: error.message,
+    });
   }
 }
 
@@ -123,18 +137,52 @@ async function postTorrent(req, res) {
     );
 
     return res.send(torrentTransformer.transform(dataReturn, req.session.user));
-  } catch(e) {
-    console.log(e);
-    res.status(500).send(e);
+  } catch(error) {
+    logger.write({
+      location: 'TorrentController',
+      error,
+    }, logger.LEVEL.ERROR);
+    res.status(500).send({
+      message: error.message,
+    });
   }
 }
 
+
+async function downloadFile(req, res) {
+
+  const {id, fileId} = req.params;
+
+  const torrent = await torrentModel.find({where: {id}});
+
+  if (!torrent) {
+    return res.status(404).send({
+      message: 'This torrent does not exists'
+    });
+  }
+
+  const file = await fileModel.find({where: {id: fileId}});
+
+  if(!file) {
+    return res.status(404).send({
+      message: 'This file does not exists'
+    });
+  }
+  const confServer = req.services.server.getServerConfigFromPid(file.dataValues.pid);
+
+  return request({
+    url: `http://${confServer.rtorrent_host}:${confServer.rtorrent_port}/downloaded/${encodeURIComponent(file.dataValues.path)}`,
+    method: 'GET'
+  }).pipe(res);
+}
+
 /**
+ * @legacy
  * @param req
  * @param res
  * @return {Promise.<void>}
  */
-async function downloadFile(req, res) {
+async function downloadFileOld(req, res) {
   try {
     const { id, fileId } = req.params;
 
@@ -167,8 +215,14 @@ async function downloadFile(req, res) {
         });
       }
     });
-  } catch(e) {
-    res.status(500).send(e);
+  } catch(error) {
+    logger.write({
+      location: 'TorrentController',
+      error,
+    }, logger.LEVEL.ERROR);
+    res.status(500).send({
+      message: error.message,
+    });
   }
 }
 
@@ -186,9 +240,13 @@ async function remove(req, res) {
     const result = await dtorrent.remove(torrent.hash);
     return res.send({success: result});
 
-  } catch(e) {
+  } catch(error) {
+    logger.write({
+      location: 'TorrentController',
+      error,
+    }, logger.LEVEL.ERROR);
     res.status(500).send({
-      message: e.message
+      message: error.message,
     });
   }
 }

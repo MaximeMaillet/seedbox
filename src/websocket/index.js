@@ -5,6 +5,7 @@ const {torrents: torrentModel, users: userModel, files: fileModel} = require('..
 const torrentTransformer = require('../transformers/torrent');
 const jwt = require('jsonwebtoken');
 const {secret} = require('../config/secret_key');
+const logger = require('../lib/logger');
 
 const clients = [];
 
@@ -93,7 +94,10 @@ module.exports.start = async(dtorrent) => {
     }, 5000
   );
 
-  server.listen(process.env.WS_PORT);
+  server.listen(process.env.WS_PORT || 8091);
+  logger.write({
+    message: `WS listen on ${process.env.WS_PORT || 8091}`
+  });
 };
 
 function send(message, content) {

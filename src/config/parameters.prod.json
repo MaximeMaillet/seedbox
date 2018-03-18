@@ -1,0 +1,25 @@
+{
+  "tracker": {
+  },
+  "log": {
+    "debug": "/dev/stdout",
+    "error": "/dev/stderr"
+  },
+  "api": {
+    "routes": "src/config/routes.json",
+    "middlewares": "src/middlewares",
+    "controllers": "src/controllers",
+    "base_url": "https://seedbox.deuxmax.fr",
+    "front_url": "https://seedbox.deuxmax.fr"
+  },
+  "dtorrent": {
+    "servers": [
+      {
+        "name": "PrimaryServer",
+        "interval_check": "3000",
+        "rtorrent_host": "rtorrent",
+        "rtorrent_port": 80
+      }
+    ]
+  }
+}

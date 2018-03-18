@@ -1,3 +1,7 @@
+# Release 0.1.2
+
+* Fix path resolver
+
 # Release 0.1.0
 *2018-03-17*
 

@@ -33,7 +33,6 @@ Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTo
 ###### Refacto
 * [ ] Errors handlers via express-imp-router
 * [ ] Api /torrents
-* [ ] Path resolver for download
 
 ###### Admin
 * [ ] Get data from server (size, ram, etc.)
@@ -47,14 +46,25 @@ Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTo
   * [ ] Admin can validate torrent
   * [ ] Admin can post torrent without validation
 
+###### Multi-server
 
-### Release 0.3.0 - alpha test
+* [ ] add another rtorrent server for listen
+* [ ] download from other server
+  * [ ] add http/https in config
+  * [ ] secure nginx for rtorrent
+
+
+### Release 0.3.0
 
 ###### Upload
 * [ ] Add one or many torrents
   * [ ] With data + tracker
   * [ ] With .torrent + one data
   * [ ] With .torrent + many data
+
+###### Multi-server
+* [ ] Upload to another server
+
 
 
 ### Release 0.4.0 - Streaming

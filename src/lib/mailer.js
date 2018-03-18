@@ -1,5 +1,6 @@
 require('dotenv').config();
 const nodemailer = require('nodemailer');
+const logger = require('./logger');
 
 async function send(recipients, subject, body, senders) {
   nodemailer.createTestAccount((err, account) => {
@@ -22,7 +23,10 @@ async function send(recipients, subject, body, senders) {
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        console.log(error);
+        logger.write({
+          location: 'mailer',
+          error
+        }, logger.LEVEL.ERROR);
       }
     });
   });

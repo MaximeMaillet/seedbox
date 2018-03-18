@@ -68,7 +68,6 @@ async function patchUser(req, res) {
 
     if(form.isSuccess()) {
       const user = await form.flush(userModel);
-      console.log(user);
       req.session.user = user;
       res.status(200).send(userTransformer.transform(user, req.session.user));
     } else {
@@ -76,7 +75,6 @@ async function patchUser(req, res) {
     }
 
   } catch(error) {
-    console.log(error);
     if(error.name === 'SequelizeUniqueConstraintError') {
       res.status(409).send({message: 'This user already exists'});
     }

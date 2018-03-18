@@ -1,4 +1,4 @@
-const parameters = require('../config/parameters.json');
+const parameters = require('../config/environment');
 
 function isInWhiteList(urlArray) {
   if(!parameters.tracker || !parameters.tracker.whitelist) {

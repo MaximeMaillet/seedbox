@@ -18,6 +18,12 @@
   ],
   "/api": {
     "/authenticate": {
+      "/confirm": {
+        "get": "AuthenticateController#confirm"
+      },
+      "/logout": {
+        "get": "AuthenticateController#logout"
+      },
       "/login": {
         "post": "AuthenticateController#login"
       },
@@ -28,7 +34,10 @@
         "post": "AuthenticateController#forgot"
       },
       "/password": {
-        "post": "AuthenticateController#passwordPost"
+        "post": "AuthenticateController#passwordPost",
+        "/:token": {
+          "get": "AuthenticateController#passwordGet"
+        }
       }
     },
     "/users": {
@@ -50,17 +59,6 @@
           "get": "TorrentController#downloadFile"
         }
       }
-    }
-  },
-  "/authenticate": {
-    "/confirm": {
-      "get": "AuthenticateController#confirm"
-    },
-    "/password/:token": {
-      "get": "AuthenticateController#passwordGet"
-    },
-    "/logout": {
-      "get": "AuthenticateController#logout"
     }
   }
 }

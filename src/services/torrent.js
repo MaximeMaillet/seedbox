@@ -17,6 +17,7 @@ async function createTorrent(torrent, user) {
 
   for(const i in torrent.files) {
     await fileModel.create({
+      pid: torrent.pid,
       name: torrent.files[i].name,
       path: torrent.files[i].path,
       torrentId: _torrent.id,

@@ -5,3 +5,4 @@ dtorrent
 express-authenticate
 public/*
 sessions
+logs/*

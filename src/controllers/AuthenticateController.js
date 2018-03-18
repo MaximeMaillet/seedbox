@@ -13,6 +13,7 @@ const template = require('../lib/template');
 
 const jwt = require('jsonwebtoken');
 const {secret} = require('../config/secret_key');
+const environment = require('../config/environment');
 
 module.exports = {
   logout,
@@ -86,7 +87,7 @@ async function subscribe(req, res) {
       const user = await form.flush(UserModel);
       const body = await template.twigToHtml('email.subscribe.html.twig', {
         email: user.email,
-        link: `${process.env.BASE_API}/authenticate/confirm?token=${user.token}`
+        link: `${environment.api.base_url}/api/authenticate/confirm?token=${user.token}`
       });
       mailer.send(user.email, 'Welcome on dTorrent', body);
 
@@ -129,7 +130,7 @@ async function confirm(req, res) {
 
   const body = await template.twigToHtml('subscribe.confirm.html.twig', {
     email: user.email,
-    link: `${process.env.BASE_URL}`
+    link: environment.api.front_url,
   });
 
   res.send(body);
@@ -159,7 +160,7 @@ async function forgot(req, res) {
 
       const body = await template.twigToHtml('email.forgotten.html.twig', {
         email: user.email,
-        link: `${process.env.BASE_API}/authenticate/password/${token.token}`
+        link: `${environment.api.base_url}/api/authenticate/password/${token.token}`
       });
       await mailer.send(email, 'dTorrent - password forgotten', body);
       return res.status(200).send();
@@ -175,7 +176,7 @@ async function forgot(req, res) {
  * @return {Promise.<void>}
  */
 async function passwordGet(req, res) {
-  return res.redirect(`${process.env.BASE_URL}/authenticate/password/${req.params.token}`);
+  return res.redirect(`${environment.api.base_url}/api/authenticate/password/${req.params.token}`);
 }
 
 /**
