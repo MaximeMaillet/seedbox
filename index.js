@@ -29,12 +29,12 @@ async function main() {
         rtorrent_host: environment.dtorrent.servers[i].rtorrent_host,
         rtorrent_port: environment.dtorrent.servers[i].rtorrent_port,
         rtorrent_path: '/RPC2',
-        interval_check: environment.dtorrent.servers[i].interval_check,
+        interval_check: 1500,//environment.dtorrent.servers[i].interval_check,
       });
     }
 
     torrentListener(dtorrent);
-    ws.start(dtorrent);
+    // ws.start(dtorrent);
     dtorrent.start(dConfig);
 
     const app = express();

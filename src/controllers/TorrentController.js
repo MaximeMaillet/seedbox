@@ -148,7 +148,11 @@ async function postTorrent(req, res) {
   }
 }
 
-
+/**
+ * @param req
+ * @param res
+ * @return {Promise.<*>}
+ */
 async function downloadFile(req, res) {
 
   const {id, fileId} = req.params;

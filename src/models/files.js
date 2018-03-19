@@ -10,10 +10,9 @@ module.exports = (sequelize, DataTypes) => {
 			type: DataTypes.STRING,
 			allowNull: false
 		},
-    pid: {
+    length: {
       type: DataTypes.INTEGER,
-      allowNull: false
-    }
+    },
 	});
 
   files.associate = (models) => {

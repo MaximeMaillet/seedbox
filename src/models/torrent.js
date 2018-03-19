@@ -25,6 +25,10 @@ module.exports = (sequelize, DataTypes) => {
       total: {
         type: DataTypes.BIGINT,
         allowNull: false,
+      },
+      server: {
+        type: DataTypes.STRING,
+        allowNull: false
       }
 		});
 
