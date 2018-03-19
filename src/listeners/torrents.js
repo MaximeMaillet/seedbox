@@ -10,9 +10,6 @@ module.exports = async(dtorrent) => {
     {
       onAdded: async(_torrent) => {
         const torrent = await torrentModel.find({where: {hash: _torrent.hash}});
-
-        logger.write(_torrent);
-
         try {
           if(torrent) {
             updateTorrent(_torrent);

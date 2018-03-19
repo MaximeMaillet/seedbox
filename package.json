@@ -22,7 +22,7 @@
     "cors": "^2.8.4",
     "create-torrent": "^3.29.2",
     "dotenv": "^4.0.0",
-    "dtorrent": "^0.4.2",
+    "dtorrent": "^0.4",
     "express": "^4.16.2",
     "express-imp-router": "^0.1.6",
     "express-jwt": "^5.3.1",

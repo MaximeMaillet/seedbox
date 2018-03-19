@@ -30,6 +30,12 @@ Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTo
 
 ### Release 0.2.0
 
+###### Bugfixes
+
+* Download : add extension in url for download file
+* Find and fix "Unhandled rejection" (promises loosed in univers)
+* Optimize socket.io
+
 ###### Refacto
 * [ ] Errors handlers via express-imp-router
 * [ ] Api /torrents
@@ -40,6 +46,7 @@ Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTo
 ###### Torrent
 * [ ] Put torrent in pause
 * [ ] Put torrent in play
+* [ ] Pagination
 
 ###### Torrents validation
 * [ ] Validate or remove when user add torrent
@@ -54,7 +61,7 @@ Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTo
   * [ ] secure nginx for rtorrent
 
 
-### Release 0.3.0
+### Release 0.3.0 - alpha test
 
 ###### Upload
 * [ ] Add one or many torrents
@@ -84,7 +91,7 @@ Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTo
 * No Persistence
 
 
-### Release 0.6.0
+### Release 0.6.0  - bêta test
 
 ###### Module de recherche
 
@@ -97,4 +104,6 @@ Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTo
 * [ ] Number of movie seeing
 
 
-### Release 0.7.0 - bêta test
+### After
+
+* Custom loader for download

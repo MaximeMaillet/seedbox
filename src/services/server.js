@@ -5,7 +5,7 @@ function getServer() {
 }
 
 function getServerConfigFromPid(pid) {
-  return parameters.dtorrent.servers[pid];
+  return parameters.dtorrent.servers[pid-1];
 }
 
 module.exports = {
