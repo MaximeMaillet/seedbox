@@ -57,6 +57,12 @@
         "delete": "TorrentController#remove",
         "/download/:fileId": {
           "get": "TorrentController#downloadFile"
+        },
+        "/pause": {
+          "get": "TorrentController#pauseTorrent"
+        },
+        "/play": {
+          "get": "TorrentController#playTorrent"
         }
       }
     }

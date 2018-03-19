@@ -17,6 +17,8 @@ module.exports = {
   postTorrent,
   downloadFile,
   remove,
+  playTorrent,
+  pauseTorrent,
 };
 
 /**
@@ -181,6 +183,77 @@ async function downloadFile(req, res) {
 }
 
 /**
+ * @param req
+ * @param res
+ * @return {Promise.<void>}
+ */
+async function remove(req, res) {
+  try {
+    const {dtorrent} = req.services;
+    const {id} = req.params;
+    const torrent = await torrentModel.find({where: {id}});
+
+    const result = await dtorrent.remove(torrent.hash);
+    return res.send({success: result});
+
+  } catch(error) {
+    logger.write({
+      location: 'TorrentController',
+      error,
+    }, logger.LEVEL.ERROR);
+    res.status(500).send({
+      message: error.message,
+    });
+  }
+}
+
+async function playTorrent(req, res) {
+  try {
+    const {id} = req.params;
+
+    const torrent = await torrentModel.find({where: {id}});
+
+    if(!torrent) {
+      return res.status(404).send({
+        message: 'This torrent does not exits',
+      });
+    }
+
+    return res.send(torrentTransformer.transform((await req.services.dtorrent.resume(torrent.dataValues.hash))));
+
+  } catch(e) {
+    console.log(e);
+    res.status(500).send({
+      message: 'Fail',
+      errors: e,
+    });
+  }
+}
+
+async function pauseTorrent(req, res) {
+  try {
+    const {id} = req.params;
+
+    const torrent = await torrentModel.find({where: {id}});
+
+    if(!torrent) {
+      return res.status(404).send({
+        message: 'This torrent does not exits',
+      });
+    }
+
+    return res.send(torrentTransformer.transform((await req.services.dtorrent.pause(torrent.dataValues.hash))));
+
+  } catch(e) {
+    console.log(e);
+    res.status(500).send({
+      message: 'Fail',
+      errors: e,
+    });
+  }
+}
+
+/**
  * @legacy
  * @param req
  * @param res
@@ -219,31 +292,6 @@ async function downloadFileOld(req, res) {
         });
       }
     });
-  } catch(error) {
-    logger.write({
-      location: 'TorrentController',
-      error,
-    }, logger.LEVEL.ERROR);
-    res.status(500).send({
-      message: error.message,
-    });
-  }
-}
-
-/**
- * @param req
- * @param res
- * @return {Promise.<void>}
- */
-async function remove(req, res) {
-  try {
-    const {dtorrent} = req.services;
-    const {id} = req.params;
-    const torrent = await torrentModel.find({where: {id}});
-
-    const result = await dtorrent.remove(torrent.hash);
-    return res.send({success: result});
-
   } catch(error) {
     logger.write({
       location: 'TorrentController',

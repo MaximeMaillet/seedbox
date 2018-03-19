@@ -28,17 +28,10 @@ function transformTorrent(torrent, owner) {
     Torrent.downloaded = get(torrent, 'downloaded', 0);
     Torrent.uploaded = get(torrent, 'uploaded', 0);
     Torrent.total = get(torrent, 'total', 0);
-    Torrent.progress = get(torrent, 'progress', Math.round((Torrent.downloaded*100) / Torrent.total));
-
-    const ratio = Torrent.uploaded / Torrent.total;
-    const factor = Math.pow(10, 2);
-    const calculRatio = Math.round(ratio * factor) / factor;
-    Torrent.ratio = get(torrent, 'ratio', calculRatio);
-
-    Torrent.playing = get(torrent, 'playing', false);
+    Torrent.active = get(torrent, 'active', 0);
+    Torrent.progress = Math.round((Torrent.downloaded*100) / Torrent.total);
+    Torrent.ratio = (Torrent.uploaded / Torrent.total).toFixed(4);
     Torrent.finished = get(torrent, 'finished', Torrent.downloaded === Torrent.total);
-    Torrent.active = get(torrent, 'active', false);
-    Torrent.removed = get(torrent, 'removed', false);
     Torrent.user = userTransformer.transform(get(torrent, 'user', false), owner);
     Torrent.files = fileTransformer.transform(get(torrent, 'files', []), owner);
   }

@@ -29,6 +29,9 @@ module.exports = (sequelize, DataTypes) => {
       server: {
         type: DataTypes.STRING,
         allowNull: false
+      },
+      active: {
+        type: DataTypes.BOOLEAN,
       }
 		});
 

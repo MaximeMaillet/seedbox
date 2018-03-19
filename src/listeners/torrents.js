@@ -1,5 +1,5 @@
 const {torrents: torrentModel} = require('../models');
-const {createTorrent, updateTorrent, updateBulkTorrent, createBulkTorrent} = require('../services/torrent');
+const {updateBulkTorrent, createBulkTorrent} = require('../services/torrent');
 const logger = require('../lib/logger');
 const Op = require('sequelize').Op;
 

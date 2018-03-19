@@ -64,6 +64,7 @@ async function createBulkTorrent(torrents) {
         downloaded: torrent.downloaded,
         uploaded: torrent.uploaded,
         server: torrent.server,
+        active: torrent.active,
       };
     });
 
@@ -125,6 +126,7 @@ async function updateBulkTorrent(_torrents) {
         await torrentModel.update({
           downloaded: torrents[i].downloaded,
           uploaded: torrents[i].uploaded,
+          active: torrents[i].active,
         }, {where: {hash: torrents[i].hash}});
         alreadyUpdate.push(torrents[i].hash);
       }

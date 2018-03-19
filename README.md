@@ -22,7 +22,6 @@ Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTo
 | 0.1.0   | POST   | /api/torrents/              | |
 | 0.1.0   | DELETE | /api/torrents/:id           | |
 | 0.1.0   | GET    | /api/torrents/:id/download/:idFile | |
-| 0.2.0   | PATCH  | /api/torrents/:id           | |
 | 0.2.0   | GET    | /api/torrents/:id/play      | |
 | 0.2.0   | GET    | /api/torrents/:id/pause     | |
 
@@ -32,13 +31,14 @@ Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTo
 
 ###### Bugfixes
 
-* Download : add extension in url for download file
-* Find and fix "Unhandled rejection" (promises loosed in univers)
-* Optimize socket.io
+* [ ] Download : add extension in url for download file
+* [x] Find and fix "Unhandled rejection" (promises loosed in univers)
+* [ ] Optimize socket.io
+* [x] Optimize listener for transactions with db
 
 ###### Refacto
 * [ ] Errors handlers via express-imp-router
-* [ ] Api /torrents
+* [x] Api /torrents
 
 ###### Admin
 * [ ] Get data from server (size, ram, etc.)
