@@ -1,7 +1,7 @@
 {
   "development": {
     "dialect": "mysql",
-    "logging": true
+    "logging": false
   },
   "production": {
     "dialect": "mysql",

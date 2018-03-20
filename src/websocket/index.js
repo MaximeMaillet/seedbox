@@ -26,7 +26,6 @@ module.exports.MESSAGE = {
 
 module.exports.start = async(dtorrent) => {
   const manager = await dtorrent.manager();
-  const events = [];
 
   io.on('connection', (client) => {
     if(clients.indexOf(client) === -1) {
@@ -60,10 +59,7 @@ module.exports.start = async(dtorrent) => {
 
   manager.addListener({
     onAdded: (torrent) => {
-      events.push({
-        event: module.exports.MESSAGE.TORRENT_ADDED,
-        torrent,
-      });
+      send(module.exports.MESSAGE.TORRENT_ADDED, torrent);
     },
     onUpdated: (torrent) => {
       events.push({
@@ -72,10 +68,7 @@ module.exports.start = async(dtorrent) => {
       });
     },
     onRemoved: (torrent) => {
-      events.push({
-        event: module.exports.MESSAGE.TORRENT_REMOVED,
-        torrent,
-      });
+      send(module.exports.MESSAGE.TORRENT_REMOVED, torrent);
     },
     onPaused: (torrent) => {
       events.push({
@@ -125,6 +118,8 @@ async function emitFromEvents() {
       }));
     }
   }
+
+  events.splice(0, events.length-1);
 }
 
 async function emitFromDatabase() {

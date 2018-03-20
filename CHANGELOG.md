@@ -1,36 +1,84 @@
-# Release 0.1.2
+## Roadmap
 
-* Fix path resolver
+### Release 0.2.0
 
-# Release 0.1.0
-*2018-03-17*
+###### Bugfixes
 
-Clean API with [express-imp-router](https://github.com/MaximeMaillet/express-imp-router) and authentication with JWT.
+* [x] Download : add extension in url for download file
+* [x] Find and fix "Unhandled rejection" (promises loosed in univers)
+* [x] Optimize socket.io
+* [x] Optimize listener for transactions with db
+* [x] Manager active and update via websocket
+* [x] Add changelog for releases
 
-Upgrade dTorrent and normalize data.
-
-Persistence with MariaDB.
-
-### Refacto
-
-* [x] Authenticate system (login, subscribe, forgot password, etc)
-* [x] User model : replace username by email
-* [x] Api /users
+###### Refacto
+* [ ] Errors handlers via express-imp-router
 * [x] Api /torrents
-* [x] Authentication with JWT
-* [x] WebSocket
 
-### Upload
+###### Admin
+* [ ] Get data from server (size, ram, etc.)
 
-* [x] Add one or multiple torrents
-* [x] Blacklist/whitelist trackers
+###### Torrent
+* [ ] Put torrent in pause
+* [ ] Put torrent in play
+* [ ] Pagination
 
-### Peristence
+###### Torrents validation
+* [ ] Validate or remove when user add torrent
+  * [ ] Admin can validate torrent
+  * [ ] Admin can post torrent without validation
 
-* [x] Stock upload of torrent for keep ratio
-* [x] Link torrent with files and user
-* [x] Reduce user's space when he downloads torrent
+###### Multi-server
 
-### User
-* [x] He can download torrent (data)
-* [x] Roles manager with admin, moderator and user
+* [ ] add another rtorrent server for listen
+* [ ] download from other server
+  * [ ] add http/https in config
+  * [ ] secure nginx for rtorrent
+
+
+### Release 0.3.0 - alpha test
+
+###### Upload
+* [ ] Add one or many torrents
+  * [ ] With data + tracker
+  * [ ] With .torrent + one data
+  * [ ] With .torrent + many data
+
+###### Multi-server
+* [ ] Upload to another server
+
+
+
+### Release 0.4.0 - Streaming
+* Send data by chunks
+* To think ...
+
+
+### Release 0.5.0
+
+###### App mobile
+* [ ] Webhook + events
+* [ ] Get notifications when events
+
+###### Metadata
+* [ ] Get meta data from external api
+* [ ] Picture, name, description, keywords
+* No Persistence
+
+
+### Release 0.6.0  - bêta test
+
+###### Module de recherche
+
+* [ ] Elasticsearch 
+
+
+###### Statistiques
+
+* [ ] Number of torrent/files downloaded
+* [ ] Number of movie seeing
+
+
+### After
+
+* Custom loader for download

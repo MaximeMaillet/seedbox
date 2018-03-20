@@ -17,7 +17,7 @@
     "servers": [
       {
         "name": "PrimaryServer",
-        "interval_check": "3000",
+        "interval_check": 3000,
         "rtorrent_host": "127.0.0.1",
         "rtorrent_port": 8888
       }

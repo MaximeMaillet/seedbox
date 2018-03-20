@@ -56,7 +56,7 @@
       "/:id": {
         "get": "TorrentController#getTorrent",
         "delete": "TorrentController#remove",
-        "/download/:fileId": {
+        "/download/:fileId/:name": {
           "get": "TorrentController#downloadFile"
         },
         "/pause": {

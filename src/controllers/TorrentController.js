@@ -174,7 +174,7 @@ async function downloadFile(req, res) {
       message: 'This file does not exists'
     });
   }
-  const confServer = req.services.server.getServerConfigFromPid(file.dataValues.pid);
+  const confServer = req.services.server.getServerFromName(torrent.dataValues.server);
 
   return request({
     url: `http://${confServer.rtorrent_host}:${confServer.rtorrent_port}/downloaded/${encodeURIComponent(file.dataValues.path)}`,

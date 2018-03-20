@@ -20,6 +20,7 @@ module.exports = async(dtorrent) => {
           action: 'insert',
           torrent: _torrent,
         });
+        updatingTorrents.push(_torrent);
       },
       onUpdated: async(_torrent) => {
         updatingTorrents.push(_torrent);
