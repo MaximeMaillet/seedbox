@@ -33,7 +33,7 @@ async function main() {
     }
 
     torrentListener(dtorrent);
-    // ws.start(dtorrent);
+    ws.start(dtorrent);
     dtorrent.start(dConfig);
 
     const app = express();

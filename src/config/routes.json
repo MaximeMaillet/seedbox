@@ -49,6 +49,7 @@
       }
     },
     "/torrents": {
+      "_middlewares": ["userMiddleware#shouldConnected"],
       "_services": ["dtorrent", "tracker", "server"],
       "get": "TorrentController#getTorrents",
       "post": "TorrentController#postTorrent",

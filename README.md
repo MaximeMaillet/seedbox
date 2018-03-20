@@ -33,7 +33,7 @@ Seedbox with [rTorrent](https://github.com/MaximeMaillet/rtorrent-daemon) + [dTo
 
 * [ ] Download : add extension in url for download file
 * [x] Find and fix "Unhandled rejection" (promises loosed in univers)
-* [ ] Optimize socket.io
+* [x] Optimize socket.io
 * [x] Optimize listener for transactions with db
 
 ###### Refacto
