@@ -71,6 +71,8 @@ module.exports.start = async(dtorrent) => {
       send(module.exports.MESSAGE.TORRENT_REMOVED, torrent);
     },
     onPaused: (torrent) => {
+      console.log('torrent on pause');
+      console.log(torrent);
       events.push({
         event: module.exports.MESSAGE.TORRENT_PAUSED,
         torrent,

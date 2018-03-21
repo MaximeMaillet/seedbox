@@ -1,5 +1,24 @@
 ## Roadmap
 
+### Release 0.1.3
+
+###### Bugfixes
+
+* [x] Download : add extension in url for download file
+* [x] Find and fix "Unhandled rejection" (promises loosed in univers)
+* [x] Optimize socket.io
+* [x] Optimize listener for transactions with db
+* [x] Manager active and update via websocket
+* [x] Add changelog for releases
+
+###### Refacto
+* [x] Api /torrents
+
+###### Torrent
+* [x] Put torrent in pause
+* [x] Put torrent in play
+
+
 ### Release 0.2.0
 
 ###### Bugfixes
@@ -19,9 +38,10 @@
 * [ ] Get data from server (size, ram, etc.)
 
 ###### Torrent
-* [ ] Put torrent in pause
-* [ ] Put torrent in play
+* [x] Put torrent in pause
+* [x] Put torrent in play
 * [ ] Pagination
+* [ ] Static torrent list + frame with movements 
 
 ###### Torrents validation
 * [ ] Validate or remove when user add torrent

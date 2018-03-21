@@ -222,7 +222,6 @@ async function playTorrent(req, res) {
     return res.send(torrentTransformer.transform((await req.services.dtorrent.resume(torrent.dataValues.hash))));
 
   } catch(e) {
-    console.log(e);
     res.status(500).send({
       message: 'Fail',
       errors: e,
@@ -230,6 +229,11 @@ async function playTorrent(req, res) {
   }
 }
 
+/**
+ * @param req
+ * @param res
+ * @return {Promise.<void>}
+ */
 async function pauseTorrent(req, res) {
   try {
     const {id} = req.params;
@@ -245,7 +249,6 @@ async function pauseTorrent(req, res) {
     return res.send(torrentTransformer.transform((await req.services.dtorrent.pause(torrent.dataValues.hash))));
 
   } catch(e) {
-    console.log(e);
     res.status(500).send({
       message: 'Fail',
       errors: e,

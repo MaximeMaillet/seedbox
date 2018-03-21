@@ -13,18 +13,19 @@ const logger = require('../lib/logger');
 async function createTorrent(torrent, user) {
   const _torrent = await torrentModel.create({
     hash: torrent.hash,
-    ratio: torrent.ratio,
     path: torrent.path,
     userId: user ? user.id : 1,
-    total: torrent.total,
+    total: torrent.length,
     name: torrent.name,
     downloaded: torrent.downloaded,
     uploaded: torrent.uploaded,
+    server: torrent.server,
+    active: torrent.active,
   });
 
   for(const i in torrent.files) {
     await fileModel.create({
-      pid: torrent.pid,
+      length: torrent.files[i].length,
       name: torrent.files[i].name,
       path: torrent.files[i].path,
       torrentId: _torrent.id,
@@ -41,6 +42,7 @@ async function updateTorrent(torrent) {
     {
       downloaded: torrent.downloaded,
       uploaded: torrent.uploaded,
+      active: torrent.active,
     },
     {where: {hash: torrent.hash}}
   ));

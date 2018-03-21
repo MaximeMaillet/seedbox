@@ -75,10 +75,7 @@ async function main() {
  * @return {Promise.<boolean>}
  */
 async function checkConnection() {
-  console.log(process.env.NODE_ENV);
   const config = require('./src/config/sequelize.json')[process.env.NODE_ENV];
-  console.log(config);
-  console.log(`${config.dialect || 'mysql'}://${process.env.MYSQL_USER || 'root'}:${process.env.MYSQL_PASSWORD || ''}@${process.env.MYSQL_HOST || '127.0.0.1'}:${process.env.MYSQL_PORT || 3306}/${process.env.MYSQL_DATABASE || 'dtorrent'}`);
   const sequelize = new Sequelize(
     `${config.dialect || 'mysql'}://${process.env.MYSQL_USER || 'root'}:${process.env.MYSQL_PASSWORD || ''}@${process.env.MYSQL_HOST || '127.0.0.1'}:${process.env.MYSQL_PORT || 3306}/${process.env.MYSQL_DATABASE || 'dtorrent'}`,
     config
