@@ -1,8 +1,5 @@
 require('dotenv').config();
-const _cors = require('cors');
-const bodyParser = require('body-parser');
 const _multer = require('multer');
-const unless = require('express-unless');
 const _jwt = require('express-jwt');
 const {secret} = require('../config/secret_key');
 const {users: userModel} = require('../models');
@@ -29,14 +26,6 @@ const jwt = _jwt({
   '/authenticate/logout',
   ]
 });
-
-const bodyParserJson = bodyParser.json();
-const bodyParserUrlencoded = bodyParser.urlencoded({
-  limit: '500mb',
-  extended: true,
-  parameterLimit: 1000000
-});
-
 /**
  * @param req
  * @param res
@@ -62,16 +51,6 @@ async function rewriteSession(req, res, next) {
   next();
 }
 
-const whiteList = process.env.CORS_DOMAIN.split(',');
-const corsOptions = {
-  origin: whiteList,
-  optionsSuccessStatus: 200,
-  methods: ['GET', 'PATCH', 'POST', 'DELETE'],
-  credentials: true,
-};
-
-const cors = _cors(corsOptions);
-
 const upload = _multer({dest: './public/uploads/'});
 const multer = upload.fields([
   { name: 'torrents'},
@@ -79,10 +58,7 @@ const multer = upload.fields([
 ]);
 
 module.exports = {
-  bodyParserJson,
-  bodyParserUrlencoded,
   rewriteSession,
-  cors,
   multer,
   jwt,
 };

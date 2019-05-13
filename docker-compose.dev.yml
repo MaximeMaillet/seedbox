@@ -1,22 +1,28 @@
 version: '3'
+networks:
+  seedbox:
+    external:
+      name: seedbox
+
 services:
-  dtorrent:
-    build: .
-    environment:
-      MYSQL_HOST: maria
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      STORAGE: .data
-    ports:
-      - 127.0.0.1:8090:8090
-      - 127.0.0.1:8091:8091
-    volumes:
-      - ${STORAGE}:/var/app/.data
-      - ./src:/var/app/src
-    links:
-      - maria
-      - rtorrent
+#  dtorrent:
+#    build: .
+#    environment:
+#      MYSQL_HOST: maria
+#      MYSQL_USER: ${MYSQL_USER}
+#      MYSQL_DATABASE: ${MYSQL_DATABASE}
+#      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+#      STORAGE: .data
+#    ports:
+#      - 127.0.0.1:8090:8090
+#      - 127.0.0.1:8091:8091
+#    volumes:
+#      - ${STORAGE}:/var/app/.data
+#      - ./src:/var/app/src
+#    command: 'npm run dev'
+#    links:
+#      - maria
+#      - rtorrent
 
   rtorrent:
     image: ${IMAGE_RTORRENT_DEAMON}
@@ -39,3 +45,5 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    networks:
+      - seedbox

@@ -79,7 +79,7 @@ async function login(req, res) {
  */
 async function subscribe(req, res) {
   try {
-    const form = await userForm(null, req.body, req.session.user, {
+    const form = await userForm(null, req.body, null, {
       method: 'POST',
     });
 
@@ -91,7 +91,7 @@ async function subscribe(req, res) {
       });
       mailer.send(user.email, 'Welcome on dTorrent', body);
 
-      res.status(200).send(userTransformer.transform(user, req.session.user));
+      res.status(200).send(userTransformer.transform(user, null));
     } else {
       res.status(422).send(form.errors());
     }
@@ -116,7 +116,9 @@ async function subscribe(req, res) {
  */
 async function confirm(req, res) {
   if(!req.query.token) {
-    return res.status(401).send();
+    return res.status(401).send({
+      message: 'No token provided'
+    });
   }
 
   const user = await UserModel.findOne({ where: { token: req.query.token, is_validated: false } });

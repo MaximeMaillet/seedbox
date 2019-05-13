@@ -2,38 +2,38 @@
 
 const form = require('../lib/form');
 const {uid} = require('rand-token');
+const get = require('lodash.get');
 
 module.exports = async(user, data, owner, options) => {
-
 	return form.run(
 		user,
 		[
 			{
         name: 'email',
-        value: data.email,
+        value: get(data, 'email', null),
         required: true,
       },
 			{
         name: 'password',
-        value: data.password,
+        value: get(data, 'password', null),
         required: true,
       },
       {
         name: 'roles',
         type: 'Role',
-        value: data.roles,
+        value: get(data, 'roles', null),
         canSet: ['admin'],
         default: 'user'
       },
 			{
         name: 'space',
-        value: data.space * (1024*1024*1024),
+        value: get(data, 'space', 0) * (1024*1024*1024),
         canSet: ['admin'],
         default: 5*(1024*1024*1024)
       },
 			{
         name: 'is_validated',
-        value: data.is_validated,
+        value: get(data, 'is_validated', false),
         canSet: ['admin', 'owner'],
         default: false
       },

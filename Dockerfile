@@ -1,4 +1,4 @@
-FROM node:8.9.1
+FROM node:8.16.0
 
 ENV NODE_ENV=production
 
@@ -12,6 +12,6 @@ RUN chown -R node. /var/app
 
 USER node
 WORKDIR /var/app
-RUN mkdir public && npm i
+RUN mkdir public
 
 CMD ["npm", "start"]

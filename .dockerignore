@@ -11,4 +11,3 @@ public
 .eslintrc.json
 .gitignore
 sessions
-node_modules
