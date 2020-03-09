@@ -4,10 +4,6 @@
 Dockerfile
 docker-compose.yml
 docker-compose.dev.yml
-dtorrent
-express-authenticate
 public
-.DS_Store
 .eslintrc.json
 .gitignore
-sessions

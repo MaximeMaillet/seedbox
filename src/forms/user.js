@@ -11,6 +11,7 @@ module.exports = async(user, data, owner, options) => {
 			{
         name: 'email',
         value: get(data, 'email', null),
+        type: 'email',
         required: true,
       },
 			{
@@ -20,10 +21,9 @@ module.exports = async(user, data, owner, options) => {
       },
       {
         name: 'roles',
-        type: 'Role',
         value: get(data, 'roles', null),
         canSet: ['admin'],
-        default: 'user'
+        default: 1
       },
 			{
         name: 'space',

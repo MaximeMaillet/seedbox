@@ -1,113 +1,169 @@
-const {users: userModel} = require('../models');
 const userTransformer = require ('../transformers/user');
-const userService = require('../services/user');
 const userForm = require('../forms/user');
+const dbModel = require('../models');
+const ApiError = require('../class/ApiError');
+const mailer = require('../lib/mailer');
+const template = require('../lib/template');
+const config = require('../config');
 
-module.exports = {
-  getUsers,
-  getUser,
-  patchUser,
-  deleteUser,
+/**
+ * @param req
+ * @param res
+ * @param next
+ * @returns {Promise<void>}
+ */
+module.exports.create = async(req, res, next) => {
+  try {
+    const form = await userForm(null, req.body, req.user, {
+      method: 'POST',
+    });
+
+    if(form.isSuccess()) {
+      const user = await form.flush(dbModel.users);
+      const body = await template.twigToHtml(
+        'email.subscribe.html.twig',
+        {
+          email: user.email,
+          link: `${config.api_url}/api/authentication/confirm?token=${user.token}`
+        }
+      );
+      await mailer.send(user.email, 'Welcome on dTorrent', body);
+      res.status(200).send(userTransformer.transform(user, req.user));
+    } else {
+      res.status(422).send(form.getErrors());
+    }
+
+  } catch(error) {
+    if(error.name === 'SequelizeUniqueConstraintError') {
+      next(new ApiError(409, 'This user already exists', error));
+    }
+    else if(error.name === 'SequelizeValidationError') {
+      next(new ApiError(409, error.message, error));
+    }
+    else {
+      next(new ApiError(422, error.message, error));
+    }
+  }
 };
 
 /**
  * @param req
  * @param res
- * @return {Promise.<ServerResponse>}
+ * @param next
+ * @returns {Promise<void>}
  */
-async function getUsers(req, res) {
+module.exports.getOne = async(req, res, next) => {
   try {
-    const users = await userModel.findAll({where : {is_validated: true}});
-    return res.send(userTransformer.transform(users, req.session.user));
+    console.log(req.user);
+    const user = await dbModel.users.findOne({
+      where : {
+        id: req.params.id,
+        is_validated: true,
+      }
+    });
+
+    if(!user) {
+      throw new ApiError(404, 'This user does not exists');
+    }
+
+    res.send(userTransformer.transform(user, req.user));
   } catch(e) {
-    res.status(500).send(e);
+    next(e);
   }
-}
+};
 
 /**
  * @param req
  * @param res
- * @return {Promise.<ServerResponse>}
+ * @param next
+ * @returns {Promise<void>}
  */
-async function getUser(req, res) {
+module.exports.getAll = async(req, res, next) => {
   try {
-    const user = await userModel.find({where : {is_validated: true, id: req.params.id}});
-    if(!user) {
-      return res.status(404).send({
-        message: 'This user does not exists',
-      });
-    }
+    const users = await dbModel.users.findAll({
+      where : {
+        is_validated: true,
+      }
+    });
 
-    return res.send(userTransformer.transform(user, req.session.user));
+    res.send(userTransformer.transform(users, req.user));
   } catch(e) {
-    res.status(500).send(e);
+    next(e);
   }
-}
+};
 
 /**
  * @param req
  * @param res
- * @return {Promise.<void>}
+ * @param next
+ * @returns {Promise<void>}
  */
-async function patchUser(req, res) {
+module.exports.update = async(req, res, next) => {
   try {
-    if(!userService.isGranted(req.session.user, 'admin') && req.session.user.id !== req.params.id) {
-      return res.status(401).send();
-    }
+    const user = await dbModel.users.findOne({
+      where : {
+        id: req.params.id,
+        is_validated: true,
+      }
+    });
 
-    const user = await userModel.findOne({where: {is_validated: true, id: req.params.id}});
     if(!user) {
-      return res.status(404).send({
-        message: 'This user does not exists'
-      });
+      throw new ApiError(404, 'This user does not exists');
     }
 
-    const form = await userForm(user.dataValues, req.body, req.session.user, {
+    if(req.user.id !== req.params.id) {
+      throw new ApiError(403, 'You have not permission');
+    }
+
+    const form = await userForm(user.dataValues, req.body, req.user, {
       method: 'PATCH'
     });
 
     if(form.isSuccess()) {
-      const user = await form.flush(userModel);
-      req.session.user = user;
-      res.status(200).send(userTransformer.transform(user, req.session.user));
+      const user = await form.flush(dbModel.users);
+      res.status(200).send(userTransformer.transform(user, req.user));
     } else {
-      res.status(422).send(form.errors());
+      res.status(422).send(form.getErrors());
     }
 
+    res.send(userTransformer.transform(user));
   } catch(error) {
     if(error.name === 'SequelizeUniqueConstraintError') {
-      res.status(409).send({message: 'This user already exists'});
-    }
-    else if(error.name === 'SequelizeValidationError') {
-      res.status(409).send({message: error.message});
-    }
-    else {
-      res.status(500).send({message: error.name});
+      next(new ApiError(409, 'This user already exists'));
+    } else if(error.name === 'SequelizeValidationError') {
+      next(new ApiError(409, error.message));
+    } else {
+      if(error.name === 'ApiError') {
+        next(error);
+      } else {
+        next(new ApiError(422, error.message));
+      }
     }
   }
-}
+};
 
 /**
  * @param req
  * @param res
+ * @param next
  * @return {Promise.<void>}
  */
-async function deleteUser(req, res) {
+module.exports.delete = async(req, res, next) => {
   try {
-    if(!userService.isGranted(req.session.user, 'admin')) {
-      return res.status(401).send();
-    }
+    throw new ApiError(403, 'You have not permission');
 
-    const user = await userModel.findOne({where: {id: req.params.id}});
+    const user = await dbModel.users.findOne({where: {id: req.params.id}});
     if(!user) {
-      return res.status(404).send({
-        message: 'This user does not exists'
-      });
+      throw new ApiError(404, 'This user does not exists');
     }
 
-    user.destroy();
-    res.send();
+    await user.destroy();
+    res
+      .status(200)
+      .send({
+      message: 'success'
+    });
   } catch(e) {
-    res.status(500).send();
+    next(e);
   }
-}
+};

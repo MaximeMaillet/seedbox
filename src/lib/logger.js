@@ -1,20 +1,26 @@
+const path = require('path');
 const fs = require('fs');
-const environment = require('../config/environment');
+const moment = require('moment');
+const logConfig = require('../config').logger;
 
-async function write(message, level) {
-  let log = environment.log.debug;
-  if(level === module.exports.LEVEL.ERROR) {
-    log = environment.log.error;
+function write(message, level) {
+  if(!level) {
+    level = LEVEL.DEBUG;
   }
 
-  if(environment.log.console) {
-    console.log(level === module.exports.LEVEL.ERROR ? 'Error' : '');
-    console.log(message);
-  } else {
-    if(fs.existsSync(log)) {
-      fs.appendFile(
-        log,
-        `${(new Date())} : ${JSON.stringify(message)}\n`,
+  const date = moment();
+  const levelString = level === LEVEL.ERROR ? 'ERROR' : level === LEVEL.WARN ? 'WARN' : 'DEBUG';
+  const completeMessage = `[${levelString}][${date.toISOString()}] : ${message}`;
+
+  if(logConfig.mode === 'console') {
+    console.log(completeMessage);
+  } else if(logConfig.mode === 'files') {
+    const logFile = `${path.resolve('.')}/${logConfig.directory}/${date.format('YYYYMMDD')}_${levelString.toLowerCase()}.log`;
+
+    if(!fs.existsSync(logFile)) {
+      fs.writeFile(
+        logFile,
+        `${completeMessage}\n`,
         'utf8',
         (err) => {
           if(err) {
@@ -24,9 +30,9 @@ async function write(message, level) {
         }
       );
     } else {
-      fs.writeFile(
-        log,
-        `${(new Date())} : ${JSON.stringify(message)}\n`,
+      fs.appendFile(
+        logFile,
+        `${completeMessage}\n`,
         'utf8',
         (err) => {
           if(err) {
@@ -39,10 +45,13 @@ async function write(message, level) {
   }
 }
 
+const LEVEL = {
+  DEBUG: 1,
+  WARN: 2,
+  ERROR: 3,
+};
+
 module.exports = {
-  LEVEL: {
-    DEBUG: 1,
-    ERROR: 2,
-  },
+  LEVEL,
   write,
 };

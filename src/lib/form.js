@@ -1,13 +1,12 @@
 'use strict';
 
 const userService = require('../services/user');
-const roleService = require('../services/role');
 
 class Form {
 
   constructor(data, original, errors) {
     this.data = data;
-    this.errors = [];
+    this.errors = errors;
     this.original = original;
   }
 
@@ -15,20 +14,8 @@ class Form {
     if(Object.keys(this.data).length > 0) {
       if(this.original) {
         return model.update(this.data, {where: {id: this.original.id}})
-          .then((success) => {
-            if(success) {
-              const t = Object.assign(this.original, this.data);
-              return t;
-            } else {
-              return null;
-            }
-          });
       } else {
-        try {
-          return await model.create(this.data);
-        } catch(e) {
-          throw e;
-        }
+        return model.create(this.data);
       }
     }
 
@@ -36,7 +23,6 @@ class Form {
   }
 
   /**
-   * Voire plus tard pour l'ajout de requirements spécifiques
    * @return {boolean}
    */
   isSuccess() {
@@ -50,10 +36,7 @@ class Form {
     return this.data;
   }
 
-  /**
-   * Voire plus tard pour l'ajout de requirements spécifiques
-   */
-  errors() {
+  getErrors() {
     return this.errors;
   }
 }
@@ -71,6 +54,10 @@ module.exports.run = async(_original, values, owner, options) => {
 	const errors = [];
 
   for(const i in values) {
+    if(values[i].required && isEmpty(values[i].value)) {
+      errors.push({field: values[i].name, error: 'This field cannot be empty'});
+    }
+
     // Check content
     if(isEmpty(values[i].value)) {
       if(values[i].required) {
@@ -96,9 +83,12 @@ module.exports.run = async(_original, values, owner, options) => {
 
 		// Transform according to type, if exists
 		if(values[i].type) {
-			if(values[i].type === 'Role') {
-				values[i].value = roleService.transformToMask(values[i].value);
-			} else {
+			if(values[i].type === 'email') {
+        const regexEmail = new RegExp('(?:[a-z0-9!#$%&\'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&\'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\\])');
+        if(!regexEmail.exec(values[i].value)) {
+          errors.push({field: values[i].name, error: 'This email is not correct'});
+        }
+      } else {
 				errors.push({error: `Type not recognized ${values[i].type}`});
 				continue;
 			}

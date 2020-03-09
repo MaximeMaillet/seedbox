@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "./node_modules/.bin/nodemon --config deamon.json -vvvv",
+    "start-dev": "DEBUG=dTorrent* ./node_modules/.bin/nodemon index.js",
     "db:update": "node bin/syncdatabase.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -17,31 +17,33 @@
   "license": "ISC",
   "dependencies": {
     "autoprefixer": "^7.2.6",
-    "bcrypt": "^3.0.6",
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "create-torrent": "^3.33.0",
     "dotenv": "^4.0.0",
     "dtorrent": "^0.5.1",
-    "express": "^4.16.4",
-    "express-imp-router": "git+https://github.com/MaximeMaillet/express-imp-router.git#v0.3.0",
+    "express": "^4.17.1",
+    "express-imp-router": "^0.3.2",
     "express-jwt": "^5.3.1",
     "express-unless": "^0.5.0",
     "jsonwebtoken": "^8.5.1",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.15",
     "lodash.get": "^4.4.2",
     "moment": "^2.24.0",
-    "multer": "^1.4.1",
-    "mysql2": "^1.6.5",
+    "multer": "^1.4.2",
+    "mysql2": "^2.1.0",
     "nodemailer": "^4.7.0",
     "parse-torrent": "^5.9.1",
-    "rand-token": "^0.3.0",
-    "sequelize": "^4.44.0",
-    "socket.io": "^2.2.0",
-    "twig": "^1.13.3"
+    "rand-token": "^0.4.0",
+    "request": "^2.88.2",
+    "sequelize": "^5.21.5",
+    "sequelize-cli": "^5.5.1",
+    "socket.io": "^2.3.0",
+    "twig": "^1.15.0"
   },
   "devDependencies": {
     "debug": "^2.6.8",
-    "nodemon": "^1.19.0"
+    "nodemon": "^2.0.2"
   }
 }

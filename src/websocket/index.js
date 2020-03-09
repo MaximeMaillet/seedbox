@@ -24,9 +24,7 @@ module.exports.MESSAGE = {
   USER_CONNECT: 'us.connect',
 };
 
-module.exports.start = async(dtorrent) => {
-  const manager = await dtorrent.manager();
-
+module.exports.start = async(dTorrentManager) => {
   io.on('connection', (client) => {
     if(clients.indexOf(client) === -1) {
       clients[client.id] = {
@@ -37,13 +35,12 @@ module.exports.start = async(dtorrent) => {
     }
 
     client.on(module.exports.MESSAGE.USER_CONNECT, async(data) => {
-
       try {
         const decoded = jwt.verify(data, secret);
         const user = await userModel.find({where: {id: decoded.user.id}});
         if(user) {
           clients[client.id].user = user;
-          emitFromDatabase();
+          await emitFromDatabase();
         } else {
           client.disconnect();
         }
@@ -57,7 +54,7 @@ module.exports.start = async(dtorrent) => {
     });
   });
 
-  manager.addListener({
+  dTorrentManager.addListener({
     onAdded: (torrent) => {
       send(module.exports.MESSAGE.TORRENT_ADDED, torrent);
     },
@@ -95,10 +92,8 @@ module.exports.start = async(dtorrent) => {
   setInterval(emitFromEvents, 5000);
   setInterval(emitFromDatabase, 15000);
 
-  server.listen(process.env.WS_PORT || 8091);
-  logger.write({
-    message: `WS listen on ${process.env.WS_PORT || 8091}`
-  });
+  server.listen(process.env.WEBSOCKET_PORT || 8091);
+  logger.write(`WS listen on ${process.env.WEBSOCKET_PORT || 8091}`);
 };
 
 function send(message, content) {

@@ -5,7 +5,6 @@ const UserModel = require('../../models/user');
 const userTransformer = require('../../transformers/user');
 const userService = require('../../services/user');
 const userForm = require('../../forms/user');
-const roleService = require('../../services/role');
 
 const session = require('express-session');
 const sessionStore = require('../../lib/session');

@@ -16,11 +16,15 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: moment().add(1, 'days').format('YYYY-MM-DD HH:mm:ss')
     },
+    user_id: DataTypes.INTEGER
   });
 
-  return tokens;
-};
+  tokens.associate = (models) => {
+    tokens.belongsTo(models.users, {
+      onDelete: 'CASCADE',
+      foreignKey: 'user_id',
+    });
+  };
 
-module.exports.TYPES = {
-  PASSWORD_FORGOT: 1,
+  return tokens;
 };

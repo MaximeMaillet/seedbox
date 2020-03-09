@@ -10,6 +10,7 @@ const path = require('path');
 const fs = require('fs');
 const request = require('request');
 const logger = require('../lib/logger');
+const dtorrent = require('dtorrent');
 
 module.exports = {
   getTorrent,
@@ -81,25 +82,27 @@ async function getTorrent(req, res) {
  */
 async function postTorrent(req, res) {
   try {
-    const {files, torrents} = req.files;
-    const {dtorrent, tracker} = req.services;
+    const {torrentFiles} = req.files;
     const promises = [];
     let spaceToRemoveForUser = 0;
+    const manager = await dtorrent.manager();
 
-    if(files && torrents) {
-      if(files.length === 1 && torrents.length === 1) {
-        promises.push(dtorrent.createFromTorrentAndData(torrents[0].path, files[0].path));
-      }
-      else {
-        return res.status(422).send();
-      }
-    }
+    // Use Case : when user send .torrent + data
+    // if(files && torrents) {
+    //   if(files.length === 1 && torrents.length === 1) {
+    //     promises.push(dtorrent.createFromTorrentAndData(torrents[0].path, files[0].path));
+    //   }
+    //   else {
+    //     return res.status(422).send();
+    //   }
+    // }
 
-    if(!files && torrents && torrents.length > 0) {
+    if(torrentFiles && torrentFiles.length > 0) {
       let torrent = null;
-      for(const i in torrents) {
-        torrent = dtorrent.extractTorrentFile(torrents[i].path);
-
+      for(const i in torrentFiles) {
+        torrent = manager.extractTorrentFile(torrentFiles[i].path);
+        console.log(torrent);
+        break;
         if(userService.isGranted(req.session.user, 'admin')) {
           promises.push(dtorrent.createFromTorrent(torrents[i].path, req.services.server.getServer()));
         } else {
@@ -122,6 +125,8 @@ async function postTorrent(req, res) {
     else {
       return res.status(404).send();
     }
+
+    return res.send();
 
     const finalTorrents = await Promise.all(promises);
     const dataReturn = [];

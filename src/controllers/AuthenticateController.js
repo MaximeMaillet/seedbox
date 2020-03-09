@@ -1,185 +1,145 @@
 require('dotenv').config();
-const {uid} = require('rand-token');
-const Sequelize = require('sequelize');
-const Op = Sequelize.Op;
-
-const {users: UserModel, tokens: TokenModel} = require('../models');
-
+const jwt = require('jsonwebtoken');
+const ApiError = require('../class/ApiError');
+const HtmlError = require('../class/HtmlError');
+const dbModel = require('../models');
+const config = require('../config');
 const userTransformer = require('../transformers/user');
-const userForm = require('../forms/user');
+const {uid} = require('rand-token');
+const {TOKEN_TYPES} = require('../class/TokenType');
+
 const passwordForm = require('../forms/password');
 const mailer = require('../lib/mailer');
 const template = require('../lib/template');
-
-const jwt = require('jsonwebtoken');
-const {secret} = require('../config/secret_key');
-const environment = require('../config/environment');
-
-module.exports = {
-  logout,
-  login,
-  subscribe,
-  forgot,
-  passwordPost,
-  passwordGet,
-  confirm,
-};
-
-/**
- * Log out user
- * @param req
- * @param res
- * @return {Promise.<*>}
- */
-async function logout(req, res) {
-  req.session = null;
-  return res.send({});
-}
 
 /**
  * Log user
  * @param req
  * @param res
+ * @param next
  * @return {Promise.<void>}
  */
-async function login(req, res) {
+module.exports.login = async(req, res, next) => {
   try {
     const {email, password} = req.body;
-    return UserModel
-      .findOne({ where: { email, is_validated: true } })
-      .then((user) => {
-        if (!user || !user.validPassword(password)) {
-          return res.status(401).send('Authenticate failed');
-        } else {
-          delete user.dataValues['password'];
-          const token = jwt.sign({user: {
-            id: user.dataValues.id,
-            email: user.dataValues.email,
-            roles: user.dataValues.roles
-          }}, secret, {
-            expiresIn: '1w'
-          });
+    const user = await dbModel.users.findOne({
+      where: {
+        email,
+        is_validated: true
+      }
+    });
 
-          return res.status(200).send({
-            token,
-            user: userTransformer.transform(user.dataValues, user.dataValues)
-          });
+    if(!user) {
+      throw new ApiError(404, 'This user does not exists');
+    }
+
+    if(!user.validPassword(password)) {
+      throw new ApiError(401, 'Authentication failed');
+    }
+
+    const token = jwt.sign(
+      {
+        user: {
+          id: user.dataValues.id,
+          email: user.dataValues.email,
+          roles: user.dataValues.roles
         }
-      });
+      },
+      config.authentication.jwt_secret,
+      {
+        expiresIn: '1w'
+      }
+    );
+
+    res.status(200).send({
+      token,
+      user: userTransformer.transform(user.dataValues, user.dataValues)
+    });
   } catch(e) {
-    return res.status(404).send({message: e.message});
+    next(e);
   }
-}
+};
 
 /**
- * Create user
  * @param req
  * @param res
+ * @param next
  * @return {Promise.<void>}
  */
-async function subscribe(req, res) {
+module.exports.confirm = async(req, res, next) => {
   try {
-    const form = await userForm(null, req.body, null, {
-      method: 'POST',
-    });
+    const {token} = req.query;
 
-    if(form.isSuccess()) {
-      const user = await form.flush(UserModel);
-      const body = await template.twigToHtml('email.subscribe.html.twig', {
+    if(!token) {
+      throw new ApiError(422, 'No token provided');
+    }
+
+    const user = await dbModel.users.findOne({where: {
+      token: req.query.token,
+      is_validated: false
+    }});
+
+    if(!user) {
+      throw new ApiError(404, 'This user does not exists');
+    }
+
+    user.is_validated = true;
+    await user.save();
+
+    res.send((await template.twigToHtml(
+      'subscribe.confirm.html.twig',
+      {
+        link: config.base_url,
         email: user.email,
-        link: `${environment.api.base_url}/api/authenticate/confirm?token=${user.token}`
-      });
-      mailer.send(user.email, 'Welcome on dTorrent', body);
-
-      res.status(200).send(userTransformer.transform(user, null));
-    } else {
-      res.status(422).send(form.errors());
-    }
-
-  } catch(error) {
-    if(error.name === 'SequelizeUniqueConstraintError') {
-      res.status(409).send({message: 'This user already exists'});
-    }
-    else if(error.name === 'SequelizeValidationError') {
-      res.status(409).send({message: error.message});
-    }
-    else {
-      res.status(500).send({message: error.name});
-    }
+      }
+    )));
+  } catch(e) {
+    next(e);
   }
 }
 
 /**
  * @param req
  * @param res
+ * @param next
  * @return {Promise.<void>}
  */
-async function confirm(req, res) {
-  if(!req.query.token) {
-    return res.status(401).send({
-      message: 'No token provided'
-    });
-  }
-
-  const user = await UserModel.findOne({ where: { token: req.query.token, is_validated: false } });
-
-  if(!user) {
-    return res.status(401).send();
-  }
-
-  user.is_validated = true;
-  await user.save();
-
-  const body = await template.twigToHtml('subscribe.confirm.html.twig', {
-    email: user.email,
-    link: environment.api.front_url,
-  });
-
-  res.send(body);
-}
-
-/**
- * @param req
- * @param res
- * @return {Promise.<void>}
- */
-async function forgot(req, res) {
+module.exports.forgotPassword = async(req, res, next) => {
   try {
     const {email} = req.body;
-    const user = await UserModel.findOne({ where: { email, is_validated: true } });
+    const user = await dbModel.users.findOne({where: {
+      email,
+        is_validated: true
+    }});
 
     if (!user) {
-      return res.status(404).send({
-        message: 'This email does not exists',
-      });
-    } else {
-
-      const token = await TokenModel.create({
-        token: uid(32),
-        type: 1,
-        userId: user.id,
-      });
-
-      const body = await template.twigToHtml('email.forgotten.html.twig', {
-        email: user.email,
-        link: `${environment.api.base_url}/api/authenticate/password/${token.token}`
-      });
-      await mailer.send(email, 'dTorrent - password forgotten', body);
-      return res.status(200).send();
+      throw new ApiError(404, 'There is no user attached at this email');
     }
-  } catch(e) {
-    return res.status(404).send({message: e.message});
-  }
-}
 
-/**
- * @param req
- * @param res
- * @return {Promise.<void>}
- */
-async function passwordGet(req, res) {
-  return res.redirect(`${environment.api.base_url}/api/authenticate/password/${req.params.token}`);
-}
+    const token = await dbModel.tokens.create({
+      token: uid(32),
+      type: TOKEN_TYPES.PASSWORD_FORGOT,
+      user_id: user.id,
+    });
+
+    const body = await template.twigToHtml(
+      'email.forgotten.html.twig',
+      {
+        email: user.email,
+        link: `${config.api_url}/api/authentication/password?token=${token.token}`
+      }
+    );
+
+    await mailer.send(email, 'dTorrent - password forgotten', body);
+    res
+      .status(200)
+      .send({
+        message: 'success',
+      })
+  } catch(e) {
+    next(e);
+  }
+};
 
 /**
  * When user register a new password with token
@@ -187,45 +147,143 @@ async function passwordGet(req, res) {
  * @param res
  * @return {Promise.<void>}
  */
-async function passwordPost(req, res) {
+module.exports.passwordForm = async(req, res, next) => {
   try {
-    const {token, password, password2} = req.body;
+    const {token: queryToken}= req.query;
 
-    if(!password || password !== password2) {
-      return res.status(409).send({
-        message: 'Password are not same'
-      });
-    }
-
-    const userToken = await TokenModel.findOne({
+    const token = await dbModel.tokens.findOne({
       where: {
-        token,
+        token: queryToken,
         date_expired: {
-          [Op.gt]: new Date(),
+          [dbModel.Sequelize.Op.gt]: new Date(),
         }
       }
     });
 
-    if(!userToken) {
-      return res.status(409).send({
-        message: 'This token has expired',
-      });
+    if(!token) {
+      throw new HtmlError(409, 'This token has expired', (await template.twigToHtml(
+        'errors.html.twig',
+        {
+          statusCode: 409,
+          content: 'This token has expired',
+        }
+      )));
     }
 
-    const user = await UserModel.findOne({where: {id: userToken.dataValues.userId}});
+    const user = await dbModel.users.findOne({where: {
+      id: token.user_id}
+    });
+
+    if(!user) {
+      throw new HtmlError(404, 'This user does not exists', (await template.twigToHtml(
+        'errors.html.twig',
+        {
+          statusCode: 404,
+          content: 'This user does not exists',
+        }
+      )));
+    }
+
+    res.send((await template.twigToHtml(
+      'password.forgot.html.twig',
+      {
+        token: queryToken,
+        link: `${config.api_url}/api/authentication/password`,
+      }
+    )));
+  } catch(e) {
+    next(e);
+  }
+};
+
+/**
+ * @param req
+ * @param res
+ * @param next
+ * @returns {Promise<void>}
+ */
+module.exports.passwordSet = async(req, res, next) => {
+  try {
+    const {token: queryToken, password, password2} = req.body;
+
+    if(!password){
+      throw new HtmlError(409, 'You should define a password', (await template.twigToHtml(
+        'errors.html.twig',
+        {
+          statusCode: 409,
+          content: 'You should define a password',
+          link: `${config.api_url}/api/authentication/password?token=${queryToken}`
+        }
+      )));
+    }
+
+    if(password !== password2) {
+      throw new HtmlError(409, 'Password is not the same', (await template.twigToHtml(
+        'errors.html.twig',
+        {
+          statusCode: 409,
+          content: 'Password is not the same',
+          link: `${config.api_url}/api/authentication/password?token=${queryToken}`
+        }
+      )));
+    }
+
+    const token = await dbModel.tokens.findOne({
+      where: {
+        token: queryToken,
+        date_expired: {
+          [dbModel.Sequelize.Op.gt]: new Date(),
+        }
+      }
+    });
+
+    if(!token) {
+      throw new HtmlError(409, 'This token has expired', (await template.twigToHtml(
+        'errors.html.twig',
+        {
+          statusCode: 409,
+          content: 'This token has expired',
+          link: `${config.api_url}/api/authentication/password?token=${queryToken}`
+        }
+      )));
+    }
+
+    const user = await dbModel.users.findOne({where: {
+        id: token.user_id
+    }});
+
+    if(!user) {
+      throw new HtmlError(404, 'This user does not exists', (await template.twigToHtml(
+        'errors.html.twig',
+        {
+          statusCode: 409,
+          content: 'This user does not exists',
+          link: `${config.api_url}/api/authentication/password?token=${queryToken}`
+        }
+      )));
+    }
+
     const form = await passwordForm(user, req.body, user, {
       method: 'PATCH'
     });
 
     if(form.isSuccess()) {
-      const user = await form.flush(UserModel);
-      userToken.destroy();
-      res.status(200).send(userTransformer.transform(user));
+      const user = await form.flush(dbModel.users);
+      await token.destroy();
+      res
+        .status(200)
+        .send((await template.twigToHtml(
+        'password.confirm.html.twig',
+        {
+          link: config.base_url,
+          email: user.email,
+        }
+      )));
     } else {
-      res.status(422).send(form.errors());
+      res.status(422).send(form.getErrors());
     }
   } catch(e) {
-    res.status(500).send(e);
+    next(e);
   }
-}
+};
 

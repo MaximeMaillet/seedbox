@@ -1,6 +1,5 @@
 'use strict';
 
-const roleModel = require('../models/role');
 const userService = require('../services/user');
 
 module.exports.transform = (user, owner) => {
@@ -15,15 +14,15 @@ module.exports.transform = (user, owner) => {
 
 function transformUser(user, owner) {
 	let roleString = '';
-	if(user.roles & roleModel.getMask('admin')) {
-		roleString = `admin,${roleString}`;
-	}
-	if(user.roles & roleModel.getMask('user')) {
-		roleString = `user,${roleString}`;
-	}
-	if(user.roles & roleModel.getMask('moderator')) {
-		roleString = `moderator,${roleString}`;
-	}
+	// if(user.roles & roleModel.getMask('admin')) {
+	// 	roleString = `admin,${roleString}`;
+	// }
+	// if(user.roles & roleModel.getMask('user')) {
+	// 	roleString = `user,${roleString}`;
+	// }
+	// if(user.roles & roleModel.getMask('moderator')) {
+	// 	roleString = `moderator,${roleString}`;
+	// }
 
 	const User = {
 		id: user.id,

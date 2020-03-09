@@ -1,17 +1,10 @@
-FROM node:8.16.0
-
-ENV NODE_ENV=production
+FROM node:10.18.0-alpine
 
 RUN mkdir -p /var/app
-
-ADD . /var/app
-
-WORKDIR /var/app
-
-RUN chown -R node. /var/app
-
+COPY --chown=node:node "." "/var/app"
 USER node
 WORKDIR /var/app
-RUN mkdir public
+
+#RUN mkdir public
 
 CMD ["npm", "start"]

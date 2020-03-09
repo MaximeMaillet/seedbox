@@ -1,6 +1,5 @@
-'use strict';
-const bcrypt = require('bcrypt');
-const salt = bcrypt.genSaltSync();
+const bcrypt = require('bcryptjs');
+const saltValue = bcrypt.genSaltSync(10);
 
 module.exports = (sequelize, DataTypes) => {
 	const users = sequelize.define('users', {
@@ -36,20 +35,22 @@ module.exports = (sequelize, DataTypes) => {
 		{
 			hooks: {
 				beforeCreate: (user) => {
-					user.password = bcrypt.hashSync(user.password, salt);
+					console.log(user.password);
+					user.password = bcrypt.hashSync(user.password, saltValue);
 				},
 				beforeUpdate: (user) => {
 					if(user.changed('password')) {
-						user.password = bcrypt.hashSync(user.password, salt);
+						user.password = bcrypt.hashSync(user.password, saltValue);
 					}
 				},
 				beforeBulkUpdate: (user) => {
 					if(user.fields.indexOf('password') !== -1) {
-						user.attributes.password = bcrypt.hashSync(user.attributes.password, salt);
+						user.attributes.password = bcrypt.hashSync(user.attributes.password, saltValue);
 					}
 				}
 			}
-		});
+		}
+	);
 
 	users.associate = (models) => {
 		models.users.hasMany(models.torrents, {
@@ -59,6 +60,7 @@ module.exports = (sequelize, DataTypes) => {
     models.users.hasMany(models.tokens, {
       onDelete: 'CASCADE',
       foreignKey: {
+      	name: 'user_id',
         allowNull: false,
       }
     });
