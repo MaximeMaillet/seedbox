@@ -3,7 +3,7 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.addColumn(
-      'tokens',
+      'torrents',
       'user_id',
       {
         type: Sequelize.INTEGER,
@@ -13,14 +13,13 @@ module.exports = {
           model: 'users',
           key: 'id'
         }
-
       }
     );
   },
 
   down: (queryInterface, Sequelize) => {
     return queryInterface.removeColumn(
-      'tokens',
+      'torrents',
       'user_id'
     );
   }

@@ -1,4 +1,5 @@
 const userService = require('../services/user');
+const {USER_ROLES} = require('../class/Roles');
 const {get} = require('lodash');
 
 module.exports.transform = (file, owner) => {
@@ -17,8 +18,8 @@ function transformTorrent(file, owner) {
     name: get(file,'name', ''),
   };
 
-  if(owner && userService.isGranted(owner, 'admin')) {
-    File.torrent_id = get(file, 'torrentId', null);
+  if(userService.isGranted(owner, USER_ROLES.USER)) {
+    File.torrent_id = get(file, 'torrent_id', null);
     File.path = get(file,'path', '');
   }
 

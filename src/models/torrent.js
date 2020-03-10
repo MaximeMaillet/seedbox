@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) => {
 				unique: true,
 				allowNull: false
 			},
+			user_id: DataTypes.INTEGER,
 			name: {
 				type: DataTypes.STRING,
 				allowNull: false
@@ -38,10 +39,15 @@ module.exports = (sequelize, DataTypes) => {
 	torrents.associate = (models) => {
 		models.torrents.hasMany(models.files, {
 			onDelete: 'CASCADE',
+			foreignKey: {
+				name: 'torrent_id',
+				allowNull: false,
+			}
 		});
 
 		torrents.belongsTo(models.users, {
       onDelete: 'CASCADE',
+			foreignKey: 'user_id',
     });
 	};
 

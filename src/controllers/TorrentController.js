@@ -1,312 +1,282 @@
-const {
-  torrents: torrentModel,
-  users: userModel,
-  files: fileModel,
-} = require('../models');
 const torrentTransformer = require('../transformers/torrent');
 const userService = require('../services/user');
-const torrentService = require('../services/torrent');
-const path = require('path');
-const fs = require('fs');
 const request = require('request');
-const logger = require('../lib/logger');
-const dtorrent = require('dtorrent');
+const {USER_ROLES} = require('../class/Roles');
+const ApiError = require('../class/ApiError');
+const dbModel = require('../models');
+const serverService = require('../services/server');
+const torrentService = require('../services/torrent');
+const dTorrent = require('dtorrent');
 
-module.exports = {
-  getTorrent,
-  getTorrents,
-  postTorrent,
-  downloadFile,
-  remove,
-  playTorrent,
-  pauseTorrent,
+/**
+ * @param req
+ * @param res
+ * @param next
+ * @returns {Promise<*>}
+ */
+module.exports.getAll = async(req, res, next) => {
+  try {
+    const torrents = await dbModel.torrents.findAll({
+      include: [
+        {model: dbModel.users},
+        {model: dbModel.files},
+      ]
+    });
+    return res.send(torrentTransformer.transform(torrents, req.user));
+  } catch(e) {
+    next(e);
+  }
 };
 
 /**
  * @param req
  * @param res
- * @return {Promise.<ServerResponse>}
+ * @param next
+ * @returns {Promise<*>}
  */
-async function getTorrents(req, res) {
+module.exports.getOneWithId = async(req, res, next) => {
   try {
-    const whereClause = {};
-    if(!userService.isGranted(req.session.user, 'admin')) {
-      whereClause.where = {is_removed: false};
-    }
-    const torrents = await torrentModel.findAll({
-      where: {},
-      include: [userModel,fileModel]
+    const torrent = await dbModel.torrents.findOne({
+      where: {id: req.params.torrentId},
+      include: [
+        {model: dbModel.users},
+        {model: dbModel.files},
+      ],
     });
 
-    return res.send(torrentTransformer.transform(torrents, req.session.user));
-  } catch(error) {
-    logger.write({
-      location: 'TorrentController',
-      error,
-    }, logger.LEVEL.ERROR);
-    res.status(500).send({
-      message: error.message,
-    });
-  }
-}
-
-/**
- * @param req
- * @param res
- * @return {Promise.<ServerResponse>}
- */
-async function getTorrent(req, res) {
-  try {
-    const {id} = req.params;
-    const torrent = await torrentModel.find({where: {id}});
     if(!torrent) {
-      return res.status(404).send({message: 'Torrent not found'});
+      throw new ApiError(404, 'This torrent does not exists');
     }
-    return res.send(torrentTransformer.transform(torrent, req.session.user));
-  } catch(error) {
-    logger.write({
-      location: 'TorrentController',
-      error,
-    }, logger.LEVEL.ERROR);
-    res.status(500).send({
-      message: error.message,
-    });
+
+    res
+      .status(200)
+      .send(torrentTransformer.transform(torrent, req.user))
+    ;
+  } catch(e) {
+    next(e);
   }
-}
+};
 
 /**
- *
  * @param req
  * @param res
- * @return {Promise.<void>}
+ * @param next
+ * @returns {Promise<*>}
  */
-async function postTorrent(req, res) {
+module.exports.getOneWithHash = async(req, res, next) => {
   try {
-    const {torrentFiles} = req.files;
-    const promises = [];
-    let spaceToRemoveForUser = 0;
-    const manager = await dtorrent.manager();
+    const torrent = await dbModel.torrents.findOne({
+      where: {hash: req.params.hash},
+      include: [
+        {model: dbModel.users},
+        {model: dbModel.files},
+      ],
+    });
 
-    // Use Case : when user send .torrent + data
-    // if(files && torrents) {
-    //   if(files.length === 1 && torrents.length === 1) {
-    //     promises.push(dtorrent.createFromTorrentAndData(torrents[0].path, files[0].path));
-    //   }
-    //   else {
-    //     return res.status(422).send();
-    //   }
-    // }
+    if(!torrent) {
+      throw new ApiError(404, 'This torrent does not exists');
+    }
 
-    if(torrentFiles && torrentFiles.length > 0) {
-      let torrent = null;
-      for(const i in torrentFiles) {
-        torrent = manager.extractTorrentFile(torrentFiles[i].path);
-        console.log(torrent);
-        break;
-        if(userService.isGranted(req.session.user, 'admin')) {
-          promises.push(dtorrent.createFromTorrent(torrents[i].path, req.services.server.getServer()));
-        } else {
-          if(tracker.isInWhiteList(torrent.announce) && !tracker.isInBlackList(torrent.announce)) {
-            if(req.session.user.space > torrent.info.total_size) {
-              spaceToRemoveForUser += torrent.info.total_size;
-              promises.push(dtorrent.createFromTorrent(torrents[i].path, req.services.server.getServer()));
-            }
-          }
+    res
+      .status(200)
+      .send(torrentTransformer.transform(torrent, req.user))
+    ;
+  } catch(e) {
+    next(e);
+  }
+};
+
+/**
+ * @param req
+ * @param res
+ * @param next
+ * @returns {Promise<void>}
+ */
+module.exports.create = async(req, res, next) => {
+  try {
+    const {torrents} = req.files;
+    const {server} = req.body;
+
+    const _server = serverService.get(server);
+    const torrentManager = dTorrent.manager();
+    const files = [];
+
+    for (let i = 0; i < torrents.length; i++) {
+      const t = await dbModel.sequelize.transaction();
+      let currentFile = {
+        name: torrents[i].name,
+      };
+
+      try {
+        const torrentMetaData = torrentManager.extractTorrentFile(torrents[i].path);
+        if(!userService.isGranted(req.user, USER_ROLES.ADMIN) && req.user.space < torrentMetaData.length) {
+          throw new Error('You don\'t have any space');
         }
+
+        await torrentService.add(
+          req.user,
+          {
+            hash: torrentMetaData.hash,
+            name: torrentMetaData.name,
+            path: torrents[i].path,
+            user_id: req.user.id,
+            downloaded: 0,
+            uploaded: 0,
+            length: torrentMetaData.length,
+            server: _server.name,
+            active: false,
+          },
+          {transaction: t}
+        );
+        await torrentService.sendFileToServer(_server, torrents[i]);
+        req.user.space -= torrentMetaData.length;
+        await req.user.save({transaction: t});
+        t.commit();
+        currentFile.send = true;
+      } catch(e) {
+        t.rollback();
+        currentFile.send = false;
+        currentFile.message = e.message;
+        currentFile.error = e;
       }
 
-      if(promises.length === 0) {
-        return res.status(422).send({
-          message: 'Your torrents have no trackers authorized',
-          errors: torrent.announce,
-        });
-      }
-    }
-    else {
-      return res.status(404).send();
+      files.push(currentFile);
     }
 
-    return res.send();
-
-    const finalTorrents = await Promise.all(promises);
-    const dataReturn = [];
-    for (const i in finalTorrents) {
-      dataReturn.push(finalTorrents[i].torrent);
-
-      if (finalTorrents[i].success) {
-        await torrentService.createTorrent(finalTorrents[i].torrent, req.session.user);
-      }
+    if(files.filter((f) => !f.send).length > 0) {
+      throw new ApiError(422, 'Upload failed', new Error(JSON.stringify(files)));
     }
 
-    await userModel.update(
-      {space: spaceToRemoveForUser},
-      {where: {id: req.session.user.id}}
-    );
-
-    return res.send(torrentTransformer.transform(dataReturn, req.session.user));
-  } catch(error) {
-    logger.write({
-      location: 'TorrentController',
-      error,
-    }, logger.LEVEL.ERROR);
-    res.status(500).send({
-      message: error.message,
-    });
-  }
-}
-
-/**
- * @param req
- * @param res
- * @return {Promise.<*>}
- */
-async function downloadFile(req, res) {
-
-  const {id, fileId} = req.params;
-
-  const torrent = await torrentModel.find({where: {id}});
-
-  if (!torrent) {
-    return res.status(404).send({
-      message: 'This torrent does not exists'
-    });
-  }
-
-  const file = await fileModel.find({where: {id: fileId}});
-
-  if(!file) {
-    return res.status(404).send({
-      message: 'This file does not exists'
-    });
-  }
-  const confServer = req.services.server.getServerFromName(torrent.dataValues.server);
-
-  return request({
-    url: `http://${confServer.rtorrent_host}:${confServer.rtorrent_port}/downloaded/${encodeURIComponent(file.dataValues.path)}`,
-    method: 'GET'
-  }).pipe(res);
-}
-
-/**
- * @param req
- * @param res
- * @return {Promise.<void>}
- */
-async function remove(req, res) {
-  try {
-    const {dtorrent} = req.services;
-    const {id} = req.params;
-    const torrent = await torrentModel.find({where: {id}});
-
-    const result = await dtorrent.remove(torrent.hash);
-    return res.send({success: result});
-
-  } catch(error) {
-    logger.write({
-      location: 'TorrentController',
-      error,
-    }, logger.LEVEL.ERROR);
-    res.status(500).send({
-      message: error.message,
-    });
-  }
-}
-
-async function playTorrent(req, res) {
-  try {
-    const {id} = req.params;
-
-    const torrent = await torrentModel.find({where: {id}});
-
-    if(!torrent) {
-      return res.status(404).send({
-        message: 'This torrent does not exits',
-      });
-    }
-
-    return res.send(torrentTransformer.transform((await req.services.dtorrent.resume(torrent.dataValues.hash))));
-
+    res
+      .status(200)
+      .send({success: true});
   } catch(e) {
-    res.status(500).send({
-      message: 'Fail',
-      errors: e,
-    });
+    next(e);
   }
-}
+};
 
 /**
  * @param req
  * @param res
- * @return {Promise.<void>}
+ * @param next
+ * @returns {Promise<*>}
  */
-async function pauseTorrent(req, res) {
+module.exports.getFile = async(req, res, next) => {
   try {
-    const {id} = req.params;
+    const {torrentId, hash} = req.params;
 
-    const torrent = await torrentModel.find({where: {id}});
+    const torrent = await dbModel.torrents.findOne({
+      where: torrentId ? {id: torrentId} : {hash}
+    });
 
     if(!torrent) {
-      return res.status(404).send({
-        message: 'This torrent does not exits',
-      });
+      throw new ApiError(404, 'This torrent does not exists');
     }
 
-    return res.send(torrentTransformer.transform((await req.services.dtorrent.pause(torrent.dataValues.hash))));
+    const server = serverService.get(torrent.server);
 
+    const file = await dbModel.files.findOne({
+      where: {
+        id: req.params.fileId,
+        torrent_id: torrent.id,
+      }
+    });
+
+    if(!file) {
+      throw new ApiError(404, 'This file does not exists');
+    }
+
+    return request({
+      method:'GET',
+      url: `${server.secure ? 'https':'http'}://${server.host}:${server.port}/downloaded/${file.path}`,
+    }).pipe(res);
   } catch(e) {
-    res.status(500).send({
-      message: 'Fail',
-      errors: e,
-    });
+    next(e);
   }
-}
+};
 
 /**
- * @legacy
  * @param req
  * @param res
- * @return {Promise.<void>}
+ * @param next
+ * @returns {Promise<void>}
  */
-async function downloadFileOld(req, res) {
+module.exports.resume = async(req, res, next) => {
   try {
-    const { id, fileId } = req.params;
+    const {torrentId, hash} = req.params;
 
-    const torrent = await torrentModel.find({where: {id}});
+    const torrent = await dbModel.torrents.findOne({
+      where: torrentId ? {id: torrentId} : {hash}
+    });
 
     if(!torrent) {
-      return res.status(404).send();
+      throw new ApiError(404, 'This torrent does not exists');
     }
 
-    const file = await fileModel.find({where: {id: fileId}});
-    const dataPath = path.resolve(file.dataValues.path);
+    const server = serverService.get(torrent.server);
+    const manager = dTorrent.manager(server.name);
+    const newTorrent = await manager.resume(torrent.hash);
 
-    if(!file || !fs.existsSync(dataPath)) {
-      return res.status(404).send({
-        message: 'File does not exists'
-      });
-    }
-
-    const options = {
-      headers: {
-        'x-timestamp': Date.now(),
-        'x-sent': true
-      }
-    };
-
-    return res.download(dataPath, file.name, options, (err) => {
-      if(err) {
-        res.status(404).send({
-          message: err.message
-        });
-      }
-    });
-  } catch(error) {
-    logger.write({
-      location: 'TorrentController',
-      error,
-    }, logger.LEVEL.ERROR);
-    res.status(500).send({
-      message: error.message,
-    });
+    res.send(torrentTransformer.transform(newTorrent, req.user));
+  } catch(e) {
+    next(e);
   }
-}
+};
+
+/**
+ * @param req
+ * @param res
+ * @param next
+ * @returns {Promise<void>}
+ */
+module.exports.pause = async(req, res, next) => {
+  try {
+    const {torrentId, hash} = req.params;
+
+    const torrent = await dbModel.torrents.findOne({
+      where: torrentId ? {id: torrentId} : {hash}
+    });
+
+    if(!torrent) {
+      throw new ApiError(404, 'This torrent does not exists');
+    }
+
+    const server = serverService.get(torrent.server);
+    const manager = dTorrent.manager(server.name);
+    const newTorrent = await manager.pause(torrent.hash);
+
+    res.send(torrentTransformer.transform(newTorrent, req.user));
+  } catch(e) {
+    next(e);
+  }
+};
+
+/**
+ * @param req
+ * @param res
+ * @param next
+ * @returns {Promise<void>}
+ */
+module.exports.remove = async(req, res, next) => {
+  try {
+    const {torrentId, hash} = req.params;
+
+    const torrent = await dbModel.torrents.findOne({
+      where: torrentId ? {id: torrentId} : {hash}
+    });
+
+    if(!torrent) {
+      throw new ApiError(404, 'This torrent does not exists');
+    }
+
+    const server = serverService.get(torrent.server);
+    const manager = dTorrent.manager(server.name);
+    await manager.remove(torrent.hash);
+
+    res.send({
+      message: 'success'
+    });
+  } catch(e) {
+    next(e);
+  }
+};

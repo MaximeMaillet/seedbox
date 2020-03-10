@@ -1,8 +1,7 @@
-'use strict';
-
 const form = require('../lib/form');
 const {uid} = require('rand-token');
 const get = require('lodash.get');
+const {USER_ROLES} = require('../class/Roles');
 
 module.exports = async(user, data, owner, options) => {
 	return form.run(
@@ -23,7 +22,7 @@ module.exports = async(user, data, owner, options) => {
         name: 'roles',
         value: get(data, 'roles', null),
         canSet: ['admin'],
-        default: 1
+        default: USER_ROLES.USER,
       },
 			{
         name: 'space',

@@ -1,4 +1,3 @@
-require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const ApiError = require('../class/ApiError');
 const HtmlError = require('../class/HtmlError');
@@ -286,4 +285,3 @@ module.exports.passwordSet = async(req, res, next) => {
     next(e);
   }
 };
-

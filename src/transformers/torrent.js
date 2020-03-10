@@ -1,4 +1,5 @@
 const userService = require('../services/user');
+const {USER_ROLES} = require('../class/Roles');
 const fileTransformer = require('./file');
 const userTransformer = require('./user');
 const {get} = require('lodash');
@@ -20,11 +21,11 @@ function transformTorrent(torrent, owner) {
 		name: get(torrent,'name', ''),
 	};
 
-	if(owner && userService.isGranted(owner, 'admin')) {
+	if(userService.isGranted(owner, USER_ROLES.ADMIN)) {
 		//TODO
 	}
 
-  if(owner && userService.isGranted(owner, 'user')) {
+  if(userService.isGranted(owner, USER_ROLES.USER)) {
     Torrent.downloaded = get(torrent, 'downloaded', 0);
     Torrent.uploaded = get(torrent, 'uploaded', 0);
     Torrent.total = get(torrent, 'total', 0);

@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const dTorrent = require('dtorrent');
 const webSocket = require('./src/websocket');
 const logger = require('./src/lib/logger');
+const torrentListener = require('./src/listeners/torrents');
 
 const config = require('./src/config');
 start()
@@ -110,14 +111,15 @@ async function start() {
       isReady = false;
       await sleep(5000);
     }
-  } while(!isReady)
+  } while(!isReady);
 
   await initApi();
+  await initTorrentListener();
   // await initWebSocket();
-  await initDtorrent();
+  await initTorrent();
 }
 
-async function initDtorrent() {
+async function initTorrent() {
   for(const i in config.torrent.servers) {
     await dTorrent.start({
       ...config.torrent.servers[i],
@@ -177,7 +179,51 @@ async function initApi() {
                 patch: 'UserController#update',
                 delete: 'UserController#delete',
               }
-            }
+            },
+            '/servers': {
+              get: 'ServerController#getAll'
+            },
+            '/torrents': {
+              [router.IMP.MIDDLEWARE]: [
+                {
+                  controllers: ['upload#torrent'],
+                  method: router.METHOD.POST,
+                  inheritance: router.MIDDLEWARE.INHERITANCE.NONE,
+                },
+              ],
+              get: 'TorrentController#getAll',
+              post: 'TorrentController#create',
+              '/:torrentId([0-9]+)': {
+                get: 'TorrentController#getOneWithId',
+                delete: 'TorrentController#remove',
+                '/resume': {
+                  get: 'TorrentController#resume'
+                },
+                '/pause': {
+                  get: 'TorrentController#pause'
+                },
+                '/files': {
+                  '/:fileId([0-9]+)': {
+                    get: 'TorrentController#getFile'
+                  }
+                }
+              },
+              '/:hash':{
+                get: 'TorrentController#getOneWithHash',
+                delete: 'TorrentController#remove',
+                '/resume': {
+                  get: 'TorrentController#resume'
+                },
+                '/pause': {
+                  get: 'TorrentController#pause'
+                },
+                '/files': {
+                  '/:fileId([0-9]+)': {
+                    get: 'TorrentController#getFile'
+                  }
+                }
+              },
+            },
           }
         },
       }
@@ -191,6 +237,10 @@ async function initApi() {
 
 async function initWebSocket() {
   await webSocket.start((await dTorrent.manager()));
+}
+
+async function initTorrentListener() {
+  await torrentListener.start();
 }
 
 /**

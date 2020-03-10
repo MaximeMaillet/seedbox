@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) => {
 			unique: false,
 			allowNull: false
 		},
+		torrent_id: DataTypes.INTEGER,
 		path: {
 			type: DataTypes.STRING,
 			allowNull: false
@@ -18,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
   files.associate = (models) => {
     files.belongsTo(models.torrents, {
       onDelete: 'CASCADE',
+			foreignKey: 'torrent_id',
     });
   };
 

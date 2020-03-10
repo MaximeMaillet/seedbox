@@ -14,6 +14,11 @@ module.exports = {
   //   "base_url": "https://seedbox.deuxmax.fr",
   //   "front_url": "https://seedbox.deuxmax.fr"
   // },
+  api: {
+    torrent: {
+      temp_directory: '/var/app/public'
+    }
+  },
   api_url: process.env.API_URL,
   base_url: process.env.BASE_URL,
   mailer: {
@@ -31,10 +36,15 @@ module.exports = {
       {
         name: "PrimaryServer",
         client: 'rtorrent',
-        interval_check: 3000,
+        interval_check: 1000,
+        secure: false,
         host: process.env.RTORRENT_HOST,
         port: process.env.RTORRENT_PORT,
         endpoint: process.env.RTORRENT_PATH,
+        auth: {
+          user: 'rtorrent',
+          password: 'rtorrent',
+        }
       }
     ]
   }

@@ -1,6 +1,5 @@
-'use strict';
-
 const userService = require('../services/user');
+const {USER_ROLES} = require('../class/Roles');
 
 module.exports.transform = (user, owner) => {
 	if(Array.isArray(user)) {
@@ -13,28 +12,20 @@ module.exports.transform = (user, owner) => {
 };
 
 function transformUser(user, owner) {
-	let roleString = '';
-	// if(user.roles & roleModel.getMask('admin')) {
-	// 	roleString = `admin,${roleString}`;
-	// }
-	// if(user.roles & roleModel.getMask('user')) {
-	// 	roleString = `user,${roleString}`;
-	// }
-	// if(user.roles & roleModel.getMask('moderator')) {
-	// 	roleString = `moderator,${roleString}`;
-	// }
-
 	const User = {
 		id: user.id,
 		email: user.email,
-		space: user.space / (1024*1024*1024),
-		createdAt: user.createdAt,
-		updatedAt: user.updatedAt
+		roles: userService.getRoleString(user),
 	};
 
-	if(owner && userService.isGranted(owner, 'admin')) {
+	if(userService.isGranted(owner, USER_ROLES.USER)) {
+		User.space = user.space / (1024*1024*1024);
+	}
+
+	if(userService.isGranted(owner, USER_ROLES.ADMIN)) {
+		User.createdAt = user.createdAt;
+		User.updatedAt = user.updatedAt;
 		User.is_validated = user.is_validated;
-    User.roles = roleString.substring(0, roleString.length - 1);
 	}
 
 	return User;

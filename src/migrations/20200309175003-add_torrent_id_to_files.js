@@ -3,25 +3,24 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.addColumn(
-      'tokens',
-      'user_id',
+      'files',
+      'torrent_id',
       {
         type: Sequelize.INTEGER,
         onDelete: "CASCADE",
         allowNull: false,
         references: {
-          model: 'users',
+          model: 'torrents',
           key: 'id'
         }
-
       }
     );
   },
 
   down: (queryInterface, Sequelize) => {
     return queryInterface.removeColumn(
-      'tokens',
-      'user_id'
+      'files',
+      'torrent_id'
     );
   }
 };
