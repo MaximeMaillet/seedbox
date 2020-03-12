@@ -1,4 +1,6 @@
 const userTransformer = require ('../transformers/user');
+const userService = require('../services/user');
+const {USER_ROLES} = require('../class/Roles');
 const userForm = require('../forms/user');
 const dbModel = require('../models');
 const ApiError = require('../class/ApiError');
@@ -12,49 +14,8 @@ const config = require('../config');
  * @param next
  * @returns {Promise<void>}
  */
-module.exports.create = async(req, res, next) => {
-  try {
-    const form = await userForm(null, req.body, req.user, {
-      method: 'POST',
-    });
-
-    if(form.isSuccess()) {
-      const user = await form.flush(dbModel.users);
-      const body = await template.twigToHtml(
-        'email.subscribe.html.twig',
-        {
-          email: user.email,
-          link: `${config.api_url}/api/authentication/confirm?token=${user.token}`
-        }
-      );
-      await mailer.send(user.email, 'Welcome on dTorrent', body);
-      res.status(200).send(userTransformer.transform(user, req.user));
-    } else {
-      res.status(422).send(form.getErrors());
-    }
-
-  } catch(error) {
-    if(error.name === 'SequelizeUniqueConstraintError') {
-      next(new ApiError(409, 'This user already exists', error));
-    }
-    else if(error.name === 'SequelizeValidationError') {
-      next(new ApiError(409, error.message, error));
-    }
-    else {
-      next(new ApiError(422, error.message, error));
-    }
-  }
-};
-
-/**
- * @param req
- * @param res
- * @param next
- * @returns {Promise<void>}
- */
 module.exports.getOne = async(req, res, next) => {
   try {
-    console.log(req.user);
     const user = await dbModel.users.findOne({
       where : {
         id: req.params.id,
@@ -98,6 +59,47 @@ module.exports.getAll = async(req, res, next) => {
  * @param next
  * @returns {Promise<void>}
  */
+module.exports.create = async(req, res, next) => {
+  try {
+    const form = await userForm(null, req.body, req.user, {
+      method: 'POST',
+      create: true,
+    });
+
+    if(form.isSuccess()) {
+      const user = await form.flush(dbModel.users);
+      const body = await template.twigToHtml(
+        'email.subscribe.html.twig',
+        {
+          email: user.email,
+          link: `${config.api_url}/api/authentication/confirm?token=${user.token}`
+        }
+      );
+      await mailer.send(user.email, 'Welcome on dTorrent', body);
+      res.status(200).send(userTransformer.transform(user, user));
+    } else {
+      res.status(422).send(form.getErrors());
+    }
+
+  } catch(error) {
+    if(error.name === 'SequelizeUniqueConstraintError') {
+      next(new ApiError(409, 'This user already exists', {}, error));
+    }
+    else if(error.name === 'SequelizeValidationError') {
+      next(new ApiError(409, error.message, {}, error));
+    }
+    else {
+      next(new ApiError(422, error.message, {}, error));
+    }
+  }
+};
+
+/**
+ * @param req
+ * @param res
+ * @param next
+ * @returns {Promise<void>}
+ */
 module.exports.update = async(req, res, next) => {
   try {
     const user = await dbModel.users.findOne({
@@ -108,26 +110,26 @@ module.exports.update = async(req, res, next) => {
     });
 
     if(!user) {
-      throw new ApiError(404, 'This user does not exists');
+      throw new ApiError(404, req.translation.get('generic.user.not_found'));
     }
 
-    if(req.user.id !== req.params.id) {
-      throw new ApiError(403, 'You have not permission');
+    if(req.user.id !== user.id) {
+      throw new ApiError(403, req.translation.get('generic.permissions.forbidden'));
     }
 
-    const form = await userForm(user.dataValues, req.body, req.user, {
+    const form = await userForm(user, req.body, req.user, {
       method: 'PATCH'
     });
 
     if(form.isSuccess()) {
-      const user = await form.flush(dbModel.users);
-      res.status(200).send(userTransformer.transform(user, req.user));
+      const newUser = await form.flush(dbModel.users);
+      res.status(200).send(userTransformer.transform(newUser, req.user));
     } else {
+      console.log(form.getErrors());
       res.status(422).send(form.getErrors());
     }
-
-    res.send(userTransformer.transform(user));
   } catch(error) {
+    console.log(error)
     if(error.name === 'SequelizeUniqueConstraintError') {
       next(new ApiError(409, 'This user already exists'));
     } else if(error.name === 'SequelizeValidationError') {
@@ -136,7 +138,7 @@ module.exports.update = async(req, res, next) => {
       if(error.name === 'ApiError') {
         next(error);
       } else {
-        next(new ApiError(422, error.message));
+        next(new ApiError(422, error.message, {}, error));
       }
     }
   }
@@ -163,6 +165,32 @@ module.exports.delete = async(req, res, next) => {
       .send({
       message: 'success'
     });
+  } catch(e) {
+    next(e);
+  }
+};
+
+/**
+ * @param req
+ * @param res
+ * @param next
+ * @returns {Promise<void>}
+ */
+module.exports.picture = async(req, res, next) => {
+  try {
+    const picture = req.file;
+    const user = await dbModel.users.findOne({where: {id: req.params.id}});
+    if(!user) {
+      throw new ApiError(404, req.translation.get('generic.user.not_found'));
+    }
+
+    if(!userService.isGranted(req.user, USER_ROLES.ADMIN) && user.id !== req.user.id) {
+      throw new ApiError(403, req.translation.get('generic.permissions.forbidden'));
+    }
+
+    user.picture = picture.filename;
+    await user.save();
+    res.send(userTransformer.transform(user, req.user));
   } catch(e) {
     next(e);
   }

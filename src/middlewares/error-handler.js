@@ -1,39 +1,30 @@
 require('dotenv').config();
 
 module.exports.handle = async(err, req, res, next) => {
-  if(process.env.NODE_ENV === 'production') {
-    if(err.name === 'HtmlError') {
-      res
-        .status(err.statusCode || 400)
-        .type('html')
-        .send(err.body)
-      ;
-    } else {
-      res
-        .status(err.statusCode || 400)
-        .type('json')
-        .send({
-          message: err.message,
-        })
-      ;
-    }
-  } else {
-    if(err.name === 'HtmlError') {
-      res
-        .status(err.statusCode || 400)
-        .type('html')
-        .send(err.body)
-      ;
-    } else {
-      res
-        .status(err.statusCode || 400)
-        .type('json')
-        .send({
-          message: err.message,
-          error: err.stack,
-          previous: err.previous ? err.previous.stack : null,
-        })
-      ;
+
+  let statusCode = err.statusCode || 400,
+    body = {message: err.message},
+    type = 'json';
+
+  if(err.name === 'HtmlError') {
+    type = 'html';
+    body = err.body;
+  } else if(err.name === 'ApiError') {
+    type = 'json';
+    body = {
+      message: err.message,
+      fields: err.fields,
+    };
+
+    if(process.env.NODE_ENV === 'development') {
+      body.error = err.stack;
+      body.previous = err.previous ? err.previous.stack : null;
     }
   }
+
+  res
+    .status(statusCode)
+    .type(type)
+    .send(body)
+  ;
 };

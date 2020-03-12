@@ -6,7 +6,6 @@ const config = require('../config');
 const userTransformer = require('../transformers/user');
 const {uid} = require('rand-token');
 const {TOKEN_TYPES} = require('../class/TokenType');
-
 const passwordForm = require('../forms/password');
 const mailer = require('../lib/mailer');
 const template = require('../lib/template');
@@ -29,11 +28,11 @@ module.exports.login = async(req, res, next) => {
     });
 
     if(!user) {
-      throw new ApiError(404, 'This user does not exists');
+      throw new ApiError(404, req.translation.get('authentication.user.not_exists'), {email: req.translation.get('authentication.user.email.not_exists')});
     }
 
     if(!user.validPassword(password)) {
-      throw new ApiError(401, 'Authentication failed');
+      throw new ApiError(401, req.translation.get('authentication.fail'), {password: req.translation.get('authentication.user.password.not_validate')});
     }
 
     const token = jwt.sign(
@@ -42,7 +41,7 @@ module.exports.login = async(req, res, next) => {
           id: user.dataValues.id,
           email: user.dataValues.email,
           roles: user.dataValues.roles
-        }
+        },
       },
       config.authentication.jwt_secret,
       {

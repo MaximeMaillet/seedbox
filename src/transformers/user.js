@@ -1,3 +1,4 @@
+require('dotenv').config();
 const userService = require('../services/user');
 const {USER_ROLES} = require('../class/Roles');
 
@@ -13,13 +14,14 @@ module.exports.transform = (user, owner) => {
 
 function transformUser(user, owner) {
 	const User = {
-		id: user.id,
-		email: user.email,
-		roles: userService.getRoleString(user),
 	};
 
 	if(userService.isGranted(owner, USER_ROLES.USER)) {
-		User.space = user.space / (1024*1024*1024);
+		User.id = user.id;
+		User.email = user.email;
+		User.space = parseInt((user.space / (1024*1024*1024)).toFixed(4));
+		User.roles = userService.getRoleString(user);
+		User.picture = user.picture ? `${process.env.API_URL}/static/profile/${user.id}/${user.picture}` : null;
 	}
 
 	if(userService.isGranted(owner, USER_ROLES.ADMIN)) {

@@ -7,8 +7,9 @@ const dTorrent = require('dtorrent');
 const webSocket = require('./src/websocket');
 const logger = require('./src/lib/logger');
 const torrentListener = require('./src/listeners/torrents');
-
 const config = require('./src/config');
+
+
 start()
   .catch((e) => {
     console.log(e);
@@ -139,7 +140,7 @@ async function initApi() {
         routes: {
           [router.IMP.MIDDLEWARE]: [
             {
-              controllers: ['cors#apply', bodyParser.json(), bodyParser.urlencoded({extended: true})],
+              controllers: ['cors#apply', bodyParser.json(), bodyParser.urlencoded({extended: true}), 'locale#extract'],
               level: router.MIDDLEWARE.LEVEL.GLOBAL,
               inheritance: router.MIDDLEWARE.INHERITANCE.DESC,
             },
@@ -178,6 +179,16 @@ async function initApi() {
                 get: 'UserController#getOne',
                 patch: 'UserController#update',
                 delete: 'UserController#delete',
+                '/picture': {
+                  [router.IMP.MIDDLEWARE]: [
+                    {
+                      controllers: ['upload#picture'],
+                      method: router.METHOD.PATCH,
+                      inheritance: router.MIDDLEWARE.INHERITANCE.NONE,
+                    },
+                  ],
+                  patch: 'UserController#picture',
+                }
               }
             },
             '/servers': {
@@ -224,6 +235,13 @@ async function initApi() {
                 }
               },
             },
+          },
+          '/static': {
+            '/profile': {
+              [router.IMP.STATIC]: {
+                'targets': [`.${config.api.user.directory.replace(path.resolve('.'), '')}`],
+              }
+            }
           }
         },
       }

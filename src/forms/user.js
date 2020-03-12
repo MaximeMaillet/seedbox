@@ -1,48 +1,53 @@
 const form = require('../lib/form');
 const {uid} = require('rand-token');
-const get = require('lodash.get');
 const {USER_ROLES} = require('../class/Roles');
 
 module.exports = async(user, data, owner, options) => {
 	return form.run(
-		user,
-		[
-			{
+	  [
+      {
         name: 'email',
-        value: get(data, 'email', null),
-        type: 'email',
-        required: true,
-      },
-			{
-        name: 'password',
-        value: get(data, 'password', null),
+        type: form.TYPE.EMAIL,
+        canSet: form.ROLE.ADMIN | form.ROLE.OWNER,
         required: true,
       },
       {
+        name: 'password',
+        canSet: form.ROLE.ADMIN | form.ROLE.OWNER,
+        required: !!options.create,
+      },
+      {
         name: 'roles',
-        value: get(data, 'roles', null),
-        canSet: ['admin'],
+        canSet: form.ROLE.ADMIN,
+        required: !!options.create,
         default: USER_ROLES.USER,
       },
-			{
+      {
         name: 'space',
-        value: get(data, 'space', 0) * (1024*1024*1024),
-        canSet: ['admin'],
-        default: 5*(1024*1024*1024)
+        transform: (value) => value*1024*1024*1024,
+        canSet: form.ROLE.ADMIN,
+        default: 10*(1024*1024*1024)
       },
-			{
+      {
         name: 'is_validated',
-        value: get(data, 'is_validated', false),
-        canSet: ['admin', 'owner'],
+        canSet: form.ROLE.ADMIN,
         default: false
       },
-			{
-        name: 'token',
-        value: '',
-        default: uid(32),
-        canSet: []
-      }
-		],
+    ].concat(
+      options.create ?
+        [
+          {
+            name: 'token',
+            default: uid(32),
+            canSet: form.ROLE.ADMIN,
+            required: true,
+          }
+        ]
+      :
+        []
+    ),
+    user,
+    data,
 		owner,
     options
   );

@@ -15,8 +15,11 @@ module.exports = {
   //   "front_url": "https://seedbox.deuxmax.fr"
   // },
   api: {
+    user: {
+      directory: '/var/app/public/pictures'
+    },
     torrent: {
-      temp_directory: '/var/app/public'
+      temp_directory: '/var/app/public/torrents'
     }
   },
   api_url: process.env.API_URL,

@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
 				unique: true,
 				allowNull: false
 			},
+			picture:DataTypes.STRING,
 			password: {
 				type: DataTypes.STRING,
 				allowNull: false
@@ -35,7 +36,6 @@ module.exports = (sequelize, DataTypes) => {
 		{
 			hooks: {
 				beforeCreate: (user) => {
-					console.log(user.password);
 					user.password = bcrypt.hashSync(user.password, saltValue);
 				},
 				beforeUpdate: (user) => {
@@ -72,6 +72,10 @@ module.exports = (sequelize, DataTypes) => {
 
 	users.prototype.validPassword = function(password) {
 		return bcrypt.compareSync(password, this.password);
+	};
+
+	users.prototype.isOwner = function(owner) {
+		return this.id === owner.id;
 	};
 
 	return users;
