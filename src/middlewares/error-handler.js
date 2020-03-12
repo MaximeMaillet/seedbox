@@ -20,6 +20,13 @@ module.exports.handle = async(err, req, res, next) => {
       body.error = err.stack;
       body.previous = err.previous ? err.previous.stack : null;
     }
+  } else if(err.name === 'MulterError') {
+    body = {
+      message: err.message,
+      fields: {
+        [err.field]: err.message,
+      },
+    }
   }
 
   res

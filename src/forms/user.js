@@ -17,6 +17,11 @@ module.exports = async(user, data, owner, options) => {
         required: !!options.create,
       },
       {
+        name: 'password2',
+        canSet: form.ROLE.ADMIN | form.ROLE.OWNER,
+        required: !!options.create,
+      },
+      {
         name: 'roles',
         canSet: form.ROLE.ADMIN,
         required: !!options.create,

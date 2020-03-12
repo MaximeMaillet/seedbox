@@ -23,8 +23,6 @@ class Form {
    * @returns {Promise<*>}
    */
   async flush(model) {
-    console.log('slufh')
-    console.log(this.data);
     if(Object.keys(this.data).length > 0) {
       if(this.original) {
         const dataKeys = Object.keys(this.data);
@@ -82,9 +80,6 @@ module.exports.run = async(rules, original, data, owner, options) => {
 	const errors = [];
   const userFormRole = defineFormRole(original, owner);
   const validatedDate = {};
-
-  console.log('run')
-  console.log(rules)
 
   for(let i=0; i<rules.length; i++) {
     // Check rights

@@ -94,6 +94,12 @@ module.exports.create = async(req, res, next) => {
   }
 };
 
+const sleep = (ms) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => resolve(), ms);
+  });
+}
+
 /**
  * @param req
  * @param res
@@ -121,15 +127,26 @@ module.exports.update = async(req, res, next) => {
       method: 'PATCH'
     });
 
+    const data = form.getData();
+    if(data.password && !data.password2) {
+      throw new ApiError(422, req.translation.get('generic.http.422'), {
+        password2: req.translation.get('user.user.password.required'),
+      });
+    }
+
+    if(data.password !== data.password2) {
+      throw new ApiError(422, req.translation.get('generic.http.422'), {
+        password2: req.translation.get('user.user.password.not_same'),
+      });
+    }
+
     if(form.isSuccess()) {
       const newUser = await form.flush(dbModel.users);
       res.status(200).send(userTransformer.transform(newUser, req.user));
     } else {
-      console.log(form.getErrors());
       res.status(422).send(form.getErrors());
     }
   } catch(error) {
-    console.log(error)
     if(error.name === 'SequelizeUniqueConstraintError') {
       next(new ApiError(409, 'This user already exists'));
     } else if(error.name === 'SequelizeValidationError') {

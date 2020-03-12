@@ -1,9 +1,14 @@
 {
+
+  "generic.user.not_found": "This user does not exists",
+  "generic.permissions.forbidden": "You are not granted for update this user",
+  "generic.upload.bad_mime_type": "Mime type is not supported",
+  "generic.http.422": "Entity is not valid",
+
   "authentication.fail": "Authentication failed",
   "authentication.user.not_exists": "This user does not exists",
   "authentication.user.email.not_exists": "This email does not exists",
   "authentication.user.password.not_validate": "Password failed",
-  "generic.user.not_found": "This user does not exists",
-  "generic.permissions.forbidden": "You are not granted for update this user",
-  "generic.upload.bad_mime_type": "Mime type is not supported"
+  "user.user.password.required": "Password is required",
+  "user.user.password.not_same": "Password is not the same"
 }

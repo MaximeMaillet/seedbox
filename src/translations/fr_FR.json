@@ -1,9 +1,13 @@
 {
+  "generic.user.not_found": "Cet utilisateur n'existe pas",
+  "generic.permissions.forbidden": "Vous n'avez pas les droits pour modifier cet utilisateur",
+  "generic.upload.bad_mime_type": "Le type MIME n'est pas supporté",
+  "generic.http.422": "Les données sont invalides",
+
   "authentication.fail": "Erreur dans l'authentification",
   "authentication.user.not_exists": "Cet utilisateur n'existe pas",
   "authentication.user.email.not_exists": "Cet e-mail n'existe pas",
   "authentication.user.password.not_validate": "Le mot de passe est incorrect",
-  "generic.user.not_found": "Cet utilisateur n'existe pas",
-  "generic.permissions.forbidden": "Vous n'avez pas les droits pour modifier cet utilisateur",
-  "generic.upload.bad_mime_type": "Le type MIME n'est pas supporté"
+  "user.user.password.required": "Le mot de passe est obligatoire",
+  "user.user.password.not_same": "Le mot de passe n'est pas identique"
 }

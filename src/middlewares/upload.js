@@ -29,7 +29,7 @@ const picture = multer({
     }
 
     cb(null, true)
-  }
+  },
 });
 
 module.exports.torrent = upload
