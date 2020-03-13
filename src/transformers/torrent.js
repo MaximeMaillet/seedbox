@@ -5,25 +5,25 @@ const userTransformer = require('./user');
 const {get} = require('lodash');
 
 module.exports.transform = (torrent, owner) => {
-	if(Array.isArray(torrent)) {
-		return torrent.map((torrent) => {
-			return transformTorrent(torrent, owner);
-		});
-	} else {
-		return transformTorrent(torrent, owner);
-	}
+  if(Array.isArray(torrent)) {
+    return torrent.map((torrent) => {
+      return transformTorrent(torrent, owner);
+    });
+  } else {
+    return transformTorrent(torrent, owner);
+  }
 };
 
 function transformTorrent(torrent, owner) {
-	const Torrent = {
+  const Torrent = {
     id: get(torrent, 'id'),
-		hash: get(torrent, 'hash', ''),
-		name: get(torrent,'name', ''),
-	};
+    hash: get(torrent, 'hash', ''),
+    name: get(torrent,'name', ''),
+  };
 
-	if(userService.isGranted(owner, USER_ROLES.ADMIN)) {
-		//TODO
-	}
+  if(userService.isGranted(owner, USER_ROLES.ADMIN)) {
+    //TODO
+  }
 
   if(userService.isGranted(owner, USER_ROLES.USER)) {
     Torrent.downloaded = get(torrent, 'downloaded', 0);
@@ -37,5 +37,5 @@ function transformTorrent(torrent, owner) {
     Torrent.files = fileTransformer.transform(get(torrent, 'files', []), owner);
   }
 
-	return Torrent;
+  return Torrent;
 }

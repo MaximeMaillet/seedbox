@@ -2,6 +2,9 @@ require('dotenv').config();
 
 module.exports.handle = async(err, req, res, next) => {
 
+  console.log('[Error-handler]');
+  console.log(err);
+
   let statusCode = err.statusCode || 400,
     body = {message: err.message},
     type = 'json';

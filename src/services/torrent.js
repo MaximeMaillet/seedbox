@@ -2,6 +2,9 @@ const dbModel = require('../models');
 const axios = require('axios');
 const fs = require('fs');
 const FormData = require('form-data');
+const dTorrent = require('dtorrent');
+const userService = require('./user');
+const {USER_ROLES} = require('../class/Roles');
 
 /**
  * @param user
@@ -102,6 +105,64 @@ module.exports.sendFileToServer = async(server, file) => {
     formData,
     { headers: formData.getHeaders() }
   );
+};
+
+/**
+ * @param user
+ * @param server
+ * @param torrents
+ * @returns {Promise<Array>}
+ */
+module.exports.handle = async(user, server, torrents) => {
+  const torrentManager = dTorrent.manager();
+  const files = [];
+
+  for (let i = 0; i < torrents.length; i++) {
+    const t = await dbModel.sequelize.transaction();
+    let currentFile = {
+      name: torrents[i].name,
+    };
+
+    try {
+      const torrentMetaData = torrentManager.extractTorrentFile(torrents[i].path);
+      if(!userService.isGranted(user, USER_ROLES.ADMIN) && user.space < torrentMetaData.length) {
+        throw new Error('You don\'t have any space');
+      }
+
+      await module.exports.add(
+        user,
+        {
+          hash: torrentMetaData.hash,
+          name: torrentMetaData.name,
+          path: torrents[i].path,
+          user_id: user.id,
+          downloaded: 0,
+          uploaded: 0,
+          length: torrentMetaData.length,
+          server: server.name,
+          active: false,
+        },
+        {transaction: t}
+      );
+      await module.exports.sendFileToServer(server, torrents[i]);
+      user.space -= torrentMetaData.length;
+      await user.save({transaction: t});
+      t.commit();
+      currentFile.send = true;
+    } catch(e) {
+      t.rollback();
+      currentFile.send = false;
+      currentFile.error = e;
+      currentFile.message = e.message;
+      if(e.name === 'SequelizeUniqueConstraintError') {
+        currentFile.message = 'This file already exists';
+      }
+    }
+
+    files.push(currentFile);
+  }
+
+  return files;
 };
 
 // /**

@@ -98,53 +98,15 @@ module.exports.create = async(req, res, next) => {
     const {server} = req.body;
 
     const _server = serverService.get(server);
-    const torrentManager = dTorrent.manager();
-    const files = [];
-
-    for (let i = 0; i < torrents.length; i++) {
-      const t = await dbModel.sequelize.transaction();
-      let currentFile = {
-        name: torrents[i].name,
-      };
-
-      try {
-        const torrentMetaData = torrentManager.extractTorrentFile(torrents[i].path);
-        if(!userService.isGranted(req.user, USER_ROLES.ADMIN) && req.user.space < torrentMetaData.length) {
-          throw new Error('You don\'t have any space');
-        }
-
-        await torrentService.add(
-          req.user,
-          {
-            hash: torrentMetaData.hash,
-            name: torrentMetaData.name,
-            path: torrents[i].path,
-            user_id: req.user.id,
-            downloaded: 0,
-            uploaded: 0,
-            length: torrentMetaData.length,
-            server: _server.name,
-            active: false,
-          },
-          {transaction: t}
-        );
-        await torrentService.sendFileToServer(_server, torrents[i]);
-        req.user.space -= torrentMetaData.length;
-        await req.user.save({transaction: t});
-        t.commit();
-        currentFile.send = true;
-      } catch(e) {
-        t.rollback();
-        currentFile.send = false;
-        currentFile.message = e.message;
-        currentFile.error = e;
-      }
-
-      files.push(currentFile);
+    if(!_server) {
+      throw new ApiError(404, 'This server does not exists');
     }
 
-    if(files.filter((f) => !f.send).length > 0) {
-      throw new ApiError(422, 'Upload failed', new Error(JSON.stringify(files)));
+    const files = await torrentService.handle(req.user, _server, torrents);
+    const errorFiles = files.filter((f) => !f.send);
+
+    if(errorFiles.length > 0) {
+      throw new ApiError(422, 'Upload failed', {torrents: errorFiles.map((e) => e.message).join(',')}, new Error(JSON.stringify(files)));
     }
 
     res
@@ -262,7 +224,7 @@ module.exports.remove = async(req, res, next) => {
     const {torrentId, hash} = req.params;
 
     const torrent = await dbModel.torrents.findOne({
-      where: torrentId ? {id: torrentId} : {hash}
+      where: torrentId ? {id: parseInt(torrentId)} : {hash}
     });
 
     if(!torrent) {
@@ -276,6 +238,35 @@ module.exports.remove = async(req, res, next) => {
     res.send({
       message: 'success'
     });
+  } catch(e) {
+    next(e);
+  }
+};
+
+/**
+ * @param req
+ * @param res
+ * @param next
+ * @returns {Promise<void>}
+ */
+module.exports.getForUser = async(req, res, next) => {
+  try {
+    const torrents = await dbModel.torrents.findAll({
+      where: {user_id: req.params.userId},
+      include: [
+        {model: dbModel.users},
+        {model: dbModel.files},
+      ],
+    });
+
+    if(!torrents) {
+      throw new ApiError(404, 'This torrent does not exists');
+    }
+
+    res
+      .status(200)
+      .send(torrentTransformer.transform(torrents, req.user))
+    ;
   } catch(e) {
     next(e);
   }

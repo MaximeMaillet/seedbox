@@ -10,6 +10,8 @@ module.exports.start = async() => {
     {
       onAdded: async(torrent) => {
         try {
+          console.log('on added');
+          console.log(torrent);
           const userBot = await botService.get();
           if(!userBot) {
             throw new Error('User bot does not exists');

@@ -20,7 +20,8 @@ function transformUser(user, owner) {
 		User.id = user.id;
 		User.email = user.email;
 		User.space = parseInt((user.space / (1024*1024*1024)).toFixed(4));
-		User.roles = userService.getRoleString(user);
+		User.roles = user.roles;
+		User.roles_str = userService.getRoleString(user);
 		User.picture = user.picture ? `${process.env.API_URL}/static/profile/${user.id}/${user.picture}` : null;
 	}
 

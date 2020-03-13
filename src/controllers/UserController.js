@@ -18,7 +18,7 @@ module.exports.getOne = async(req, res, next) => {
   try {
     const user = await dbModel.users.findOne({
       where : {
-        id: req.params.id,
+        id: req.params.userId,
         is_validated: true,
       }
     });
@@ -94,12 +94,6 @@ module.exports.create = async(req, res, next) => {
   }
 };
 
-const sleep = (ms) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => resolve(), ms);
-  });
-}
-
 /**
  * @param req
  * @param res
@@ -110,7 +104,7 @@ module.exports.update = async(req, res, next) => {
   try {
     const user = await dbModel.users.findOne({
       where : {
-        id: req.params.id,
+        id: req.params.userId,
         is_validated: true,
       }
     });
@@ -171,7 +165,7 @@ module.exports.delete = async(req, res, next) => {
   try {
     throw new ApiError(403, 'You have not permission');
 
-    const user = await dbModel.users.findOne({where: {id: req.params.id}});
+    const user = await dbModel.users.findOne({where: {id: req.params.userId}});
     if(!user) {
       throw new ApiError(404, 'This user does not exists');
     }
@@ -196,7 +190,7 @@ module.exports.delete = async(req, res, next) => {
 module.exports.picture = async(req, res, next) => {
   try {
     const picture = req.file;
-    const user = await dbModel.users.findOne({where: {id: req.params.id}});
+    const user = await dbModel.users.findOne({where: {id: req.params.userId}});
     if(!user) {
       throw new ApiError(404, req.translation.get('generic.user.not_found'));
     }

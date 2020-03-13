@@ -15,93 +15,6 @@ start()
     console.log(e);
   });
 
-
-//     router(app);
-//     router.enableDebug();
-//     router.route([
-//       {
-//         controllers: `${__dirname}/${environment.api.controllers}`,
-//         middlewares: `${__dirname}/${environment.api.middlewares}`,
-//         routes: {
-//           "/api": {
-//             [router.IMP.MIDDLEWARE]: [
-//               {
-//                 controllers: ['cors#apply'],
-//                 level: router.MIDDLEWARE.LEVEL.GLOBAL,
-//               },
-//               {
-//                 controllers: [bodyParser.json(), 'api#jwt', 'api#rewriteSession'],
-//                 inheritance: router.MIDDLEWARE.INHERITANCE.DESC,
-//               },
-//               {
-//                 controllers: ['errors#apply'],
-//                 inheritance: router.MIDDLEWARE.INHERITANCE.DESC,
-//                 level: router.MIDDLEWARE.LEVEL.ERROR,
-//               }
-//             ],
-//             "/authenticate": {
-//               "/login": {
-//                 post: "AuthenticateController#login"
-//               },
-//               "/confirm": {
-//                 get: "AuthenticateController#confirm"
-//               },
-//               "/logout": {
-//                 get: "AuthenticateController#logout"
-//               },
-//               "/subscribe": {
-//                 post: "AuthenticateController#subscribe"
-//               },
-//               "/forgot": {
-//                 post: "AuthenticateController#forgot"
-//               },
-//               "/password": {
-//                 post: "AuthenticateController#passwordPost",
-//               }
-//             },
-//             "/users": {
-//               get: "UserController#getUsers",
-//               "/:id": {
-//                 get: "UserController#getUser",
-//                 patch: "UserController#patchUser",
-//                 delete: "UserController#deleteUser"
-//               }
-//             },
-//             "/torrents": {
-//               [router.IMP.MIDDLEWARE]: {
-//                 controllers: ['upload#torrentFiles'],
-//                 method: router.METHOD.POST,
-//               },
-//               get: "TorrentController#getTorrents",
-//               post: "TorrentController#postTorrent",
-//               "/:id": {
-//                 get: "TorrentController#getTorrent",
-//                 delete: "TorrentController#remove",
-//                 "/download/:fileId/:name": {
-//                   get: "TorrentController#downloadFile"
-//                 },
-//                 "/pause": {
-//                   get: "TorrentController#pauseTorrent"
-//                 },
-//                 "/play": {
-//                   get: "TorrentController#playTorrent"
-//                 }
-//               }
-//             }
-//           }
-//         }
-//       }
-//     ]);
-//
-//     app.listen(process.env.API_PORT);
-//     logger.write({
-//       message: `API launched at port ${process.env.API_PORT}`
-//     });
-//   } catch(e) {
-//     logger.write(e, logger.LEVEL.ERROR);
-//   }
-// }
-
 async function start() {
   let isReady = false;
   do {
@@ -175,7 +88,7 @@ async function initApi() {
             '/users': {
               post: 'UserController#create',
               get: 'UserController#getAll',
-              '/:id': {
+              '/:userId': {
                 get: 'UserController#getOne',
                 patch: 'UserController#update',
                 delete: 'UserController#delete',
@@ -188,6 +101,9 @@ async function initApi() {
                     },
                   ],
                   patch: 'UserController#picture',
+                },
+                '/torrents': {
+                  get: 'TorrentController#getForUser'
                 }
               }
             },
